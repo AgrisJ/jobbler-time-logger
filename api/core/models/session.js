@@ -12,7 +12,7 @@ const sessionSchema = new Schema({
         maxLength: 32,
         required: true
     },
-    ttl: {
+    ttl: { // Time to live
         type: Number,
         required: true
     }
@@ -21,8 +21,3 @@ const sessionSchema = new Schema({
 const Session = mongoose.model('Session', sessionSchema);
 
 module.exports = Session;
-
-/*_id = sessionId
-userId
-refreshedAt = updatedAt
-token*/ // changes at every request execution
