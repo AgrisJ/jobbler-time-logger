@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const sessionSchema = new Schema({
+const schema = new Schema({
     userId: {
         type: Schema.Types.ObjectId,
         required: true,
@@ -12,12 +12,13 @@ const sessionSchema = new Schema({
         maxLength: 32,
         required: true
     },
-    ttl: { // Time to live
+    // Time to live, how long this token will be active
+    ttl: {
         type: Number,
         required: true
     }
 });
 
-const Session = mongoose.model('Session', sessionSchema);
+const Session = mongoose.model('Session', schema);
 
 module.exports = Session;
