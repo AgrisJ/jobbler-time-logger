@@ -14,9 +14,9 @@ const userSchema = new Schema({
             message: 'invalid email'
         }
     },
-    fullName: {type: String, required: true},
-    password: {type: String, required: true},
-    role: {type: String, enum: ['company', 'employee'], required:true},
+    fullName: {type: String, required: true, minLength: 5, maxLength: 255},
+    password: {type: String, required: true, minLength: 12, maxLength: 255},
+    role: {type: String, enum: ['company', 'employee'], required: true},
     deleted: {type: Boolean, default: false}
 });
 
