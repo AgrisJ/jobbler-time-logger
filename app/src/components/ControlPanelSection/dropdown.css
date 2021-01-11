@@ -1,0 +1,83 @@
+.menuClass {
+	font-family: 'Roboto Light';
+	font-weight: normal;
+	color: #5A5A5A;
+	font-size: 23px;
+	margin: 0.3em 0;
+	cursor: pointer;
+
+  max-height: 50vh;
+	width: max-content;
+}
+.monthMenuClass {
+	font-family: 'Expletus Sans';
+	font-weight: normal;
+	color: #4F4F4F;
+	font-size: 20px;
+	margin: 0.3em 0;
+
+  max-height: 50vh;
+	width: max-content;
+	cursor: pointer;
+}
+
+.controlClass {
+	border: unset;
+	padding: 0 26px 0px 0;
+	transition: all 0.3s ease-in-out;
+}
+
+.monthControlClass {
+	border: unset;
+	padding: 0 0px 0px 0;
+	transition: all 0.3s ease-in-out;
+}
+.arrow-closed {
+	  border-color: #828282 transparent transparent;
+		border-width: 6px 6px 0;
+    border-style: solid;
+    content: ' ';
+    display: block;
+    height: 0;
+    margin-top: -ceil(2.5);
+    position: absolute;
+    right: 10px;
+    top: 14px;
+    width: 0;
+}
+.arrow-open {
+	  border-color:  transparent transparent #828282;
+		border-width: 0 6px 6px;
+    border-style: solid;
+    content: ' ';
+    display: block;
+    height: 0;
+    margin-top: -ceil(2.5);
+    position: absolute;
+    right: 10px;
+    top: 14px;
+    width: 0;
+}
+
+.Dropdown-option {
+	font-family: 'Roboto Light';
+	font-weight: normal;
+	color: #5A5A5A;
+	font-size: 23px;
+	z-index: 100;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.Dropdown-option.is-selected  {
+	background-color: #d1dbdf;
+}
+
+.Dropdown-option:hover {
+    background-color: #d9f2fc;
+}
+.Dropdown-root { 
+	display: flex;
+  justify-content: center;
+}
