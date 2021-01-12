@@ -69,20 +69,6 @@ function ControlPanelSection({ projects, users, timecards }) {
 		setListCardCount({ listCardCount: listIds });
 	}, [totalTime, monthIndex, currentAddress, currentContractor, cardCount]);
 
-	// function selectName(src) {
-	// 	const exists = src => src !== undefined;
-	// 	const hasChildren = src => {
-	// 		let obj = {};
-	// 		if (src) {
-	// 			obj = { ...src.props };
-	// 			return obj.hasOwnProperty('children');
-	// 		}
-	// 		return null;
-	// 	};
-	// 	const sourceIsViable = src => exists(src) && hasChildren(src);
-
-	// 	return sourceIsViable(src) ? src.props.children[0] : null
-	// };
 	function selectSrc(src, path) {
 		const exists = src => src !== undefined;
 		const sourceIsViable = src => exists(src);
@@ -113,7 +99,7 @@ function ControlPanelSection({ projects, users, timecards }) {
 	const hours = time => Math.floor(time);
 	const minutes = time => ((time - hours(time)) * 60).toPrecision(2) / 1;
 	const formattedTime = time => (`${hours(time)}h ${minutes(time)}min`);
-	const contentListPerMode = mode => {
+	function contentListPerMode(mode) {
 		let result = [];
 		const countStyle = {
 			fontSize: '0.7em',
@@ -141,7 +127,7 @@ function ControlPanelSection({ projects, users, timecards }) {
 					const count = listCardCount[index];
 
 					if (index > 0)
-						return <ListItem item={address} count={count} />;
+						return <ListItem key={`${address}-${a.projectId}`} item={address} count={count} />;
 					else
 						return <></>;
 				}
@@ -152,7 +138,6 @@ function ControlPanelSection({ projects, users, timecards }) {
 				result = users.map((user, index) => {
 					const name = user.name;
 					const count = listCardCount[index];
-					// return name;
 					return <ListItem key={`${name}-${user.id}`} item={name} count={count} />;
 				}
 				);
