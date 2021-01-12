@@ -5,7 +5,6 @@
 /app/node_modules
 /node_modules
 /.pnp
-!/node_modules/react-dropdown
 
 # Development
 /api/dev
