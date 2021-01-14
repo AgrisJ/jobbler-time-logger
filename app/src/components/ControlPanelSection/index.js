@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import Dropdown from 'react-dropdown';
 import 'react-dropdown/style.css';
 import './dropdown.css'
@@ -31,30 +31,8 @@ function ControlPanelSection({ projects, users, timecards }) {
 	const firstMode = currentModeIndex === 0; // Project hours
 	const secondMode = currentModeIndex === 1; // Contractor hours
 
-	useEffect(() => {
-		const isLocalStored = name => {
-			if (localStorage.getItem(name) === 'undefined') return false;
-			if (localStorage.getItem(name)) return localStorage.getItem(name);
-			return false
-		};
-		isLocalStored('monthIndex') && setMonthIndex({ monthIndex: +isLocalStored('monthIndex') });
-		isLocalStored('currentAddress') && setCurrentAddress({ currentAddress: JSON.parse(isLocalStored('currentAddress')) });
-		isLocalStored('currentContractor') && setCurrentContractor({ currentContractor: isLocalStored('currentContractor') });
-		isLocalStored('currentModeIndex') && setCurrentModeIndex({ currentModeIndex: +isLocalStored('currentModeIndex') });
-	}, []);
-
-	const firstAddress = addresses[1] ? { address: addresses[1].address, projectId: addresses[1].projectId } : null;
-	const firstContractor = contractors[0];
-	const firstTimeLoadedAddress = firstAddress && currentAddress.address === '';
-	const firstTimeLoadedContractor = firstContractor && !currentContractor;
-	useEffect(() => { localStorage.setItem('monthIndex', monthIndex) }, [monthIndex]);
-	useEffect(() => { localStorage.setItem('currentModeIndex', currentModeIndex) }, [currentModeIndex]);
-	useEffect(() => { firstTimeLoadedAddress && setCurrentAddress({ currentAddress: firstAddress }) }, [firstAddress]);
-	useEffect(() => { firstTimeLoadedContractor && setCurrentContractor({ currentContractor: firstContractor }) }, [firstContractor]);
-	useEffect(() => { currentAddress && localStorage.setItem('currentAddress', JSON.stringify(currentAddress)) }, [currentAddress]);
-	useEffect(() => { currentContractor && localStorage.setItem('currentContractor', currentContractor) }, [currentContractor]);
-	useEffect(() => {
-		const listIds = idListPerMode(currentModeIndex)
+	const listIds =
+		useCallback(() => idListPerMode(currentModeIndex)
 			.map(id => {
 				let propForMode = null;
 				if (currentModeIndex === 0) propForMode = 'projectId';
@@ -64,10 +42,25 @@ function ControlPanelSection({ projects, users, timecards }) {
 					.filter(card => card[propForMode] === id)
 					.filter(card => card.jobDate.split('.')[1] - 1 === monthIndex).length
 			}
-			);
+			), [currentModeIndex, monthIndex, timecards]);
+	const firstAddress = useCallback(() => (addresses[1] ? { address: addresses[1].address, projectId: addresses[1].projectId } : null), [addresses]);
+	const firstContractor = contractors[0];
+	const firstTimeLoadedAddress = firstAddress() && currentAddress.address === '';
+	const firstTimeLoadedContractor = firstContractor && !currentContractor;
+	useEffect(() => {
+		isLocalStored('monthIndex') && setMonthIndex({ monthIndex: +isLocalStored('monthIndex') });
+		isLocalStored('currentAddress') && setCurrentAddress({ currentAddress: JSON.parse(isLocalStored('currentAddress')) });
+		isLocalStored('currentContractor') && setCurrentContractor({ currentContractor: isLocalStored('currentContractor') });
+		isLocalStored('currentModeIndex') && setCurrentModeIndex({ currentModeIndex: +isLocalStored('currentModeIndex') });
 
-		setListCardCount({ listCardCount: listIds });
-	}, [totalTime, monthIndex, currentAddress, currentContractor, cardCount]);
+	}, []);
+	useEffect(() => { localStorage.setItem('monthIndex', monthIndex) }, [monthIndex]);
+	useEffect(() => { localStorage.setItem('currentModeIndex', currentModeIndex) }, [currentModeIndex]);
+	useEffect(() => { firstTimeLoadedAddress && setCurrentAddress({ currentAddress: firstAddress() }) }, [firstAddress, firstTimeLoadedAddress]);
+	useEffect(() => { firstTimeLoadedContractor && setCurrentContractor({ currentContractor: firstContractor }) }, [firstContractor, firstTimeLoadedContractor]);
+	useEffect(() => { currentAddress && localStorage.setItem('currentAddress', JSON.stringify(currentAddress)) }, [currentAddress]);
+	useEffect(() => { currentContractor && localStorage.setItem('currentContractor', currentContractor) }, [currentContractor]);
+	useEffect(() => { setListCardCount({ listCardCount: listIds() }); }, [monthIndex, currentAddress, currentContractor, listIds]);
 
 	function selectSrc(src, path) {
 		const exists = src => src !== undefined;
@@ -99,6 +92,7 @@ function ControlPanelSection({ projects, users, timecards }) {
 	const hours = time => Math.floor(time);
 	const minutes = time => ((time - hours(time)) * 60).toPrecision(2) / 1;
 	const formattedTime = time => (`${hours(time)}h ${minutes(time)}min`);
+
 	function contentListPerMode(mode) {
 		let result = [];
 		const countStyle = {
@@ -174,6 +168,12 @@ function ControlPanelSection({ projects, users, timecards }) {
 		if (secondMode) return selectSrc(contractor(), 'item');
 	}
 
+	function isLocalStored(name) {
+		if (localStorage.getItem(name) === 'undefined') return false;
+		if (localStorage.getItem(name)) return localStorage.getItem(name);
+		return false
+	};
+
 	return (
 		<>
 			<ControlPanelContainer>
@@ -230,7 +230,6 @@ function ControlPanelSection({ projects, users, timecards }) {
 
 const mapStateToProps = state =>
 ({
-	pauseTime: state.entities.pauseTime,
 	projects: getProjectArray(state),
 	users: getUsersArray(state),
 	timecards: getTimecardArray(state)

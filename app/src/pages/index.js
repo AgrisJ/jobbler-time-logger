@@ -22,8 +22,7 @@ function Home() {
 
 const mapStateToProps = (state) =>
 ({
-	users: getUsersArray(state),
-	pauseTime: state.entities.pauseTime
+	users: getUsersArray(state)
 })
 
 
