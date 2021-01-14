@@ -116,7 +116,7 @@ function ControlPanelSection({ projects, users, timecards }) {
 			}>{children}</span>;
 		}
 		function ListItem({ item, count }) {
-			return <React.Fragment>{item} <Counter count={count}>{count}</Counter></React.Fragment>; //TODO the 'item' produces same key warning
+			return <React.Fragment>{item} <Counter count={count}>{count}</Counter></React.Fragment>;
 		}
 
 		switch (mode) {
@@ -240,62 +240,3 @@ const mapStateToProps = state =>
 // mapStateToProps takes state of the store and returns the part you are interested in:
 // the properties of this object will end up as props of our componennt
 export default connect(mapStateToProps)(ControlPanelSection);
-
-
-// export const projectsData = [
-// 	{
-// 		id: 1,
-// 		name: 'Elvi',
-// 		address: 'Kirkevej 28'
-// 	},
-// 	{
-// 		id: 2,
-// 		name: 'Danske Bank',
-// 		address: 'Gråbrødrestræde 10'
-// 	},
-// 	{
-// 		id: 3,
-// 		name: 'Lidl',
-// 		address: 'Klosterstræde 76'
-// 	},
-// 	{
-// 		id: 4,
-// 		name: 'Peter Nielsen',
-// 		address: 'Lille Kannikestræde 32'
-// 	},
-// 	{
-// 		id: 5,
-// 		name: 'Oskar Jensen',
-// 		address: 'Vestergade 145'
-// 	},
-// 	{
-// 		id: 6,
-// 		name: 'David Petersen',
-// 		address: 'Nytorv 53'
-// 	},
-// 	{
-// 		id: 7,
-// 		name: 'Jesper Nassar',
-// 		address: 'Skindergade 111'
-// 	},
-// 	{
-// 		id: 8,
-// 		name: 'Mc Donalds',
-// 		address: 'Vognmagergade 27'
-// 	},
-// 	{
-// 		id: 9,
-// 		name: 'David Petersencc',
-// 		address: 'Nytorv 5333'
-// 	},
-// 	{
-// 		id: 10,
-// 		name: 'Jesper Nassarrrr',
-// 		address: 'Skindergade 114441'
-// 	},
-// 	{
-// 		id: 11,
-// 		name: 'Mc Donaldsddd',
-// 		address: 'Vognmagergade 22227'
-// 	}
-// ];
