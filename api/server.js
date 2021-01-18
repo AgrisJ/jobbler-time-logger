@@ -93,9 +93,12 @@ db.once('open', () => {
             {method: 'delete', path: '/api/v1/admin/user'}
         ],
         company: [
-            {method: 'get', path: '/api/v1/users'} // ToDo: only companies own users
+            {method: 'get', path: '/api/v1/users'}, // ToDo: only companies own users
+            {method: 'post', path: '/api/v1/logout'}
         ],
-        employee: []
+        employee: [
+            {method: 'post', path: '/api/v1/logout'}
+        ]
     };
     
     // Internal server error handling
@@ -131,6 +134,12 @@ db.once('open', () => {
         // Get session and access token
         const session = req.header('session') || null;
         const token = req.header('token') || null;
+        
+        // Deny requests with no session or token
+        /*if (!session || !token) {
+            res.status(401).end();
+            return;
+        }*/
 
         // Get user data
         Session.findOne({session: session, token: token}, (error, result) => {        
@@ -138,25 +147,43 @@ db.once('open', () => {
             if (error) {res.status(404).end(); return;}
             if (!result) {res.status(401).end(); return;}
             
+            // Remember the session for later use
+            req._session = session;
+            
             // Get user role
-            User.findOne({_id: result._id}, (error, result) => {
+            User.findOne({_id: result.userId}, (error, result) => {
                 // Check for errors & if a result was returned
                 if (error) {res.status(404).end(); return;}
                 if (!result) {res.status(401).end(); return;}
-            
+
                 // Remember user data for further use in the endpoint that was called
                 req._user = result;
+                
+                // Remember for forbidden response
+                let authorized = false;
             
                 // Look for a matching route and request method
                 for (let i = 0; i < routeRoles[result.role].length; i++) {
-                    if (routeRoles[result.role].method === req.method &&  req.originalUrl.includes(routeRoles[result.role].path)) {
+                    //
+                    // Req.method is in uppser case
+                    // 
+                    if (routeRoles[result.role][i].method === req.method.toLowerCase() &&  req.originalUrl.includes(routeRoles[result.role][i].path)) {
                         // Generate a new token
                         const newToken = api.utils.randomString(64);
                         
+                        // Prevend forbidden resonse
+                        authorized = true;
+                        
                         // Save the new token in the database
-                        User.updateOne({session: session, token: token}, {token: newToken}, (error, result) => {
+                        Session.updateOne({session: session, token: token}, {token: newToken}, (error, result) => {
                             // Check for errors
                             if (error) {res.status(404).end(); return;}
+                            
+                            // Check if session was modified
+                            if (result.nModified !== 1) {
+                                res.status(403).end();
+                                return;
+                            }
                             
                             // Remember the newly made token
                             req._newToken = newToken;
@@ -168,19 +195,18 @@ db.once('open', () => {
                 }
                 
                 // Respond
-                res.status(403).end();
-                return;
+                if (!authorized) {
+                    res.status(403).end();
+                    return;
+                }
             });
         });
-        
-        // Deny requests that don't have priviledges specified (?)
-        //res.status(403).end();
-        //return;
     });
 
     // Import general routes
     [   
         'postLogin',
+        'postLogout',
         'getUsers'
     ].map((route) => {
         require('./core/routes/' + route + '.js').call(null, server)
