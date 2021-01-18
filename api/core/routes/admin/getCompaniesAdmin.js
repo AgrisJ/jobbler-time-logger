@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
-const User = require('./../../models/user');
+const Company = require('./../../models/company');
 
-function getUsersAdmin(server) {
-    server.get('/api/v1/admin/users', (req, res) => {        
+function getCompaniesAdmin(server) {
+    server.get('/api/v1/admin/companies', (req, res) => {        
         // Insert data into the database
-        User.find({}, (error, results) => {
+        Company.find({}, (error, results) => {
             // Check for errors
             if (error) {
                 api.utils.log(req.path + ', error: ' + error);
@@ -19,9 +19,9 @@ function getUsersAdmin(server) {
             }
             
             // Respond
-            res.status(200).send({users: results});
+            res.status(200).send({companies: results});
         });
     });
 }
 
-module.exports = getUsersAdmin;
+module.exports = getCompaniesAdmin;

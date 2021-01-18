@@ -17,13 +17,20 @@ global.db = mongoose.connection;
 process.on('uncaughtException', function (exception) {
     console.log('\x1b[31mUnexpected exception\x1b[0m');
     api.utils.log(exception);
-    process.exit(1);
+    //process.exit(1);
+});
+
+// Log unexpected promise rejections
+process.on('unhandledRejection', function(reason, p){
+    console.log('\x1b[31mUnhandled rejection\x1b[0m');
+    api.utils.log(exception);
+    //process.exit(1);
 });
 
 // Log database errors
 db.on('error', (error) => {
     api.utils.log(error);
-    process.exit(1);
+    //process.exit(1);
 });
 
 // Prevent immediate server exit
@@ -74,16 +81,37 @@ db.once('open', () => {
     server.use(express.urlencoded({extended: true}));
 
     // Route roles
-    const routes = {
-        admin: [],
-        company: [],
-        user: []
+    const routeRoles = {
+        admin: [
+            {method: 'get', path: '/api/v1/admin/companies'},
+            {method: 'get', path: '/api/v1/admin/users'},
+            {method: 'post', path: '/api/v1/admin/company'},
+            {method: 'post', path: '/api/v1/admin/user'},
+            {method: 'patch', path: '/api/v1/admin/company'},
+            {method: 'patch', path: '/api/v1/admin/user'},
+            {method: 'delete', path: '/api/v1/admin/company'},
+            {method: 'delete', path: '/api/v1/admin/user'}
+        ],
+        company: [
+            {method: 'get', path: '/api/v1/users'} // ToDo: only companies own users
+        ],
+        employee: []
     };
+    
+    // Internal server error handling
+    /*server.use((err, req, res, next) => {
+        if (!error) {
+            return next();
+        }
+    
+        api.utils.log(err.stack);
+        res.status(500).end();
+    });*/
 
     // Authorization
-    server.use((req, res, next) => {    
+    server.use((req, res, next) => {
         // Allow access to all routes with admin key
-        if (req.header.adminKey && req.header.adminKey === config.API_ADMIN_KEY) {
+        if (req.header('adminKey') && req.header('adminKey') === config.API_ADMIN_KEY) {
             // If safe mode is enabled, return a 404
             if (config.API_SAFE_MODE) {
                 res.status(404).end();
@@ -92,45 +120,81 @@ db.once('open', () => {
 
             return next();
         }
+        
+        // Allow login route without api key or session & token
+        if (req.originalUrl === '/api/v1/login') {
+            return next();
+            console.log('runs');
+        }
 
         // Handle routes with session and token access
         // Get session and access token
-        const session = req.header.session || null;
-        const token = req.header.token || null;
+        const session = req.header('session') || null;
+        const token = req.header('token') || null;
 
         // Get user data
-        /*Session.findOne({_id: req.session, token: req.token}, (error, result) => {
-            // req._user = result ?
+        Session.findOne({session: session, token: token}, (error, result) => {        
+            // Check for errors & if a result was returned
+            if (error) {res.status(404).end(); return;}
+            if (!result) {res.status(401).end(); return;}
             
-            // Check if user role allows accessing the route
-            if (!routes[result.role].includes(req.originalUrl)) {
+            // Get user role
+            User.findOne({_id: result._id}, (error, result) => {
+                // Check for errors & if a result was returned
+                if (error) {res.status(404).end(); return;}
+                if (!result) {res.status(401).end(); return;}
+            
+                // Remember user data for further use in the endpoint that was called
+                req._user = result;
+            
+                // Look for a matching route and request method
+                for (let i = 0; i < routeRoles[result.role].length; i++) {
+                    if (routeRoles[result.role].method === req.method &&  req.originalUrl.includes(routeRoles[result.role].path)) {
+                        // Generate a new token
+                        const newToken = api.utils.randomString(64);
+                        
+                        // Save the new token in the database
+                        User.updateOne({session: session, token: token}, {token: newToken}, (error, result) => {
+                            // Check for errors
+                            if (error) {res.status(404).end(); return;}
+                            
+                            // Remember the newly made token
+                            req._newToken = newToken;
+                        
+                            // Proceed to request handling in the endpoint that was called
+                            return next();
+                        });
+                    }
+                }
+                
+                // Respond
                 res.status(403).end();
                 return;
-            }
-            
-            // Get company data
-            Session.findOne({_id: req.session, token: req.token}, (error, result) => {
-                // req._company = result ?
-                return next();
             });
-        });*/
+        });
         
-        // Deny requests that don't have priviledges specified
+        // Deny requests that don't have priviledges specified (?)
+        //res.status(403).end();
+        //return;
     });
-    
-    // Test route
-    
 
     // Import general routes
     [   
-        'postLogin'
+        'postLogin',
+        'getUsers'
     ].map((route) => {
         require('./core/routes/' + route + '.js').call(null, server)
     });
     
     // Import admin routes
     [   
+        'postCompanyAdmin',
         'postUserAdmin',
+        'patchCompanyAdmin',
+        'patchUserAdmin',
+        'getCompaniesAdmin',
+        'getUsersAdmin',
+        'deleteCompanyAdmin',
         'deleteUserAdmin'
     ].map((route) => {
         require('./core/routes/admin/' + route + '.js').call(null, server)

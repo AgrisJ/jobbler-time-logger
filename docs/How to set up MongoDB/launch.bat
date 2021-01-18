@@ -1,0 +1,1 @@
+@start "" "%~dp0mongod.exe" --dbpath "data"

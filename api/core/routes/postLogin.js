@@ -1,29 +1,41 @@
 const mongoose = require('mongoose');
 const Session = require('./../models/session');
+const User = require('./../models/user');
 
 function postLogin(server) {
     server.post('/api/v1/login', (req, res) => {
-        /*User.findOne({email: req.body.email, password: req.body.password}, (error, result) => {
+        User.findOne({email: req.body.email, password: api.utils.passwordHash(req.body.password)}, (error, result) => {
             if (error) {
                 api.utils.log(req.path + ' , error: ' + error);
                 res.status(500).end();
                 return;
             }
             
-            if (results.length !== 1) {
+            if (!result) {
                 res.status(404).end();
                 return;
             }
             
+            // Generate a session id and a token
+            const session = api.utils.randomString(64);
+            const token = api.utils.randomString(64);
+            const ttl = (req.body.keepMeLoggedIn ? 60 * 60 * 24 * 365 : 3600);
+            
+            // ToDo:
+            // Clean up old sessions upon login
+            
             // Create a new session
-            Session.create({
+            Session.create({userId: result._id, session: session, token: token, ttl: ttl}, (error, result) => {
+                if (error) {
+                    api.utils.log(req.path + ' , error: ' + error);
+                    res.status(500).end();
+                    return;
+                }
                 
-            }, () => {
-            
+                // Respond
+                res.status(200).send({session: session, token: token, ttl: ttl});
             });
-            
-            res.status(200).send(200);
-        });*/
+        });
     });
 }
 

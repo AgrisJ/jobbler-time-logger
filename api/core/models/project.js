@@ -7,6 +7,8 @@ const schema = new Schema({
     address: {type: String, required: true, minLength: 5, maxLength: 255},
     active: {type: Boolean, default: false},
     deleted: {type: Boolean, default: false}
+}, {
+    timestamps: true
 });
 
 const Project = mongoose.model('Project', schema);

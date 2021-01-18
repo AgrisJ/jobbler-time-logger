@@ -6,6 +6,8 @@ const schema = new Schema({
     projectId: {type: Schema.Types.ObjectId, required: true},
     date: {type: Date, required: true},
     hours: {type: Number, required: true, min:0}
+}, {
+    timestamps: true
 });
 
 const Timecard = mongoose.model('Timecard', schema);

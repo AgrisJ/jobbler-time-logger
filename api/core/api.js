@@ -8,7 +8,7 @@ api = {
     utils: {
         log: require('./utils/log'),
         securityLog: require('./utils/securityLog'),
-        hashPassword: require('./utils/hashPassword'),
+        passwordHash: require('./utils/passwordHash'),
         randomString: require('./utils/randomString')
     },
     validators: {

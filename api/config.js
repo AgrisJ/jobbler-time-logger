@@ -9,8 +9,9 @@ const config = {
     API_ADMIN_KEY: 'ierthgerwr8350hdadjfskrj219ogdf239ahr26394rauyrqwhr254djhy46324iajkoqw0bg',
     DB_ADDRESS_DEV: 'mongodb://127.0.0.1:27017/jobbler-dev',
     DB_ADDRESS_PROD: 'mongodb://127.0.0.1:27017/jobbler-prod',
-    DB_ADDRESS_TESTS: 'mongodb://127.0.0.1:27017/jobbler-tests'
+    DB_ADDRESS_TESTS: 'mongodb://127.0.0.1:27017/jobbler-tests',
     //DB_ADDRESS_PROD: 'mongodb://jobbler:password@localhost:27017?authMechanism=DEFAULT&authSource=db&tls=true'
+    API_ADMIN_KEY: 'dhdfkghik679df53qwzwzxvfymnmnmhoptseqwey78vvsshhuuttggjjryvndfydfgujfgtyetfggdcj',
 }
 
 module.exports = config;

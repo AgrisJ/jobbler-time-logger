@@ -13,6 +13,8 @@ const schema = new Schema({
         }),
         required: true
     }
+}, {
+    timestamps: true
 });
 
 const Company = mongoose.model('Company', schema);

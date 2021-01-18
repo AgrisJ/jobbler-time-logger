@@ -1,0 +1,7 @@
+1. Download MongoDB Community Edition *.zip from https://www.mongodb.com/try/download/community
+2. Unpack somewhere and create a launch.bat in the MongoDB folder
+3. Edit the launch.bat to contain the following: @start "" "%~dp0mongod.exe" --dbpath "data"
+   (the launc bat command simply sets the data directory to "mongodb folder/data")
+4. Create a shortcut to launch.bat for convenience if needed (Optional)
+5. Change icon to MongoDB icon if you want it to look pretty in the shortcut properties (Optional)
+6. Launch launch.bat to start MongoDB
