@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react'
 import './App.css';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import GlobalFonts from './fonts/fonts';
 import Home from './pages/index';
 import { connect } from 'react-redux';
 import { projectAdded, getProjectArray } from './Store/slices/projects';
 import { userAdded, getUsersArray } from './Store/slices/users';
 import { getTimecardArray, timecardAdded } from './Store/slices/timecards';
+import PrintReportPage from './pages/printReport';
 
 function App({ dispatch }) {
 
@@ -66,7 +67,10 @@ function App({ dispatch }) {
 	return (
 		<Router>
 			<GlobalFonts />
-			<Home />
+			<Switch>
+				<Route path="/" component={Home} exact />
+				<Route path="/print" component={PrintReportPage} exact />
+			</Switch>
 		</Router>
 	);
 }

@@ -10,6 +10,7 @@ export const ContentListItem = styled.div`
 	flex-direction: column;
   padding: 0.6em;
 	width: -webkit-fill-available;
+	width: -moz-available;
 `
 
 export const ListEditIcon = styled(FaPen)`
@@ -32,7 +33,7 @@ export const ListPersonName = styled.div`
 	font-family: 'Expletus Sans';
 	font-weight: normal;
 	font-size: 22px;
-	color: #828282;;
+	color: #828282;
 `
 export const ListTime = styled.div`
 	font-family: 'Roboto Light';

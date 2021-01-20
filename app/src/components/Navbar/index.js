@@ -32,7 +32,7 @@ const Navbar = ({ toggle }) => {
 						</NavItem>
 					</NavMenu> */}
 					<NavBtn>
-						<NavBtnLink to="/print">Print Report</NavBtnLink>
+						<NavBtnLink to="/print">Print Mode</NavBtnLink>
 					</NavBtn>
 				</NavbarContainer>
 			</Nav>

@@ -4,7 +4,7 @@ import { AiFillCaretRight, AiFillCaretLeft } from 'react-icons/ai';
 export const ControlPanelContainer = styled.div`
 	  background: #fff;
     display: flex;
-    height: 800px;
+    /* height: 800px; */
     position: relative;
     z-index: 1;
     flex-direction: column;

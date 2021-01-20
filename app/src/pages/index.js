@@ -4,6 +4,7 @@ import Navbar from './../components/Navbar';
 import ControlPanelSection from '../components/ControlPanelSection';
 import { connect } from 'react-redux';
 import { getUsersArray } from './../Store/slices/users';
+import ContentSection from './../components/ContentSection/index';
 
 function Home() {
 	const [{ isOpen }, setIsOpen] = useState({ isOpen: false });
@@ -16,6 +17,7 @@ function Home() {
 			<Sidebar isOpen={isOpen} toggle={toggle} />
 			<Navbar toggle={toggle} />
 			<ControlPanelSection />
+			<ContentSection />
 		</>
 	)
 }
