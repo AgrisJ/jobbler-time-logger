@@ -13,7 +13,7 @@ function Sidebar({ isOpen, toggle }) {
 					<SidebarLink to="contact" onClick={toggle}>Contact</SidebarLink>
 				</SidebarMenu>
 				<SideBtnWrap>
-					<SidebarRoute to='/print' onClick={toggle}>Print Report</SidebarRoute>
+					<SidebarRoute to='/print' onClick={toggle}>Print Mode</SidebarRoute>
 				</SideBtnWrap>
 			</SidebarWrapper>
 		</SidebarContainer>

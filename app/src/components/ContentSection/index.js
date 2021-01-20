@@ -1,45 +1,44 @@
 import React, { useEffect, useState } from 'react'
 import { ContentListItem, ListEditIcon, ListDate, ListPersonName, ListTime } from './ContentElements';
 import { connect } from 'react-redux';
-import { getProjectArray, projectAdded } from '../../Store/slices/projects';
+import { getProjectArray } from '../../Store/slices/projects';
 import { getUsersArray } from '../../Store/slices/users';
 import { getTimecardArray } from '../../Store/slices/timecards';
+import { getMonthIndex } from '../../Store/slices/monthIndex';
+import { getcurrentAddress } from '../../Store/slices/currentAddress';
+import { getcurrentContractor } from '../../Store/slices/currentContractor';
+import { getcurrentModeIndex } from '../../Store/slices/currentModeIndex';
+import { totalTimeChanged } from '../../Store/slices/totalTime';
+import { cardCountChanged } from '../../Store/slices/cardCount';
 
 const ContentSection = (
 	{
-		projectId,
-		setTotalTime,
-		setCardCount,
-		selectedMonth,
-		selectedContractor,
 		currentModeIndex,
 		dispatch,
 		projects,
 		timeCards,
+		currentAddress,
+		monthIndex,
+		currentContractor,
 		users
 	}
 ) => {
-
 	const [{ savedTime }, setSavedTime] = useState({ savedTime: 0 })
-	// const [{ cardCount }, setCardCount] = useState({ cardCount: 0 })
+
+	const projectId = currentAddress.projectId;
+	const selectedMonth = monthIndex;
+	const selectedContractor = currentContractor;
 	const firstMode = currentModeIndex === 0; // Project hours
 	const secondMode = currentModeIndex === 1; // Contractor hours
 
 	useEffect(() => {
-		setTotalTime({ totalTime: savedTime })
-	}, [savedTime, projectId, setTotalTime, selectedMonth, currentModeIndex, selectedContractor])
+		dispatch(totalTimeChanged(savedTime))
+	}, [savedTime, projectId, /* setTotalTime, */ selectedMonth, currentModeIndex, selectedContractor])
 
 	useEffect(() => {
 		setSavedTime({ savedTime: calcTime() });
 		timeWorked();
 	}, [projectId, currentModeIndex, selectedContractor, selectedMonth])
-
-
-	const hours = time => Math.floor(time);
-	const minutes = time => ((time - hours(time)) * 60).toPrecision(2) / 1;
-	const colorAlternator = id => id % 2 === 0 ? '0.1' : '0.2';
-	const listColor = id => (`rgb(0 0 0 / ${colorAlternator(id)})`);
-	const timeFormat = time => (`${hours(time)}h ${minutes(time)}min`);
 
 	function timeWorked() {
 		let totalTime = [0];
@@ -71,8 +70,8 @@ const ContentSection = (
 				return totalTime;
 			})[0] || [0]
 
-		if (secondMode) setCardCount({ cardCount: totalTime.length - 1 });
-		if (firstMode) setCardCount({ cardCount: cardsCounted });
+		if (secondMode) dispatch(cardCountChanged(totalTime.length - 1));
+		if (firstMode) dispatch(cardCountChanged(cardsCounted));
 
 		return totalTime;
 	};
@@ -127,7 +126,11 @@ const mapStateToProps = (state) =>
 ({
 	projects: getProjectArray(state),
 	users: getUsersArray(state),
-	timeCards: getTimecardArray(state)
+	timeCards: getTimecardArray(state),
+	monthIndex: getMonthIndex(state),
+	currentAddress: getcurrentAddress(state),
+	currentContractor: getcurrentContractor(state),
+	currentModeIndex: getcurrentModeIndex(state)
 })
 
 
@@ -135,3 +138,10 @@ const mapStateToProps = (state) =>
 // the properties of this object will end up as props of our componennt
 export default connect(mapStateToProps)(ContentSection);
 
+
+
+function hours(time) { return Math.floor(time) };
+function minutes(time) { return ((time - hours(time)) * 60).toPrecision(2) / 1 };
+function colorAlternator(id) { return id % 2 == (0) ? '0.1' : '0.2' };
+export function listColor(id) { return (`rgb(0 0 0 / ${colorAlternator(id)})`) };
+export function timeFormat(time) { return (`${hours(time)}h ${minutes(time)}min`) };

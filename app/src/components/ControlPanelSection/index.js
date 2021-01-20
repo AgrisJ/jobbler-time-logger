@@ -1,15 +1,21 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import Dropdown from 'react-dropdown';
 import 'react-dropdown/style.css';
-import './dropdown.css'
+import '../../Styles/dropdown.css'
 import { ControlPanelContainer, ControlPanelContent, ControlPanelH1, ControlPanelMonth, TotalDisplay, TotalDisplayWrapper, TotalTime, BackwardCaret, ForwardCaret, CardCounter } from './ControlPanelElements'
 import ContentSection from '../ContentSection';
 import { getProjectArray } from '../../Store/slices/projects';
 import { connect } from 'react-redux';
 import { getUsersArray } from '../../Store/slices/users';
 import { getTimecardArray } from './../../Store/slices/timecards';
+import { getMonthIndex, monthIndexChanged } from '../../Store/slices/monthIndex';
+import { currentAddressChanged, getcurrentAddress } from '../../Store/slices/currentAddress';
+import { currentContractorChanged, getcurrentContractor } from '../../Store/slices/currentContractor';
+import { currentModeIndexChanged, getcurrentModeIndex } from '../../Store/slices/currentModeIndex';
+import { gettotalTime } from '../../Store/slices/totalTime';
+import { getcardCount } from '../../Store/slices/cardCount';
 
-function ControlPanelSection({ projects, users, timecards }) {
+function ControlPanelSection({ projects, users, timecards, monthIndex, currentAddress, currentContractor, currentModeIndex, totalTime, cardCount, dispatch }) {
 	const addresses = projects.map(project => {
 		return { address: project.address, projectId: project.id }
 	}
@@ -19,43 +25,16 @@ function ControlPanelSection({ projects, users, timecards }) {
 	const monthNow = new Date().getMonth();
 	const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 	const dataModes = ['Project hours', 'Contractor Hours'];
-
-	const [{ monthIndex }, setMonthIndex] = useState({ monthIndex: monthNow || 0 });
-	const [{ currentAddress }, setCurrentAddress] = useState({ currentAddress: { address: addresses[0].address, projectId: addresses[0].projectId } });
-	const [{ currentContractor }, setCurrentContractor] = useState({ currentContractor: contractors[0] });
-	const [{ currentModeIndex }, setCurrentModeIndex] = useState({ currentModeIndex: 0 });
-	const [{ totalTime }, setTotalTime] = useState({ totalTime: 0 });
-	const [{ cardCount }, setCardCount] = useState({ cardCount: 0 });
+	const IS_PRINT_MODE = ['print'].some(item => window.location.href.indexOf(item) !== -1) ? true : false;
 	const [{ listCardCount }, setListCardCount] = useState({ listCardCount: [] });
 
 	const firstMode = currentModeIndex === 0; // Project hours
 	const secondMode = currentModeIndex === 1; // Contractor hours
 
-	useEffect(() => {
-		const isLocalStored = name => {
-			if (localStorage.getItem(name) === 'undefined') return false;
-			if (localStorage.getItem(name)) return localStorage.getItem(name);
-			return false
-		};
-		isLocalStored('monthIndex') && setMonthIndex({ monthIndex: +isLocalStored('monthIndex') });
-		isLocalStored('currentAddress') && setCurrentAddress({ currentAddress: JSON.parse(isLocalStored('currentAddress')) });
-		isLocalStored('currentContractor') && setCurrentContractor({ currentContractor: isLocalStored('currentContractor') });
-		isLocalStored('currentModeIndex') && setCurrentModeIndex({ currentModeIndex: +isLocalStored('currentModeIndex') });
-	}, []);
-
-	const firstAddress = addresses[1] ? { address: addresses[1].address, projectId: addresses[1].projectId } : null;
-	const firstContractor = contractors[0];
-	const firstTimeLoadedAddress = firstAddress && currentAddress.address === '';
-	const firstTimeLoadedContractor = firstContractor && !currentContractor;
-	useEffect(() => { localStorage.setItem('monthIndex', monthIndex) }, [monthIndex]);
-	useEffect(() => { localStorage.setItem('currentModeIndex', currentModeIndex) }, [currentModeIndex]);
-	useEffect(() => { firstTimeLoadedAddress && setCurrentAddress({ currentAddress: firstAddress }) }, [firstAddress]);
-	useEffect(() => { firstTimeLoadedContractor && setCurrentContractor({ currentContractor: firstContractor }) }, [firstContractor]);
-	useEffect(() => { currentAddress && localStorage.setItem('currentAddress', JSON.stringify(currentAddress)) }, [currentAddress]);
-	useEffect(() => { currentContractor && localStorage.setItem('currentContractor', currentContractor) }, [currentContractor]);
-	useEffect(() => {
-		const listIds = idListPerMode(currentModeIndex)
+	const listIds =
+		useCallback(() => idListPerMode(currentModeIndex)
 			.map(id => {
+
 				let propForMode = null;
 				if (currentModeIndex === 0) propForMode = 'projectId';
 				if (currentModeIndex === 1) propForMode = 'userId';
@@ -64,10 +43,28 @@ function ControlPanelSection({ projects, users, timecards }) {
 					.filter(card => card[propForMode] === id)
 					.filter(card => card.jobDate.split('.')[1] - 1 === monthIndex).length
 			}
-			);
+			), [currentModeIndex, monthIndex, timecards]);
+	const firstAddress = useCallback(() => (addresses[1] ? { address: addresses[1].address, projectId: addresses[1].projectId } : null), [addresses]);
+	const firstContractor = contractors[0];
+	const firstTimeLoadedAddress = firstAddress() && currentAddress.address === '';
+	const firstTimeLoadedContractor = firstContractor && !currentContractor;
+	useEffect(() => {
+		dispatch(monthIndexChanged({ monthIndex: monthNow || 0 }));
+		dispatch(currentAddressChanged({ address: addresses[0].address, projectId: addresses[0].projectId }));
+		isLocalStored('monthIndex') && dispatch(monthIndexChanged({ monthIndex: +isLocalStored('monthIndex') }));
+		isLocalStored('currentAddress') && dispatch(currentAddressChanged(JSON.parse(isLocalStored('currentAddress')))); //TODO check if localStorage has the correct format stored and then dispatched to redux
+		isLocalStored('currentContractor') && dispatch(currentContractorChanged(isLocalStored('currentContractor')));
+		isLocalStored('currentModeIndex') && dispatch(currentModeIndexChanged(+isLocalStored('currentModeIndex')));
 
-		setListCardCount({ listCardCount: listIds });
-	}, [totalTime, monthIndex, currentAddress, currentContractor, cardCount]);
+
+	}, []);
+	useEffect(() => { localStorage.setItem('monthIndex', monthIndex) }, [monthIndex]);
+	useEffect(() => { localStorage.setItem('currentModeIndex', currentModeIndex) }, [currentModeIndex]);
+	useEffect(() => { firstTimeLoadedAddress && dispatch(currentAddressChanged(firstAddress())) }, [firstAddress, firstTimeLoadedAddress]);
+	useEffect(() => { firstTimeLoadedContractor && dispatch(currentContractorChanged(firstContractor)) }, [firstContractor, firstTimeLoadedContractor]);
+	useEffect(() => { currentAddress && localStorage.setItem('currentAddress', JSON.stringify(currentAddress)) }, [currentAddress]);
+	useEffect(() => { currentContractor && localStorage.setItem('currentContractor', currentContractor) }, [currentContractor]);
+	useEffect(() => { setListCardCount({ listCardCount: listIds() }); }, [monthIndex, currentAddress, currentContractor, listIds]);
 
 	function selectSrc(src, path) {
 		const exists = src => src !== undefined;
@@ -76,29 +73,30 @@ function ControlPanelSection({ projects, users, timecards }) {
 	};
 
 	const defaultMonth = months[monthIndex];
-	const _onSelectAddress = event => setCurrentAddress({ currentAddress: { address: selectSrc(event.value, 'item'), projectId: addresses.find(a => a.address === selectSrc(event.value, 'item')).projectId } });
+	const _onSelectAddress = event => dispatch(currentAddressChanged({ address: selectSrc(event.value, 'item'), projectId: addresses.find(a => a.address === selectSrc(event.value, 'item')).projectId }));
 	const _onSelectContractor = event => {
-		setCurrentContractor({ currentContractor: selectSrc(event.value, 'item') })
+		dispatch(currentContractorChanged(selectSrc(event.value, 'item')))
 	};
 	const _onSelectMonth = event => {
 		const foundIndex = months.indexOf(event.value);
-		setMonthIndex({ monthIndex: foundIndex });
+		dispatch(monthIndexChanged({ monthIndex: foundIndex }));
 	};
 	const _onClickDataMode = () => {
 		const endIndex = dataModes.length - 1;
-		if (currentModeIndex === endIndex) setCurrentModeIndex({ currentModeIndex: 0 });
-		else setCurrentModeIndex({ currentModeIndex: currentModeIndex + 1 })
+		if (currentModeIndex === endIndex) dispatch(currentModeIndexChanged(0));
+		else dispatch(currentModeIndexChanged(currentModeIndex + 1))
 	}
 	const selectingDataMode = event => {
 		if (currentModeIndex === 0) return _onSelectAddress(event);  // Project hours
 		if (currentModeIndex === 1) return _onSelectContractor(event); // Contractor hours
 	}
 
-	const prevMonth = () => (setMonthIndex({ monthIndex: monthIndex ? monthIndex - 1 : months.length - 1 }));
-	const nextMonth = () => (setMonthIndex({ monthIndex: monthIndex < months.length - 1 ? monthIndex + 1 : 0 }));
+	const prevMonth = () => (dispatch(monthIndexChanged({ monthIndex: monthIndex ? monthIndex - 1 : months.length - 1 })));
+	const nextMonth = () => (dispatch(monthIndexChanged({ monthIndex: monthIndex < months.length - 1 ? monthIndex + 1 : 0 })));
 	const hours = time => Math.floor(time);
 	const minutes = time => ((time - hours(time)) * 60).toPrecision(2) / 1;
 	const formattedTime = time => (`${hours(time)}h ${minutes(time)}min`);
+
 	function contentListPerMode(mode) {
 		let result = [];
 		const countStyle = {
@@ -174,6 +172,12 @@ function ControlPanelSection({ projects, users, timecards }) {
 		if (secondMode) return selectSrc(contractor(), 'item');
 	}
 
+	function isLocalStored(name) {
+		if (localStorage.getItem(name) === 'undefined') return false;
+		if (localStorage.getItem(name)) return localStorage.getItem(name);
+		return false
+	};
+
 	return (
 		<>
 			<ControlPanelContainer>
@@ -197,7 +201,7 @@ function ControlPanelSection({ projects, users, timecards }) {
 						<ForwardCaret onClick={nextMonth} />
 					</ControlPanelMonth>
 
-					<TotalDisplayWrapper>
+					{!IS_PRINT_MODE && <TotalDisplayWrapper>
 						<Dropdown
 							options={contentListPerMode(currentModeIndex)}
 							onChange={event => { selectingDataMode(event) }}
@@ -211,17 +215,10 @@ function ControlPanelSection({ projects, users, timecards }) {
 						<TotalDisplay>
 							Total: <TotalTime>{formattedTime(totalTime)}</TotalTime>
 						</TotalDisplay>
-					</TotalDisplayWrapper>
-					<CardCounter>{`${cardCount} entries`}</CardCounter>
+					</TotalDisplayWrapper>}
+					{!IS_PRINT_MODE && <CardCounter>{`${cardCount} entries`}</CardCounter>}
 				</ControlPanelContent>
-				<ContentSection
-					projectId={currentAddress.projectId}
-					setTotalTime={setTotalTime}
-					selectedMonth={monthIndex}
-					selectedContractor={currentContractor}
-					currentModeIndex={currentModeIndex}
-					setCardCount={setCardCount}
-				/>
+				{/* <ContentSection /> */}
 			</ControlPanelContainer>
 		</>
 	)
@@ -230,10 +227,16 @@ function ControlPanelSection({ projects, users, timecards }) {
 
 const mapStateToProps = state =>
 ({
-	pauseTime: state.entities.pauseTime,
 	projects: getProjectArray(state),
 	users: getUsersArray(state),
-	timecards: getTimecardArray(state)
+	timecards: getTimecardArray(state),
+	monthIndex: getMonthIndex(state),
+	currentAddress: getcurrentAddress(state),
+	currentContractor: getcurrentContractor(state),
+	currentModeIndex: getcurrentModeIndex(state),
+	totalTime: gettotalTime(state),
+	cardCount: getcardCount(state)
+
 })
 
 
