@@ -69,37 +69,12 @@ db.once('open', () => {
         const proxy = fork('./proxy.js');
     }
 
-    // Import database models
-    const Session = require('./core/models/session');
-    const User = require('./core/models/user');
-
     // Run the api core tests
 
     // Enable body and url params
     const server = express();
     server.use(express.json());
     server.use(express.urlencoded({extended: true}));
-
-    // Route roles
-    const routeRoles = {
-        admin: [
-            {method: 'get', path: '/api/v1/admin/companies'},
-            {method: 'get', path: '/api/v1/admin/users'},
-            {method: 'post', path: '/api/v1/admin/company'},
-            {method: 'post', path: '/api/v1/admin/user'},
-            {method: 'patch', path: '/api/v1/admin/company'},
-            {method: 'patch', path: '/api/v1/admin/user'},
-            {method: 'delete', path: '/api/v1/admin/company'},
-            {method: 'delete', path: '/api/v1/admin/user'}
-        ],
-        company: [
-            {method: 'get', path: '/api/v1/users'}, // ToDo: only companies own users
-            {method: 'post', path: '/api/v1/logout'}
-        ],
-        employee: [
-            {method: 'post', path: '/api/v1/logout'}
-        ]
-    };
     
     // Internal server error handling
     /*server.use((err, req, res, next) => {
@@ -111,120 +86,68 @@ db.once('open', () => {
         res.status(500).end();
     });*/
 
-    // Authorization
-    server.use((req, res, next) => {
-        // Allow access to all routes with admin key
-        if (req.header('adminKey') && req.header('adminKey') === config.API_ADMIN_KEY) {
-            // If safe mode is enabled, return a 404
-            if (config.API_SAFE_MODE) {
-                res.status(404).end();
-                return;
-            }
-
-            return next();
-        }
-        
-        // Allow login route without api key or session & token
-        if (req.originalUrl === '/api/v1/login') {
-            return next();
-            console.log('runs');
-        }
-
-        // Handle routes with session and token access
-        // Get session and access token
-        const session = req.header('session') || null;
-        const token = req.header('token') || null;
-        
-        // Deny requests with no session or token
-        /*if (!session || !token) {
-            res.status(401).end();
-            return;
-        }*/
-
-        // Get user data
-        Session.findOne({session: session, token: token}, (error, result) => {        
-            // Check for errors & if a result was returned
-            if (error) {res.status(404).end(); return;}
-            if (!result) {res.status(401).end(); return;}
-            
-            // Remember the session for later use
-            req._session = session;
-            
-            // Get user role
-            User.findOne({_id: result.userId}, (error, result) => {
-                // Check for errors & if a result was returned
-                if (error) {res.status(404).end(); return;}
-                if (!result) {res.status(401).end(); return;}
-
-                // Remember user data for further use in the endpoint that was called
-                req._user = result;
-                
-                // Remember for forbidden response
-                let authorized = false;
-            
-                // Look for a matching route and request method
-                for (let i = 0; i < routeRoles[result.role].length; i++) {
-                    //
-                    // Req.method is in uppser case
-                    // 
-                    if (routeRoles[result.role][i].method === req.method.toLowerCase() &&  req.originalUrl.includes(routeRoles[result.role][i].path)) {
-                        // Generate a new token
-                        const newToken = api.utils.randomString(64);
-                        
-                        // Prevend forbidden resonse
-                        authorized = true;
-                        
-                        // Save the new token in the database
-                        Session.updateOne({session: session, token: token}, {token: newToken}, (error, result) => {
-                            // Check for errors
-                            if (error) {res.status(404).end(); return;}
-                            
-                            // Check if session was modified
-                            if (result.nModified !== 1) {
-                                res.status(403).end();
-                                return;
-                            }
-                            
-                            // Remember the newly made token
-                            req._newToken = newToken;
-                        
-                            // Proceed to request handling in the endpoint that was called
-                            return next();
-                        });
-                    }
-                }
-                
-                // Respond
-                if (!authorized) {
-                    res.status(403).end();
-                    return;
-                }
-            });
-        });
-    });
-
     // Import general routes
-    [   
-        'postLogin',
-        'postLogout',
-        'getUsers'
-    ].map((route) => {
-        require('./core/routes/' + route + '.js').call(null, server)
-    });
+    const postLogin = require('./core/routes/postLogin.js');
+    const postLogout = require('./core/routes/postLogout.js');
+    const getUsers = require('./core/routes/getUsers');
+    const deleteProject = require('./core/routes/deleteProject');
+    const deleteTimecard = require('./core/routes/deleteTimecard');
+    const deleteUser = require('./core/routes/deleteUser');
+    const getProjectHours = require('./core/routes/getProjectHours');
+    const getProjects = require('./core/routes/getProjects');
+    const getTimecards = require('./core/routes/getTimecards');
+    const getUserHours = require('./core/routes/getUserHours');
+    const getUserHoursCompany = require('./core/routes/getUserHoursCompany');
+    const patchProject = require('./core/routes/patchProject');
+    const patchTimecard = require('./core/routes/patchTimecard');
+    const postTimecardCompany = require('./core/routes/postTimecardCompany');
+    const patchUser = require('./core/routes/patchUser');
+    const postTimecard = require('./core/routes/postTimecard');
+    const postUser = require('./core/routes/postUser');
+    const postProject = require('./core/routes/postProject');
+    
+    // Use general routes
+    server.use('/', postTimecard)
+    server.use('/', postTimecardCompany)
+    server.use('/', postLogin)
+    server.use('/', postLogout)
+    server.use('/', getUsers)
+    server.use('/', deleteProject)
+    server.use('/', deleteTimecard)
+    server.use('/', deleteUser)
+    server.use('/', getProjectHours)
+    server.use('/', getProjects)
+    server.use('/', getTimecards)
+    server.use('/', getUserHours)
+    server.use('/', getUserHoursCompany)
+    server.use('/', getUsers)
+    server.use('/', patchProject)
+    server.use('/', patchTimecard)
+    server.use('/', patchUser)
+    server.use('/', postTimecard)
+    server.use('/', postTimecardCompany)
+    server.use('/', postUser)
+    server.use('/', postProject)
     
     // Import admin routes
-    [   
-        'postCompanyAdmin',
-        'postUserAdmin',
-        'patchCompanyAdmin',
-        'patchUserAdmin',
-        'getCompaniesAdmin',
-        'getUsersAdmin',
-        'deleteCompanyAdmin',
-        'deleteUserAdmin'
-    ].map((route) => {
-        require('./core/routes/admin/' + route + '.js').call(null, server)
-    });
+    const postCompanyAdmin = require('./core/routes/admin/postCompanyAdmin');
+    const postUserAdmin = require('./core/routes/admin/postUserAdmin');
+    const patchCompanyAdmin = require('./core/routes/admin/patchCompanyAdmin');
+    const patchUserAdmin = require('./core/routes/admin/patchUserAdmin');
+    const getCompaniesAdmin = require('./core/routes/admin/getCompaniesAdmin');
+    const getUsersAdmin = require('./core/routes/admin/getUsersAdmin');
+    const deleteCompanyAdmin = require('./core/routes/admin/deleteCompanyAdmin');
+    const deleteUserAdmin = require('./core/routes/admin/deleteUserAdmin');
+    
+    // Use admin routes
+    server.use('/', postCompanyAdmin);
+    server.use('/', postUserAdmin);
+    server.use('/', patchCompanyAdmin);
+    server.use('/', patchUserAdmin);
+    server.use('/', getCompaniesAdmin);
+    server.use('/', getUsersAdmin);
+    server.use('/', deleteCompanyAdmin);
+    server.use('/', deleteUserAdmin);
 
     // Run the api server
     server.listen(config.API_PORT, () => {

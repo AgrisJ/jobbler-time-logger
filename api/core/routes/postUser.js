@@ -1,23 +1,20 @@
 const mongoose = require('mongoose');
 const Session = require('./../models/session');
+const express = require("express");
+const router = express.Router();
+const authorizer = require('../../authorizer');
 
-function postUser(server) {
-    server.post('/api/v1/users', (req, res) => {
-        User.create({}, (error, result) => {
-            if (error) {
-                api.utils.log(req.path + ' , error: ' + error);
-                res.status(500).end();
-                return;
-            }
-            
-            if (results.length !== 1) {
-                res.status(404).end();
-                return;
-            }
-            
-            res.status(201).end();
-        });
+router.post('/api/v1/users', authorizer, (req, res) => {
+    User.create(req.body, (error, result) => {
+        if (error) {
+            api.utils.log(req.route.path + ' , error: ' + error);
+            res.status(500).end();
+            return;
+        }
+        
+        // Respond
+        res.status(201).send({userId: result._id, newToken: req._newToken});
     });
-}
+});
 
-module.exports = postUser;
+module.exports = router;
