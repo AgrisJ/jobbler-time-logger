@@ -13,6 +13,7 @@ api = {
     },
     validators: {
         isAlphaNumeric: require('./validators/isAlphaNumeric'),
+        isDate: require('./validators/isDate'),
         isEmail: require('./validators/isEmail')
     },
     tests: {}

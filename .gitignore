@@ -8,7 +8,7 @@
 !/app/node_modules/react-dropdown
 
 # Development
-/api/dev
+# /api/dev
 
 # production
 /api/build

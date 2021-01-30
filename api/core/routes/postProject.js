@@ -1,11 +1,16 @@
 const mongoose = require('mongoose');
-const Timecard = require('./../models/timecard');
+const Project = require('./../models/project');
 const express = require("express");
 const router = express.Router();
 const authorizer = require('../../authorizer');
 
-router.get('/api/v1/user/hours', authorizer, (req, res) => {    
-    Timecard.find({userId: req._user._id}, (error, results) => {
+router.post('/api/v1/project', authorizer, (req, res) => {
+    // Assemble data
+    let data = req.body;
+    data.companyId = req._company._id;
+
+    // Insert project data into the database
+    Project.create(data, (error, result) => {
         // Check for errors
         if (error) {
             api.utils.log(req.route.path + ', error: ' + error);
@@ -13,14 +18,8 @@ router.get('/api/v1/user/hours', authorizer, (req, res) => {
             return;
         }
         
-        // Check if there were results
-        if (!results) {
-            res.status(404).end();
-            return;
-        }
-        
         // Respond
-        res.status(200).send({hours: results, newToken: req._newToken});
+        res.status(200).send({projectId: result._id, newToken: req._newToken});
     });
 });
 
