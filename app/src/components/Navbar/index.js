@@ -14,6 +14,10 @@ const Navbar = ({ toggle }) => {
 
 	useEffect(() => {
 		window.addEventListener('scroll', changeNav);
+
+		return function cleanupListener() {
+			window.removeEventListener('scroll', changeNav)
+		}
 	}, [])
 
 	return (

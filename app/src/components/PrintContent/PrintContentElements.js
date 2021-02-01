@@ -10,6 +10,9 @@ export const PrintContentContainer = styled.div`
 		/* padding: 1.5em 0; */
 		margin: 1em;
 	`
+export const A4ratio = styled.div`
+    min-width: 30%;
+	`
 
 export const PeriodHeading = styled.div`
 	display:flex;
@@ -75,6 +78,7 @@ export const TableWrapper = styled.table.attrs({
 			}
 			
 		width: 100%;
+		/* width: 40%; */
 		border: solid 1px black;
 		border-collapse: collapse;
 		/* font-size: 0.7em; */

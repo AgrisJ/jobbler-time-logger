@@ -3,7 +3,7 @@ let lastId = 0;
 
 const slice = createSlice({
 	name: 'projects',
-	initialState: [{ id: 0, name: '', address: '' }],
+	initialState: [],
 	reducers: {
 		// actions => action handlers
 		projectAdded: (projects, action) => {
@@ -27,14 +27,6 @@ export const getProjectArray = createSelector(
 	state => state.entities.projects,
 	projects => projects/* .reduce((acc, cur) => { acc.push(cur.project); return acc }, []) || null */
 )
-// export const getOrdersToday = createSelector(
-// 	state => state.entities.kolli,
-// 	kolli => kolli.length
-// )
-// export const getLastOrder = createSelector(
-// 	state => state.entities.kolli,
-// 	kolli => kolli[kolli.length - 1]
-// )
 
 export const { projectAdded, projectRemoved, projectsReset } = slice.actions;
 export default slice.reducer;
