@@ -8,7 +8,7 @@ import { getMonthIndex } from '../../Store/slices/monthIndex';
 import { getcurrentAddress } from '../../Store/slices/currentAddress';
 import { getcurrentContractor } from '../../Store/slices/currentContractor';
 import { getcurrentModeIndex } from '../../Store/slices/currentModeIndex';
-import { PrintButton, TableCell, TableHead } from './PrintContentElements';
+import { PrintButton, TableCell, A4ratio } from './PrintContentElements';
 import { useReactToPrint } from "react-to-print";
 import ControlPanelSection from './../ControlPanelSection/index';
 import { gettotalTime } from '../../Store/slices/totalTime';
@@ -18,7 +18,9 @@ const PrintContent = ({
 	users,
 	projects,
 	monthIndex,
-	currentModeIndex
+	currentModeIndex,
+	currentAddress,
+	currentContractor
 }) => {
 
 	const selectedMonth = monthIndex;
@@ -28,6 +30,7 @@ const PrintContent = ({
 	const dataModes = ['Project Hours', 'Contractor Hours'];
 	const modeItem = dataModes[currentModeIndex].split(' ')[0];
 	const reverseModeItem = dataModes[firstMode ? currentModeIndex + 1 : currentModeIndex - 1].split(' ')[0];
+	const [{ printAllChecked }, setprintAllChecked] = useState({ printAllChecked: false });
 
 	function renderTable() {
 		let rowCount = 0;
@@ -54,6 +57,7 @@ const PrintContent = ({
 
 				const projectCards = timeCards
 					.filter(card => card.jobDate.split('.')[1] - 1 === selectedMonth)
+					.filter(c => printAllChecked ? c : c.projectId === currentAddress.projectId)
 					.filter((card, index) => {
 						const cardIndexToRemove = card.projectId === itemId() ? index : null;
 						return index === cardIndexToRemove
@@ -78,6 +82,7 @@ const PrintContent = ({
 						const cardIndexToRemove = card.userId === itemId() ? index : null;
 						return index === cardIndexToRemove
 					})
+					.filter(c => printAllChecked ? c : users.find(user => user.id === card.userId).name === currentContractor)
 					.map(card => {
 						const projectName = projects.find(project => project.id === card.projectId).address;
 						countHoursPerCard(card, contractorCardHours);
@@ -109,13 +114,15 @@ const PrintContent = ({
 				}
 				const cardTimeSource = firstMode ? projectCardHours : contractorCardHours;
 				const cardTimeCount = cardTimeSource.reduce((total, item) => (total + item.hours), 0)
+				const noCardData = cardList().length === 0;
 				totalCardHours = totalCardHours + cardTimeCount
+
+				if (noCardData) return null;
 
 				return (
 					<TableRow key={card.id + '-' + itemId()} className='breakThis'>
 						<TableCell className='verticalTop'>{itemName()}</TableCell>
 						<TableCell>
-
 							<TableWrapper className='printSize'>
 								<tbody>
 									{cardList()}
@@ -140,11 +147,12 @@ const PrintContent = ({
 
 					{renderDataItems}
 
-					<TableRow className='bold'>
-						<TableCell className='verticalTop'>IN TOTAL:</TableCell>
-						<TableCell>{`${rowCount} ${modeItem}s`}</TableCell>
-						<TableCell className='alignCenter'>{totalCardHours.toPrecision(3)} hours</TableCell>
-					</TableRow>
+					{printAllChecked &&
+						<TableRow className='bold'>
+							<TableCell className='verticalTop'>IN TOTAL:</TableCell>
+							<TableCell>{`${rowCount} ${modeItem}s`}</TableCell>
+							<TableCell className='alignCenter'>{totalCardHours.toPrecision(3)} hours</TableCell>
+						</TableRow>}
 				</tbody>
 			</TableWrapper>
 		);
@@ -155,21 +163,24 @@ const PrintContent = ({
 
 	const printContentRef = useRef();
 	const handlePrint = useReactToPrint({
-		content: () => printContentRef.current //TODO fix print breaks 
+		content: () => printContentRef.current
 	});
 
 	return (
 		<>
 			<PrintButton onClick={handlePrint}>Print</PrintButton>
-			<ControlPanelSection />
+			<ControlPanelSection setprintAllChecked={setprintAllChecked} printAllChecked={printAllChecked} />
 			<PrintContentContainer ref={printContentRef}>
-				<PeriodHeading>
-					<Period className='printSize'>Period: {months[monthIndex]}</Period>
-					<Period className='printSize'>Year: 2020</Period>{/*TODO make year dynamic */}
-				</PeriodHeading>
+				<A4ratio>
+					<PeriodHeading>
+						<Period className='printSize'>Period: {months[monthIndex]}</Period>
+						<Period className='printSize'>Year: 2020</Period>{/*TODO make year dynamic */}
+					</PeriodHeading>
 
-				<Heading className='printSize'>Sidna Byg {dataModes[currentModeIndex]} Overview</Heading>
-				{renderTable()}
+					<Heading className='printSize'>Sidna Byg {dataModes[currentModeIndex]} Overview</Heading>
+
+					{renderTable()}
+				</A4ratio>
 			</PrintContentContainer>
 		</>
 	)

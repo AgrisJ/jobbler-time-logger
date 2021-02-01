@@ -19,6 +19,12 @@ const slice = createSlice({
 		timecardRemoved: (timecards, action) => {
 			return timecards.filter(card => card.id !== action.payload.id);
 		},
+		timecardsOfUserRemoved: (timecards, action) => {
+			return timecards.filter(card => card.userId !== action.payload.id);
+		},
+		timecardsOfProjectRemoved: (timecards, action) => {
+			return timecards.filter(card => card.projectId !== action.payload.id);
+		},
 		timecardsReset: (timecard, action) => {
 			return []
 		}
@@ -45,18 +51,7 @@ export function TimeCards(id) {
 	return cards;
 }
 
-
-
-// export const getOrdersToday = createSelector(
-// 	state => state.entities.kolli,
-// 	kolli => kolli.length
-// )
-// export const getLastOrder = createSelector(
-// 	state => state.entities.kolli,
-// 	kolli => kolli[kolli.length - 1]
-// )
-
-export const { timecardAdded, timecardRemoved, timecardsReset } = slice.actions;
+export const { timecardAdded, timecardRemoved, timecardsOfUserRemoved, timecardsOfProjectRemoved, timecardsReset } = slice.actions;
 export default slice.reducer;
 
 

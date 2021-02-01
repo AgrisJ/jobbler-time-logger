@@ -9,8 +9,7 @@ function Sidebar({ isOpen, toggle }) {
 			</Icon>
 			<SidebarWrapper>
 				<SidebarMenu>
-					<SidebarLink to="troubleshooting" onClick={toggle}>Help</SidebarLink>
-					<SidebarLink to="contact" onClick={toggle}>Contact</SidebarLink>
+					<SidebarLink to="/addremove" onClick={toggle}>Add/Remove</SidebarLink>
 				</SidebarMenu>
 				<SideBtnWrap>
 					<SidebarRoute to='/print' onClick={toggle}>Print Mode</SidebarRoute>

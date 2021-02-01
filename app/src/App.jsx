@@ -8,6 +8,8 @@ import { projectAdded, getProjectArray } from './Store/slices/projects';
 import { userAdded, getUsersArray } from './Store/slices/users';
 import { getTimecardArray, timecardAdded } from './Store/slices/timecards';
 import PrintReportPage from './pages/printReport';
+import Login from './pages/login';
+import AddRemove from './pages/addRemove';
 
 function App({ dispatch }) {
 
@@ -61,7 +63,7 @@ function App({ dispatch }) {
 		dispatch(timecardAdded({ userId: 11, projectId: 4, jobDate: '25.09.2020', hours: 6.1 }));
 		dispatch(timecardAdded({ userId: 11, projectId: 3, jobDate: '25.09.2020', hours: 9.3 }));
 		dispatch(timecardAdded({ userId: 11, projectId: 8, jobDate: '25.09.2020', hours: 22.1 }));
-		dispatch(timecardAdded({ userId: 11, projectId: 2, jobDate: '25.09.2020', hours: 100.1 })); // TODO remove - just test
+
 	}, [])
 
 	return (
@@ -70,6 +72,8 @@ function App({ dispatch }) {
 			<Switch>
 				<Route path="/" component={Home} exact />
 				<Route path="/print" component={PrintReportPage} exact />
+				<Route path="/login" component={Login} exact />
+				<Route path="/addremove" component={AddRemove} exact />
 			</Switch>
 		</Router>
 	);

@@ -9,7 +9,9 @@ const slice = createSlice({
 		userAdded: (users, action) => {
 			users.push({
 				id: ++lastId,
-				name: action.payload.name
+				name: action.payload.name,
+				email: action.payload.email,
+				password: action.payload.password
 			})
 		},
 		userRemoved: (users, action) => {
@@ -20,12 +22,11 @@ const slice = createSlice({
 		}
 	}
 });
-// console.log('slice users', slice)
 
 export const getUsersArray = createSelector(
 	state => state.entities.users,
 	users => users
 )
 
-export const { userAdded, usersUpdated, usersReset } = slice.actions;
+export const { userAdded, usersUpdated, usersReset, userRemoved } = slice.actions;
 export default slice.reducer;
