@@ -6,7 +6,7 @@ const authorizer = require('../../authorizer');
 
 router.get('/api/v1/projects', authorizer, (req, res) => {        
     // Insert data into the database
-    Project.find({companyId: req._company._id}, (error, results) => {
+    Projects.find({companyId: req._company._id}, (error, results) => {
         // Check for errors
         if (error) {
             api.utils.log(req.route.path + ', error: ' + error);

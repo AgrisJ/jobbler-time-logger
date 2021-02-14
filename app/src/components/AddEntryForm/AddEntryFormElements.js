@@ -1,32 +1,30 @@
 import styled from 'styled-components/macro';
 
-export const LoginFormWrapper = styled.div`
+export const FormWrapper = styled.div`
 display: grid;
 place-items: center;
-height: 100vh;
-background: linear-gradient(15deg, #bcbcbc, transparent);
 `
 
 export const FormContent = styled.div`
-display: flex;
+/* display: flex;
 justify-content: center;
-flex-direction: column;
-height: 100%;
-width: 100%;
+flex-direction: column; */
+width: 50%;
+	@media screen and (max-width: 650px) {
+	width: 100%;
+	}
 `
 export const Form = styled.form`
 display: grid;
-/* background: #cecece; */
 height:auto;
 width:100%;
 z-index:1;
-margin: 0 auto;padding: 80px 32px;
-/* border-radius: 4px;
-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.9); */
+margin: 0 auto;
+padding: 60px 32px;
 `
 
 export const FormH1 = styled.h1`
-margin-bottom: 40px;
+margin-bottom: 15px;
 color: #000;
 font-size: 20px;
 font-weight: 400;
@@ -34,24 +32,19 @@ text-align: center;
 `
 export const FormLabel = styled.label`
 margin-bottom: 8px;
-font-size: 14px;
-color: #000;
+font-size: 17px;
+color: #878787;
+text-align: center;
 `
-
-
 
 
 export const FormInput = styled.input`
 padding: 16px 16px;
-margin-bottom: 32px;
+margin-bottom: 14px;
 border-radius: 4px;
-border: 1px solid #ccc;
-/* width: 100%;
-padding: 12px 20px;
-margin: 8px 0;
-display: inline-block;
-
-box-sizing: border-box; */
+border: 1px solid;
+border-color: ${({ hasErrors }) => (hasErrors ? '#ff3860' : '#ccc')};
+box-shadow: ${({ hasErrors }) => (hasErrors ? '0 0 0 0.125em #ff386040' : '')};
 `
 export const FormButton = styled.button`
  background-color: #4c8faf; 
@@ -66,17 +59,15 @@ margin: 4px 2px;
 cursor: pointer;
 `
 
-export const Text = styled.span`
-text-align: center;
-margin-top: 24px;
-color: #000;
-font-size: 14px;
-`
-
 export const ErrorMessage = styled.div`
 display: block;
 font-size: .75rem;
 margin-top: -0.75rem;
 margin-bottom: 0.55rem;
 color: #ff3860;
+`
+export const ScrollAnchor = styled.div.attrs(props => ({
+	className: props.className
+}))`
+
 `

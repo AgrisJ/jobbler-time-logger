@@ -10,9 +10,19 @@ import { getProjectArray } from '../../Store/slices/projects';
 import { getUsersArray } from '../../Store/slices/users';
 import { gettotalTime } from '../../Store/slices/totalTime';
 
-function SelectUsers({ currentModeIndex, projects, users, currentContractor, currentAddress, listCardCount = [], dispatch }) {
+function SelectUsers(
+	{
+		isAdmin,
+		currentModeIndex = isAdmin ? 1 : 0,
+		projects,
+		users,
+		currentContractor,
+		currentAddress,
+		listCardCount = [],
+		dispatch
+	}) {
 	const addresses = projects.map(project => {
-		return { address: project.address, projectId: project.id }
+		return { id: project.id, address: project.address, projectId: project.projectId }
 	});
 	const firstMode = currentModeIndex === 0; // Project hours
 	const secondMode = currentModeIndex === 1; // Contractor hours
@@ -25,14 +35,23 @@ function SelectUsers({ currentModeIndex, projects, users, currentContractor, cur
 
 	useEffect(() => {
 		const firstAddress = typeof addresses[0] !== 'undefined' ? addresses[0].address : null;
-		const firstAddressId = typeof addresses[0] !== 'undefined' ? addresses[0].projectId : null;
-		dispatch(currentAddressChanged({ address: firstAddress, projectId: firstAddressId }));
+		const firstAddressId = typeof addresses[0] !== 'undefined' ? addresses[0].id : null;
+		const firstProjectId = typeof addresses[0] !== 'undefined' ? addresses[0].projectId : null;
+		dispatch(currentAddressChanged({ id: firstAddressId, address: firstAddress, projectId: firstProjectId }));
 		isLocalStored('currentAddress') && dispatch(currentAddressChanged(JSON.parse(isLocalStored('currentAddress'))));
-		isLocalStored('currentContractor') && dispatch(currentContractorChanged(isLocalStored('currentContractor')));
+		isLocalStored('currentContractor') && dispatch(currentContractorChanged(JSON.parse(isLocalStored('currentContractor'))));
 	}, []);
 
-	const _onSelectAddress = event => dispatch(currentAddressChanged({ address: selectSrc(event.value, 'item'), projectId: addresses.find(a => a.address === selectSrc(event.value, 'item')).projectId }));
-	const _onSelectContractor = event => dispatch(currentContractorChanged(selectSrc(event.value, 'item')))
+	const _onSelectAddress = event => dispatch(currentAddressChanged(
+		{
+			id: addresses.find(a => a.address === selectSrc(event.value, 'item')).id,
+			address: selectSrc(event.value, 'item'),
+			projectId: addresses.find(a => a.address === selectSrc(event.value, 'item')).projectId
+		}));
+	const _onSelectContractor = event => {
+		const selectedContractor = users.find(user => user.name === selectSrc(event.value, 'item'));
+		dispatch(currentContractorChanged(selectedContractor))
+	}
 
 	const selectingDataMode = event => {
 		if (currentModeIndex === 0) return _onSelectAddress(event);  // Project hours
@@ -47,7 +66,7 @@ function SelectUsers({ currentModeIndex, projects, users, currentContractor, cur
 
 	function savedChosenOption() {
 		function address() { return contentListPerMode(currentModeIndex).find(address => selectSrc(address, 'item') === currentAddress.address) }; //TODO simplify this after I put dispatch of changing currentAddress / contractor
-		function contractor() { return contentListPerMode(currentModeIndex).find(name => selectSrc(name, 'item') === currentContractor); }
+		function contractor() { return contentListPerMode(currentModeIndex).find(name => selectSrc(name, 'item') === currentContractor.name); }
 
 		if (firstMode) return selectSrc(address(), 'item').length > 0 ?
 			selectSrc(address(), 'item') :
@@ -91,10 +110,10 @@ function SelectUsers({ currentModeIndex, projects, users, currentContractor, cur
 					const address = a.address;
 					const count = listCardCount[index];
 
-					if (index > 0)
-						return <ListItem key={`${address}-${a.projectId}`} item={address} count={count} />;
-					else
-						return <></>;
+					// if (index > 0)
+					return <ListItem key={`${address}-${a.projectId}`} item={address} count={count} />;
+					// else
+					// 	return <></>;
 				}
 				).filter(a => a.props.hasOwnProperty('item'));
 				break;

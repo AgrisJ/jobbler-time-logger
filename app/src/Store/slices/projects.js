@@ -6,6 +6,23 @@ const slice = createSlice({
 	initialState: [],
 	reducers: {
 		// actions => action handlers
+		projectsReceived: (projects, action) => {
+			const items = action.payload.projects.map(project => ({
+				id: ++lastId,
+				projectId: project._id,
+				name: project.name,
+				address: project.address
+			}));
+			items.forEach(project => projects.push(project));
+		},
+		projectReceived: (project, action) => {
+			project.push({
+				id: ++lastId,
+				projectId: project._id,
+				name: action.payload.name,
+				address: action.payload.address
+			})
+		},
 		projectAdded: (projects, action) => {
 			projects.push({
 				id: ++lastId,
@@ -14,7 +31,7 @@ const slice = createSlice({
 			})
 		},
 		projectRemoved: (projects, action) => {
-			return projects.filter(project => project.id !== action.payload.id);
+			return projects.filter(project => project.projectId !== action.payload.projectId);
 		},
 		projectsReset: (projects, action) => {
 			return []
@@ -28,5 +45,5 @@ export const getProjectArray = createSelector(
 	projects => projects/* .reduce((acc, cur) => { acc.push(cur.project); return acc }, []) || null */
 )
 
-export const { projectAdded, projectRemoved, projectsReset } = slice.actions;
+export const { projectAdded, projectRemoved, projectsReset, projectReceived, projectsReceived } = slice.actions;
 export default slice.reducer;

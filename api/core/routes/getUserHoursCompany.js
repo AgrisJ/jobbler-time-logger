@@ -3,6 +3,7 @@ const Timecard = require('./../models/timecard');
 const express = require("express");
 const router = express.Router();
 const authorizer = require('../../authorizer');
+const { isDate } = api.validators;
 
 router.get('/api/v1/user/:userId/hours/:fromDate/:toDate', authorizer, (req, res) => {
     // Validate date

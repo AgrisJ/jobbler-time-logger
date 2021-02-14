@@ -3,10 +3,11 @@ const Timecard = require('./../models/timecard');
 const express = require("express");
 const router = express.Router();
 const authorizer = require('../../authorizer');
+const { isDate } = api.validators;
 
 router.get('/api/v1/timecards/:fromDate/:toDate', authorizer, (req, res) => {
     // Validate date
-    if (!isDate(req.params.fromDate) || !isDate(req.params.toDate)) {
+	if (!isDate(req.params.fromDate) || !isDate(req.params.toDate)) {
         res.status(400).end();
         return;
     }

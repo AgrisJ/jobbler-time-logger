@@ -6,6 +6,23 @@ const slice = createSlice({
 	initialState: [],
 	reducers: {
 		// actions => action handlers
+		usersReceived: (users, action) => {
+			const items = action.payload.users.map(user => ({
+				id: ++lastId,
+				userId: user._id,
+				name: user.fullName,
+				role: user.role
+			}));
+			items.forEach(user => users.push(user));
+		},
+		userReceived: (users, action) => {
+			users.push({
+				id: ++lastId,
+				userId: action.payload.userId,
+				name: action.payload.name,
+				role: action.payload.role
+			})
+		},
 		userAdded: (users, action) => {
 			users.push({
 				id: ++lastId,
@@ -15,7 +32,7 @@ const slice = createSlice({
 			})
 		},
 		userRemoved: (users, action) => {
-			return users.filter(user => user.id !== action.payload.id);
+			return users.filter(user => user.userId !== action.payload.userId);
 		},
 		usersReset: (user, action) => {
 			return []
@@ -28,5 +45,5 @@ export const getUsersArray = createSelector(
 	users => users
 )
 
-export const { userAdded, usersUpdated, usersReset, userRemoved } = slice.actions;
+export const { userAdded, usersReset, userRemoved, usersReceived, userReceived } = slice.actions;
 export default slice.reducer;

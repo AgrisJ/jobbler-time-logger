@@ -1,10 +1,11 @@
-const mongoose = require('mongoose');
-const Session = require('./../models/session');
+// const mongoose = require('mongoose');
+// const Session = require('./../models/session');
 const express = require("express");
 const router = express.Router();
 const authorizer = require('../../authorizer');
+const User = require('./../models/user');
 
-router.post('/api/v1/users', authorizer, (req, res) => {
+router.get('/api/v1/users', authorizer, (req, res) => {
     User.find({companyId: req._user.companyId}, (error, results) => {
         if (error) {
             api.utils.log(req.route.path + ' , error: ' + error);
@@ -18,7 +19,7 @@ router.post('/api/v1/users', authorizer, (req, res) => {
         }
         
         // Respond
-        res.status(200).send({companies: result, newToken: req._newToken});
+        res.status(200).send({users: results, newToken: req._newToken});
     });
 });
 

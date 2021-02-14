@@ -8,6 +8,7 @@ import currentContractorReducer from '../slices/currentContractor';
 import currentModeIndexReducer from '../slices/currentModeIndex';
 import totalTimeReducer from '../slices/totalTime';
 import cardCountReducer from '../slices/cardCount';
+import loginReducer from '../slices/login';
 
 
 export default combineReducers({
@@ -19,5 +20,6 @@ export default combineReducers({
 	currentContractor: currentContractorReducer,
 	currentModeIndex: currentModeIndexReducer,
 	totalTime: totalTimeReducer,
-	cardCount: cardCountReducer
+	cardCount: cardCountReducer,
+	login: loginReducer
 });

@@ -5,7 +5,7 @@ const router = express.Router();
 const authorizer = require('../../authorizer');
 
 router.delete('/api/v1/project/:projectId', authorizer, (req, res) => {    
-    User.deleteOne({_id: req.params.projectId, companyId: req._company._id}, (error, result) => {
+    Project.deleteOne({_id: req.params.projectId, companyId: req._company._id}, (error, result) => {
         // Check for results
         if (error) {
             api.utils.log(req.route.path + ' , error: ' + error);

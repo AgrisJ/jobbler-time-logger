@@ -7,6 +7,8 @@ const authorizer = require('../../authorizer');
 
 router.post('/api/v1/login', authorizer, (req, res) => {
     User.findOne({email: req.body.email, password: api.utils.passwordHash(req.body.password)}, (error, result) => {
+				const userRole = result.role;
+				
         if (error) {
             api.utils.log(req.route.path + ' , error: ' + error);
             res.status(500).end();
@@ -33,9 +35,8 @@ router.post('/api/v1/login', authorizer, (req, res) => {
                 res.status(500).end();
                 return;
             }
-            
             // Respond
-            res.status(200).send({session: session, token: token, ttl: ttl});
+					res.status(200).send({ session: session, token: token, ttl: ttl, userId: result.userId, role: userRole });
         });
     });
 });

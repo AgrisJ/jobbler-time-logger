@@ -32,6 +32,29 @@ export const Icon = styled.div`
 	cursor: pointer;
 	outline: none;
 `
+export const LogoutButton = styled(LinkR)`
+	position: absolute;
+	top: 1.2rem;
+	left: 1.5rem;
+
+	border-radius: 50px;
+	background: #747474;
+	white-space: nowrap;
+	padding: 8px 20px;
+	color: #ffd4a7;
+	font-size: 14px;
+	outline: none;
+	border: none;
+	cursor: pointer;
+	transition: all 0.2s ease-in-out;
+	text-decoration: none;
+
+	&:hover {
+		transition: all 0.2s ease-in-out;
+		background: #cecece;
+		color: red;
+	}
+`
 
 export const SidebarWrapper = styled.div`
 	color: #fff;

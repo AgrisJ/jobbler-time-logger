@@ -5,8 +5,12 @@ import { projectAdded } from '../../Store/slices/projects';
 import { userAdded } from '../../Store/slices/users';
 import Joi from 'joi-browser';
 import { FormInput, FormWrapper, FormButton, FormContent, Form, FormH1, FormLabel, ScrollAnchor, ErrorMessage } from './AddDataFormElements';
+import { companyConfig } from '../../services/companyConfig';
+import * as actions from '../../Store/api';
+import { getLoginData } from '../../Store/slices/login';
 
-const AddDataForm = ({ currentModeIndex, dispatch }) => {
+
+const AddDataForm = ({ currentModeIndex, login, dispatch }) => {
 	const dataType = ['Project', 'Contractor'][currentModeIndex];
 	const FIRST_MODE = currentModeIndex === 0;
 	const SECOND_MODE = currentModeIndex === 1;
@@ -36,33 +40,42 @@ const AddDataForm = ({ currentModeIndex, dispatch }) => {
 		setpasswordInput({ passwordInput: '' })
 	}
 	function doSubmit() {
-		if (FIRST_MODE) dispatch(projectAdded({ name: nameInput, address: addressInput }));
-		if (SECOND_MODE) dispatch(userAdded({ name: nameInput, email: emailInput, password: passwordInput }));
+		if (FIRST_MODE) dispatch(actions.apiCallBegan({
+			url: "/v1/project",
+			method: "post",
+			data: {
+				companyId: companyConfig.companyId,
+				name: nameInput,
+				address: addressInput,
+				active: true
+			},
+			headers: {
+				session: login.session
+			},
+			onSuccess: "projects/projectReceived"
+		}));
+		if (SECOND_MODE) dispatch(actions.apiCallBegan({
+			url: "/v1/user",
+			method: "post",
+			data: {
+				companyId: companyConfig.companyId,
+				fullName: nameInput,
+				email: emailInput,
+				password: passwordInput,
+				role: "employee"
+			},
+			headers: {
+				session: login.session
+			},
+			onSuccess: "users/userReceived"
+		}));
+
+		// dispatch(actions.apiCallBegan);
 
 		emptyInputs();
 	}
 
-	function errorMessagePerType(error, fieldName) {
-		let result = '';
 
-		switch (error.type) {
-			case "any.empty":
-				result = `${fieldName} should not be empty!`;
-				break;
-			case "string.min":
-				result = `${fieldName} should have at least ${error.context.limit} characters!`;
-				break;
-			case "string.max":
-				result = `${fieldName} should have at most ${error.context.limit} characters!`;
-				break;
-			case "string.regex.base":
-				result = `${fieldName} contains wrong symbols!`;
-				break;
-			default:
-				break;
-		}
-		return result;
-	};
 
 	const firstModeSchema = {
 		nameInput: Joi.string().regex(/^[a-zA-Z0-9ÆæØøÅåĀāĒēĪīŪūĻļĶķŠšČčŅņ\-_ ]+$/).min(3).max(25).required().error(err => {
@@ -125,25 +138,55 @@ const AddDataForm = ({ currentModeIndex, dispatch }) => {
 		doSubmit();
 	}
 
+	function ONLY_FIRSTMODE_MODULES() {
+		if (FIRST_MODE)
+			return (
+				<>
+					<FormLabel htmlFor='for'>Address</FormLabel>
+					<FormInput
+						onClick={() => scrollDownTo(".scrollHere")}
+						onChange={handleAddressChange}
+						value={addressInput}
+						type='text'
+						hasErrors={errors['addressInput']}
+						required />
+					{errors['addressInput'] && <ErrorMessage>{errors['addressInput']}</ErrorMessage>}
+				</>
+			)
+	}
+	function ONLY_SECONDMODE_MODULES() {
+		if (SECOND_MODE)
+			return (
+				<>
+					<FormLabel htmlFor='for'>Email</FormLabel>
+					<FormInput
+						onClick={() => scrollDownTo(".scrollHere")}
+						onChange={handleEmailChange}
+						value={emailInput}
+						type='email'
+						hasErrors={errors['emailInput']}
+						required />
+					{errors['emailInput'] && <ErrorMessage>{errors['emailInput']}</ErrorMessage>}
+					<FormLabel htmlFor='for'>Password</FormLabel>
+					<FormInput
+						onClick={() => scrollDownTo(".scrollHere")}
+						onChange={handlePasswordChange}
+						value={passwordInput}
+						type='password'
+						hasErrors={errors['passwordInput']}
+						required />
+					{errors['passwordInput'] && <ErrorMessage>{errors['passwordInput']}</ErrorMessage>}
+				</>
+			)
+	}
+
 	return (
 		<>
 			<FormWrapper>
 				<FormContent >
 					<Form onSubmit={handleSubmit}>
 						<FormH1>Add New {dataType}</FormH1>
-						{FIRST_MODE &&
-							<>
-								<FormLabel htmlFor='for'>Address</FormLabel>
-								<FormInput
-									onClick={() => scrollDownTo(".scrollHere")}
-									onChange={handleAddressChange}
-									value={addressInput}
-									type='text'
-									hasErrors={errors['addressInput']}
-									required />
-								{errors['addressInput'] && <ErrorMessage>{errors['addressInput']}</ErrorMessage>}
-							</>}
-
+						{ONLY_FIRSTMODE_MODULES()}
 						<FormLabel htmlFor='for'>{FIRST_MODE && 'Building'} Name</FormLabel>
 						<FormInput
 							onChange={handleNameChange}
@@ -152,26 +195,7 @@ const AddDataForm = ({ currentModeIndex, dispatch }) => {
 							hasErrors={errors['nameInput']}
 							required />
 						{errors['nameInput'] && <ErrorMessage>{errors['nameInput']}</ErrorMessage>}
-						{SECOND_MODE && <>
-							<FormLabel htmlFor='for'>Email</FormLabel>
-							<FormInput
-								onClick={() => scrollDownTo(".scrollHere")}
-								onChange={handleEmailChange}
-								value={emailInput}
-								type='email'
-								hasErrors={errors['emailInput']}
-								required />
-							{errors['emailInput'] && <ErrorMessage>{errors['emailInput']}</ErrorMessage>}
-							<FormLabel htmlFor='for'>Password</FormLabel>
-							<FormInput
-								onClick={() => scrollDownTo(".scrollHere")}
-								onChange={handlePasswordChange}
-								value={passwordInput}
-								type='password'
-								hasErrors={errors['passwordInput']}
-								required />
-							{errors['passwordInput'] && <ErrorMessage>{errors['passwordInput']}</ErrorMessage>}
-						</>}
+						{ONLY_SECONDMODE_MODULES()}
 						<FormButton>Add</FormButton>
 					</Form>
 				</FormContent>
@@ -183,7 +207,8 @@ const AddDataForm = ({ currentModeIndex, dispatch }) => {
 
 const mapStateToProps = (state) =>
 ({
-	currentModeIndex: getcurrentModeIndex(state)
+	currentModeIndex: getcurrentModeIndex(state),
+	login: getLoginData(state)
 })
 
 
@@ -197,3 +222,24 @@ export function scrollDownTo(cssQuerry) {
 		document.querySelector(cssQuerry) && document.querySelector(cssQuerry).scrollIntoView(false);
 	}, 200);
 }
+export function errorMessagePerType(error, fieldName) {
+	let result = '';
+
+	switch (error.type) {
+		case "any.empty":
+			result = `${fieldName} should not be empty!`;
+			break;
+		case "string.min":
+			result = `${fieldName} should have at least ${error.context.limit} characters!`;
+			break;
+		case "string.max":
+			result = `${fieldName} should have at most ${error.context.limit} characters!`;
+			break;
+		case "string.regex.base":
+			result = `${fieldName} contains wrong symbols!`;
+			break;
+		default:
+			break;
+	}
+	return result;
+};

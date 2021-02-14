@@ -2,14 +2,20 @@ import { createSelector, createSlice } from '@reduxjs/toolkit';
 
 const slice = createSlice({
 	name: 'currentAddress',
-	initialState: { address: null, projectId: null },
+	initialState: { address: null, projectId: null, loading: true },
 	reducers: {
 		// actions => action handlers
+		currentAddressRequested: (state, action) => {
+			state.loading = true;
+		},
 		currentAddressChanged: (state, action) => {
+			// state.address = action.payload.address;
+			// state.projectId = action.payload.projectId;
+			// state.loading = false;
 			return action.payload
 		},
 		currentAddressReset: (state, action) => {
-			return 0
+			return { address: null, projectId: null, loading: false }
 		}
 	}
 });
@@ -20,5 +26,5 @@ export const getcurrentAddress = createSelector(
 	currentAddress => currentAddress
 )
 
-export const { currentAddressChanged, currentAddressReset } = slice.actions;
+export const { currentAddressChanged, currentAddressReset, currentAddressRequested } = slice.actions;
 export default slice.reducer;

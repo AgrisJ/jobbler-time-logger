@@ -48,7 +48,7 @@ const PrintContent = ({
 		}
 
 		const renderDataItems = timeCards
-			.filter(card => card.jobDate.split('.')[1] - 1 === selectedMonth)
+			.filter(card => card.jobDate.split('-')[1] - 1 === selectedMonth)
 			.reduce((items, item) => items.find(x => x[idType()] === item[idType()]) ? [...items] : [...items, item], [])
 			.map((card, index) => {
 				rowCount = index + 1;
@@ -56,14 +56,14 @@ const PrintContent = ({
 				const contractorCardHours = [];
 
 				const projectCards = timeCards
-					.filter(card => card.jobDate.split('.')[1] - 1 === selectedMonth)
+					.filter(card => card.jobDate.split('-')[1] - 1 === selectedMonth)
 					.filter(c => printAllChecked ? c : c.projectId === currentAddress.projectId)
 					.filter((card, index) => {
-						const cardIndexToRemove = card.projectId === itemId() ? index : null;
+						const cardIndexToRemove = card.id === itemId() ? index : null;
 						return index === cardIndexToRemove
 					})
 					.map(card => {
-						const contractorsName = users.find(user => user.id === card.userId).name;
+						const contractorsName = users.find(user => user.userId === card.userId).name;
 						countHoursPerCard(card, projectCardHours);
 
 						return (
@@ -76,15 +76,15 @@ const PrintContent = ({
 
 				const contractorCards = timeCards
 					.filter(card => {
-						return card.jobDate.split('.')[1] - 1 === selectedMonth
+						return card.jobDate.split('-')[1] - 1 === selectedMonth
 					})
 					.filter((card, index) => {
-						const cardIndexToRemove = card.userId === itemId() ? index : null;
+						const cardIndexToRemove = card.id === itemId() ? index : null;
 						return index === cardIndexToRemove
 					})
-					.filter(c => printAllChecked ? c : users.find(user => user.id === card.userId).name === currentContractor)
+					.filter(c => printAllChecked ? c : users.find(user => user.userId === card.userId).name === currentContractor.name)
 					.map(card => {
-						const projectName = projects.find(project => project.id === card.projectId).address;
+						const projectName = projects.find(project => project.projectId === card.projectId).address;
 						countHoursPerCard(card, contractorCardHours);
 
 						return (
@@ -94,6 +94,7 @@ const PrintContent = ({
 							</TableRow>
 						)
 					})
+
 					;
 
 				function cardList() {
@@ -102,14 +103,14 @@ const PrintContent = ({
 				}
 				function itemName() {
 					let itemName = null;
-					if (firstMode) itemName = projects.find(project => project.id === card.projectId).address;
-					if (secondMode) itemName = users.find(user => user.id === card.userId).name;
+					if (firstMode) itemName = projects.find(project => project.projectId === card.projectId).address;
+					if (secondMode) itemName = users.find(user => user.userId === card.userId).name;
 					return itemName;
 				}
 				function itemId() {
 					let itemId = null;
-					if (firstMode) itemId = projects.find(project => project.id === card.projectId).id;
-					if (secondMode) itemId = users.find(user => user.id === card.userId).id;
+					if (firstMode) itemId = projects.find(project => project.projectId === card.projectId).id;
+					if (secondMode) itemId = users.find(user => user.userId === card.userId).id;
 					return itemId;
 				}
 				const cardTimeSource = firstMode ? projectCardHours : contractorCardHours;
@@ -174,7 +175,7 @@ const PrintContent = ({
 				<A4ratio>
 					<PeriodHeading>
 						<Period className='printSize'>Period: {months[monthIndex]}</Period>
-						<Period className='printSize'>Year: 2020</Period>{/*TODO make year dynamic */}
+						<Period className='printSize'>Year: 2021</Period>{/*TODO make year dynamic */}
 					</PeriodHeading>
 
 					<Heading className='printSize'>Sidna Byg {dataModes[currentModeIndex]} Overview</Heading>

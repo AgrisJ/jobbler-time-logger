@@ -4,9 +4,43 @@ let lastId = 0;
 
 const slice = createSlice({
 	name: 'timecards',
-	initialState: [{ id: 0, userId: '', projectId: '', jobDate: '', hours: '' }],
+	initialState: [{ id: 0, cardId: '', userId: '', projectId: '', jobDate: '', hours: '' }],
 	reducers: {
 		// actions => action handlers
+		timecardsReceived: (timecards, action) => {
+			const endSource = Object.keys(action.payload)[0];
+			const items = action.payload[endSource].map(timecard => ({
+				id: ++lastId,
+				cardId: timecard._id,
+				userId: timecard.userId,
+				projectId: timecard.projectId,
+				jobDate: timecard.date.split("T")[0],
+				hours: timecard.hours
+			}));
+			items.forEach(timecard => {
+				function isDuplicate(c) {
+					return c.cardId === timecard.cardId;
+				}
+				function notADuplicate() {
+					const foundDuplicate = timecards.findIndex(isDuplicate);
+					if (foundDuplicate !== -1) return false;
+					else return true;
+				}
+				if (notADuplicate())
+					timecards.push(timecard)
+			});
+		},
+		error: (timecards, action) => {
+			timecards.push({
+				id: ++lastId,
+				cardId: null,
+				userId: null,
+				projectId: null,
+				jobDate: "2000-01-01",
+				hours: null,
+				error: `error - ${action.payload.message}`
+			})
+		},
 		timecardAdded: (timecards, action) => {
 			timecards.push({
 				id: ++lastId,
@@ -51,7 +85,7 @@ export function TimeCards(id) {
 	return cards;
 }
 
-export const { timecardAdded, timecardRemoved, timecardsOfUserRemoved, timecardsOfProjectRemoved, timecardsReset } = slice.actions;
+export const { timecardAdded, timecardRemoved, timecardsOfUserRemoved, timecardsOfProjectRemoved, timecardsReceived, timecardsReset, error } = slice.actions;
 export default slice.reducer;
 
 

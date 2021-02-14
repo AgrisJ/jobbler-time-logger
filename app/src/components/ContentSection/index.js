@@ -10,6 +10,7 @@ import { getcurrentContractor } from '../../Store/slices/currentContractor';
 import { getcurrentModeIndex } from '../../Store/slices/currentModeIndex';
 import { totalTimeChanged } from '../../Store/slices/totalTime';
 import { cardCountChanged } from '../../Store/slices/cardCount';
+import { getLoginData } from '../../Store/slices/login';
 
 const ContentSection = (
 	{
@@ -20,34 +21,39 @@ const ContentSection = (
 		currentAddress,
 		monthIndex,
 		currentContractor,
-		users
+		users,
+		isAdmin,
+		login
 	}
 ) => {
 	const [{ savedTime }, setSavedTime] = useState({ savedTime: 0 })
 
 	const projectId = currentAddress.projectId;
+	const loggedInUserId = login.userId;
 	const selectedMonth = monthIndex;
 	const selectedContractor = currentContractor;
 	const firstMode = currentModeIndex === 0; // Project hours
 	const secondMode = currentModeIndex === 1; // Contractor hours
 
 	useEffect(() => {
-		dispatch(totalTimeChanged(savedTime))
-	}, [savedTime, projectId, /* setTotalTime, */ selectedMonth, currentModeIndex, selectedContractor])
+		dispatch(totalTimeChanged(savedTime));
+	}, [savedTime])
 
 	useEffect(() => {
 		setSavedTime({ savedTime: calcTime() });
 		timeWorked();
-	}, [projectId, currentModeIndex, selectedContractor, selectedMonth])
+	}, [projectId, currentModeIndex, selectedContractor, selectedMonth, timeCards])
 
 	function timeWorked() {
 		let totalTime = [0];
 		let cardsCounted = 0;
 
 		const projectTime = timeCards
-			.filter(card => card.jobDate.split('.')[1] - 1 === selectedMonth)
+			.filter(card => card.jobDate.split('-')[1] - 1 === selectedMonth)
 			.filter(c => c.projectId === projectId)
+			.filter(c => isAdmin ? c : c.userId === loggedInUserId)
 			.map((card, index) => {
+
 				const timeWorked = card.hours;
 
 				if (firstMode) {
@@ -58,11 +64,10 @@ const ContentSection = (
 			})[0] || [0]
 
 		const contractorTime = timeCards
-			.filter(card => card.jobDate.split('.')[1] - 1 === selectedMonth)
-			.filter(card => users.find(user => user.id === card.userId).name === selectedContractor)
+			.filter(card => card.jobDate.split('-')[1] - 1 === selectedMonth)
+			.filter(card => isAdmin ? users.find(user => user.userId === card.userId).name === selectedContractor.name : card)
 			.map((card, index) => {
 				const timeWorked = card.hours;
-
 				if (secondMode) {
 					cardsCounted = index + 1;
 					totalTime.push(timeWorked);
@@ -82,11 +87,13 @@ const ContentSection = (
 
 	function renderList() {
 		const projectCards = timeCards
-			.filter(card => card.jobDate.split('.')[1] - 1 === selectedMonth)
+			.filter(card => card.jobDate.split('-')[1] - 1 === selectedMonth)
 			.filter(c => c.projectId === projectId)
+			.filter(c => isAdmin ? c : c.userId === loggedInUserId)
 			.map((card, index) => {
+				const projectName = projects.find(project => project.projectId === card.projectId).name;
 				const calculatedTime = card.hours;
-				const contractorsName = users.find(user => user.id === card.userId).name;
+				const contractorsName = isAdmin ? users.find(user => user.userId === card.userId).name : projectName;
 
 				return (
 					<ContentListItem key={card.id} listColor={listColor(index)}>
@@ -99,12 +106,13 @@ const ContentSection = (
 			});
 
 		const contractorCards = timeCards
-			.filter(card => card.jobDate.split('.')[1] - 1 === selectedMonth)
-			.filter(card => users.find(user => user.id === card.userId).name === selectedContractor)
+			.filter(card => card.jobDate.split('-')[1] - 1 === selectedMonth)
+			.filter(card => isAdmin ? users.find(user => user.userId === card.userId).name === selectedContractor.name : card)
 			.map((card, index) => {
-				const projectName = projects.find(project => project.id === card.projectId).address;
+				const selectedProject = projects.find(project => project.projectId === card.projectId);
+				const projectName = selectedProject ? selectedProject.address : "--project don't exist--";
 				return (
-					<ContentListItem key={card.projectId} listColor={listColor(index)}>
+					<ContentListItem key={`${card.projectId}-${card.id}`} listColor={listColor(index)}>
 						<ListEditIcon />
 						<ListDate>{card.jobDate}</ListDate>
 						<ListPersonName>{projectName}</ListPersonName>
@@ -112,7 +120,6 @@ const ContentSection = (
 					</ContentListItem>
 				)
 			});
-
 		if (firstMode) return projectCards;
 		if (secondMode) return contractorCards;
 	}
@@ -124,13 +131,15 @@ const ContentSection = (
 
 const mapStateToProps = (state) =>
 ({
+
 	projects: getProjectArray(state),
 	users: getUsersArray(state),
 	timeCards: getTimecardArray(state),
 	monthIndex: getMonthIndex(state),
 	currentAddress: getcurrentAddress(state),
 	currentContractor: getcurrentContractor(state),
-	currentModeIndex: getcurrentModeIndex(state)
+	currentModeIndex: getcurrentModeIndex(state),
+	login: getLoginData(state),
 })
 
 

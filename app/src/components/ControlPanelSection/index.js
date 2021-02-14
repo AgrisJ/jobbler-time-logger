@@ -17,14 +17,32 @@ import Checkbox from './../Checkbox/index';
 import SelectUsers from '../SelectUsers';
 import { isLocalStored } from './../services/helpfulFunctions';
 import ModeSwitcher from '../ModeSwitcher';
+import { getLoginData, loggedIn } from '../../Store/slices/login';
 
-function ControlPanelSection({ projects, users, timecards, monthIndex, currentAddress, currentContractor, currentModeIndex, totalTime, cardCount, dispatch, setprintAllChecked, printAllChecked }) {
+function ControlPanelSection(
+	{
+		isAdmin,
+		login,
+		projects,
+		users,
+		timecards,
+		monthIndex,
+		currentAddress,
+		currentContractor,
+		currentModeIndex,
+		totalTime,
+		cardCount,
+		dispatch,
+		setprintAllChecked,
+		printAllChecked
+	}
+) {
 	const addresses = projects.map(project => {
-		return { address: project.address, projectId: project.id }
+		return { id: project.id, address: project.address, projectId: project.projectId }
 	}
 	);
-
-	const contractors = users.map(card => card.name);
+	const loggedInUserId = login.userId;
+	const contractors = users.map(card => ({ name: card.name, userId: card.userId }));
 	const monthNow = new Date().getMonth();
 	const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 	const IS_PRINT_MODE = ['print'].some(item => window.location.href.indexOf(item) !== -1) ? true : false;
@@ -39,24 +57,27 @@ function ControlPanelSection({ projects, users, timecards, monthIndex, currentAd
 				if (currentModeIndex === 1) propForMode = 'userId';
 
 				return timecards
+					.filter(c => isAdmin ? c : c.userId === loggedInUserId)
 					.filter(card => card[propForMode] === id)
-					.filter(card => card.jobDate.split('.')[1] - 1 === monthIndex).length
+					.filter(card => card.jobDate.split('-')[1] - 1 === monthIndex).length
 			}
 			), [currentModeIndex, monthIndex, timecards]);
-	const firstAddress = useCallback(() => (addresses[1] ? { address: addresses[1].address, projectId: addresses[1].projectId } : null), [addresses]);
+	const firstAddress = useCallback(() => (addresses[0] ? { id: addresses[0].id, address: addresses[0].address, projectId: addresses[0].projectId, loading: false } : null), [addresses]);
 	const firstContractor = contractors[0];
-	const firstTimeLoadedAddress = firstAddress() && currentAddress.address === '';
+	const firstTimeLoadedAddress = firstAddress() && currentAddress.address === null;
 	const firstTimeLoadedContractor = firstContractor && !currentContractor;
+
 	useEffect(() => {
 		dispatch(monthIndexChanged({ monthIndex: monthNow || 0 }));
 		isLocalStored('monthIndex') && dispatch(monthIndexChanged({ monthIndex: +isLocalStored('monthIndex') }));
 	}, []);
+
 	useEffect(() => { localStorage.setItem('monthIndex', monthIndex) }, [monthIndex]);
 	useEffect(() => { localStorage.setItem('currentModeIndex', currentModeIndex) }, [currentModeIndex]);
 	useEffect(() => { firstTimeLoadedAddress && dispatch(currentAddressChanged(firstAddress())) }, [firstAddress, firstTimeLoadedAddress]);
 	useEffect(() => { firstTimeLoadedContractor && dispatch(currentContractorChanged(firstContractor)) }, [firstContractor, firstTimeLoadedContractor]);
 	useEffect(() => { currentAddress && localStorage.setItem('currentAddress', JSON.stringify(currentAddress)) }, [currentAddress]);
-	useEffect(() => { currentContractor && localStorage.setItem('currentContractor', currentContractor) }, [currentContractor]);
+	useEffect(() => { currentContractor && localStorage.setItem('currentContractor', JSON.stringify(currentContractor)) }, [currentContractor]);
 	useEffect(() => { setListCardCount({ listCardCount: listIds() }); }, [monthIndex, currentAddress, currentContractor, listIds]);
 
 	const defaultMonth = months[monthIndex];
@@ -79,7 +100,7 @@ function ControlPanelSection({ projects, users, timecards, monthIndex, currentAd
 				resultIds = addresses.map(card => card.projectId)
 				break;
 			case 1:
-				resultIds = users.map(card => card.id);
+				resultIds = users.map(card => card.userId);
 				break;
 
 			default:
@@ -92,11 +113,42 @@ function ControlPanelSection({ projects, users, timecards, monthIndex, currentAd
 		setprintAllChecked({ printAllChecked: event.target.checked });
 	}
 
+	function ONLY_ON_PRINT_MODULES() {
+		if (IS_PRINT_MODE)
+			return (
+				<>
+					<Checkbox
+						checked={printAllChecked}
+						onChange={handlePrintAllCheckboxChange}
+						labelText={'Select All'}
+					/>
+				</>
+			)
+		else return null;
+	}
+
+	function HIDE_ON_PRINT_MODULES() {
+		if (!IS_PRINT_MODE)
+			return (
+				<>
+					<TotalDisplayWrapper>
+						<SelectUsers listCardCount={listCardCount} isAdmin={isAdmin} />
+						<TotalDisplay>
+							Total: <TotalTime>{formattedTime(totalTime)}</TotalTime>
+						</TotalDisplay>
+					</TotalDisplayWrapper>
+					<CardCounter>{`${cardCount} entries`}</CardCounter>
+				</>
+			)
+		else return null;
+	}
+
+
 	return (
 		<>
 			<ControlPanelContainer>
 				<ControlPanelContent>
-					<ModeSwitcher titles={['Project hours', 'Contractor Hours']} />
+					{isAdmin ? <ModeSwitcher titles={['Project hours', 'Contractor Hours']} /> : null}
 					<ControlPanelMonth>
 						<BackwardCaret onClick={prevMonth} />
 						<Dropdown
@@ -111,21 +163,8 @@ function ControlPanelSection({ projects, users, timecards, monthIndex, currentAd
 							arrowOpen={<span className="" />} />
 						<ForwardCaret onClick={nextMonth} />
 					</ControlPanelMonth>
-
-					{IS_PRINT_MODE && <Checkbox
-						checked={printAllChecked}
-						onChange={handlePrintAllCheckboxChange}
-						labelText={'Select All'}
-					/>}
-
-					{!IS_PRINT_MODE && <TotalDisplayWrapper>
-
-						<SelectUsers listCardCount={listCardCount} />
-						<TotalDisplay>
-							Total: <TotalTime>{formattedTime(totalTime)}</TotalTime>
-						</TotalDisplay>
-					</TotalDisplayWrapper>}
-					{!IS_PRINT_MODE && <CardCounter>{`${cardCount} entries`}</CardCounter>}
+					{ONLY_ON_PRINT_MODULES()}
+					{HIDE_ON_PRINT_MODULES()}
 				</ControlPanelContent>
 			</ControlPanelContainer>
 		</>
@@ -143,7 +182,8 @@ const mapStateToProps = state =>
 	currentContractor: getcurrentContractor(state),
 	currentModeIndex: getcurrentModeIndex(state),
 	totalTime: gettotalTime(state),
-	cardCount: getcardCount(state)
+	cardCount: getcardCount(state),
+	login: getLoginData(state)
 
 })
 

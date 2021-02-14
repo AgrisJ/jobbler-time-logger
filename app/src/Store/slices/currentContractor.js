@@ -9,7 +9,7 @@ const slice = createSlice({
 			return action.payload
 		},
 		currentContractorReset: (state, action) => {
-			return 0
+			return null
 		}
 	}
 });

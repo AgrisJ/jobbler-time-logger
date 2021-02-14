@@ -13,6 +13,9 @@ import { getcurrentModeIndex } from '../Store/slices/currentModeIndex';
 import Modal from '../components/Modal';
 import { getTimecardArray, timecardsOfUserRemoved, timecardsOfProjectRemoved } from '../Store/slices/timecards';
 import AddDataForm from '../components/AddDataForm';
+import * as actions from '../Store/api';
+import { companyConfig } from '../services/companyConfig';
+import login from '../Store/slices/login';
 
 
 const AddRemove = ({ dispatch, projects, users, currentAddress, currentContractor, currentModeIndex }) => {
@@ -25,42 +28,80 @@ const AddRemove = ({ dispatch, projects, users, currentAddress, currentContracto
 	const secondMode = currentModeIndex === 1; // Contractor hours
 
 	const handleRemove = () => {
-		const currentUserId = () => {
-			const firstUserId = typeof users[0] !== 'undefined' ? users[0].id : null;
+		const currentUserId = (relativeId = false) => {
+			const firstUserId = typeof users[0] !== 'undefined' ? users[0].userId : null;
+			const firstUserRelativeId = typeof users[0] !== 'undefined' ? users[0].id : null;
+			const selectedUser = users.find(user => user.userId === currentContractor.userId);
 
-			return typeof users.find(user => user.name === currentContractor) !== 'undefined' ?
-				users.find(user => user.name === currentContractor).id :
-				null || firstUserId
+			if (!relativeId) {
+				return typeof selectedUser !== 'undefined' ?
+					selectedUser.userId :
+					null || firstUserId
+			} else {
+				return typeof selectedUser !== 'undefined' ?
+					selectedUser.id :
+					null || firstUserRelativeId
+			}
+
 		};
-		const currentProjectId = () => {
-			const firstProjectId = typeof projects[0] !== 'undefined' ? projects[0].id : null;
+		const currentProjectId = (relativeId = false) => {
+			const firstProjectId = typeof projects[0] !== 'undefined' ? projects[0].projectId : null;
+			const firstProjectRelativeId = typeof projects[0] !== 'undefined' ? projects[0].id : null;
+			const selectedProject = projects.find(project => project.projectId === currentAddress.projectId);
 
-			return typeof projects.find(project => project.id === currentAddress.projectId) !== 'undefined' ?
-				projects.find(project => project.address === currentAddress.address).id :
-				null || firstProjectId
+			if (!relativeId) {
+				return typeof selectedProject !== 'undefined' ?
+					selectedProject.projectId :
+					null || firstProjectId
+			} else {
+				return typeof selectedProject !== 'undefined' ?
+					selectedProject.id :
+					null || firstProjectRelativeId
+			}
+
+
 		};
 
 		const handleRemoveUser = () => {
-			dispatch(userRemoved({ id: currentUserId() }))
-			dispatch(timecardsOfUserRemoved({ id: currentUserId() }))
+			dispatch(actions.apiCallBegan({
+				url: `/v1/user/${currentUserId()}`,
+				method: "delete",
+				headers: {
+					session: login.session
+				},
+				onSuccess: "users/userRemoved"
+			}));
+
+			dispatch(userRemoved({ userId: currentUserId() }))
+			dispatch(timecardsOfUserRemoved({ id: currentUserId(true) }))
 
 		};
 		const handleRemoveProject = () => {
-			dispatch(projectRemoved({ id: currentProjectId() }));
-			dispatch(timecardsOfProjectRemoved({ id: currentProjectId() }))
+			dispatch(actions.apiCallBegan({
+				url: `/v1/project/${currentProjectId()}`,
+				method: "delete",
+				data: { companyId: companyConfig.companyId },
+				headers: {
+					session: login.session
+				},
+				onSuccess: "projects/projectRemoved"
+			}));
+			dispatch(projectRemoved({ projectId: currentProjectId() }));
+			dispatch(timecardsOfProjectRemoved({ id: currentProjectId(true) }))
 		}
 
 		setshowModal({ showModal: true });
 
-		const firstUser = users.length > 0 ? users.find(user => user.id === currentUserId()).name : null;
+		const firstUser = users.length > 0 ? users.find(user => user.userId === currentUserId()) : null;
 
 		if (showModal) {
+
 			setshowModal({ showModal: false });
 			if (firstMode) handleRemoveProject();
 			if (secondMode) handleRemoveUser();
 
 		} else {
-			const selectedAddress = projects.length > 0 ? projects.find(project => project.id === currentProjectId()).address : null;
+			const selectedAddress = projects.length > 0 ? projects.find(project => project.id === currentProjectId(true)).address : null;
 			if (firstMode) dispatch(currentAddressChanged({ address: selectedAddress, projectId: currentProjectId() }));
 			if (secondMode) dispatch(currentContractorChanged(firstUser));
 		}
@@ -69,11 +110,11 @@ const AddRemove = ({ dispatch, projects, users, currentAddress, currentContracto
 	const cancelModal = () => setshowModal({ showModal: false });
 	const itemToRemove = () => {
 		if (firstMode) return currentAddress.address;
-		if (secondMode) return currentContractor
+		if (secondMode) return currentContractor.name
 	}
 	return (
 		<>
-			<Sidebar isOpen={isOpen} toggle={toggle} />
+			<Sidebar isOpen={isOpen} toggle={toggle} isAdmin={true} />
 			<Navbar toggle={toggle} />
 			<ModeSwitcher titles={['Projects', 'Contractors']} />
 			<SelectUsers />
