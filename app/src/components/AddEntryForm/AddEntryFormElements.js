@@ -20,7 +20,7 @@ height:auto;
 width:100%;
 z-index:1;
 margin: 0 auto;
-padding: 60px 32px;
+padding: 32px 32px;
 `
 
 export const FormH1 = styled.h1`
@@ -31,30 +31,59 @@ font-weight: 400;
 text-align: center;
 `
 export const FormLabel = styled.label`
-margin-bottom: 8px;
-font-size: 17px;
-color: #878787;
+margin-bottom: 0px;
+font-size: 18px;
+color: #000;
 text-align: center;
+font-family: 'Expletus Sans';
+`
+export const DisplayLabel = styled.p`
+margin-bottom: 0px;
+font-size: 18px;
+color: #000;
+text-align: center;
+font-family: 'Expletus Sans';
 `
 
 
 export const FormInput = styled.input`
+width: 60%;
+justify-self: center;
+padding: 8px 8px;
+margin-bottom: 14px;
+background: #f2f2f2;
+color: #828282;
+text-align: center;
+font-size: 26px;
+font-family: 'Expletus Sans';
+border-radius: 4px;
+border: ${({ hasErrors }) => (hasErrors ? '1px solid #ff3860' : 'none')};
+box-shadow: ${({ hasErrors }) => (hasErrors ? '0 0 0 0.125em #ff386040' : '')};
+`
+export const TotalHoursDisplay = styled.div`
+width: 60%;
+justify-self: center;
+text-align: center;
 padding: 16px 16px;
 margin-bottom: 14px;
 border-radius: 4px;
-border: 1px solid;
-border-color: ${({ hasErrors }) => (hasErrors ? '#ff3860' : '#ccc')};
-box-shadow: ${({ hasErrors }) => (hasErrors ? '0 0 0 0.125em #ff386040' : '')};
+background: #f2f2f2;
+color: #828282;
+font-size: 26px;
+font-family: 'Expletus Sans';
 `
 export const FormButton = styled.button`
- background-color: #4c8faf; 
+background-color: #4c8faf;
+width: 76%;
+justify-self: center;
 border: none;
 color: white;
-padding: 16px 0;
+padding: 21px 16px;
 text-align: center;
+-webkit-text-decoration: none;
 text-decoration: none;
-display: inline-block;
-font-size: 16px;
+font-size: 25px;
+font-family: 'Roboto Light';
 margin: 4px 2px;
 cursor: pointer;
 `

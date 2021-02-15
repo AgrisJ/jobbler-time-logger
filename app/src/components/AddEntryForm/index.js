@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux';
 import { getcurrentModeIndex } from '../../Store/slices/currentModeIndex';
 import Joi from 'joi-browser';
-import { FormInput, FormWrapper, FormButton, FormContent, Form, FormH1, FormLabel, ScrollAnchor, ErrorMessage } from './AddEntryFormElements';
+import { FormInput, FormWrapper, FormButton, FormContent, Form, FormH1, FormLabel, ScrollAnchor, ErrorMessage, TotalHoursDisplay, DisplayLabel } from './AddEntryFormElements';
 import { companyConfig } from '../../services/companyConfig';
 import * as actions from '../../Store/api';
 import { getLoginData } from '../../Store/slices/login';
@@ -69,6 +69,15 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch }) => {
 		let timeDiff = Math.abs(dateSecond.getTime() - dateFirst.getTime());
 		let hours = timeDiff / 60 / 60 / 1000;
 		return hours;
+	}
+	function totalMinutes(startTime, endTime) {
+		let dateFirst = new Date(`${dateToday()} ${startTime}`);
+		let dateSecond = new Date(`${dateToday()} ${endTime}`); //TODO make it - if endTime is smaller than start Time - switch to tomorrows day
+
+		// time difference
+		let timeDiff = (dateSecond.getTime() - dateFirst.getTime()) / 1000;
+		let minutes = (timeDiff / 60) % 60;
+		return minutes;
 	}
 
 
@@ -143,12 +152,20 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch }) => {
 		return { display: 'none' }
 	}
 
+	function totalTime() {
+		const hours = parseInt(totalHours(startTimeInput, endTimeInput));
+		const minutes = totalMinutes(startTimeInput, endTimeInput);
+		const timeFormat = (hours, minutes) => (`${hours}h ${minutes}min`);
+		const readyToReturn = endTimeInput !== '' && startTimeInput !== '';
+		if (readyToReturn) return timeFormat(hours, minutes);
+		else return timeFormat(0, 0);
+	}
+
 	return (
 		<>
 			<FormWrapper>
 				<FormContent style={hideForms ? hide() : null}>
 					<Form onSubmit={handleSubmit}>
-						<FormH1>Add New Time Entry</FormH1>
 						<>
 							<FormLabel htmlFor='for'>End Time</FormLabel>
 							<FormInput
@@ -170,7 +187,10 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch }) => {
 								required />
 							{errors['startTimeInput'] && <ErrorMessage>{errors['startTimeInput']}</ErrorMessage>}
 						</>
-
+						<DisplayLabel>Total</DisplayLabel>
+						<TotalHoursDisplay>
+							{totalTime()}
+						</TotalHoursDisplay>
 						<FormButton>DONE</FormButton>
 					</Form>
 				</FormContent>

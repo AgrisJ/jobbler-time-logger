@@ -38,15 +38,15 @@ function App({ dispatch, login, monthIndex, users }) {
 	useEffect(() => {
 		if (login.isAuthenticated) {
 
-			// if (isAdmin) {
-			dispatch(actions.apiCallBegan({ // TODO "Getting Data from the Server" should be as simple as dispatch(loadUsers());
-				url: "/v1/users",
-				headers: {
-					session: login.session
-				},
-				onSuccess: "users/usersReceived"
-			}));
-			// }
+			if (isAdmin) {
+				dispatch(actions.apiCallBegan({ // TODO "Getting Data from the Server" should be as simple as dispatch(loadUsers());
+					url: "/v1/users",
+					headers: {
+						session: login.session
+					},
+					onSuccess: "users/usersReceived"
+				}));
+			}
 			// if (!isAdmin) {
 			// 	dispatch(actions.apiCallBegan({ // TODO ...and here - dispatch(loadProjects());
 			// 		url: "/v1/user/hours",

@@ -97,7 +97,7 @@ const ContentSection = (
 
 				return (
 					<ContentListItem key={card.id} listColor={listColor(index)}>
-						<ListEditIcon />
+						{isAdmin ? <ListEditIcon /> : null}
 						<ListDate>{card.jobDate}</ListDate>
 						<ListPersonName>{contractorsName}</ListPersonName>
 						<ListTime>{timeFormat(calculatedTime)}</ListTime>
@@ -113,7 +113,7 @@ const ContentSection = (
 				const projectName = selectedProject ? selectedProject.address : "--project don't exist--";
 				return (
 					<ContentListItem key={`${card.projectId}-${card.id}`} listColor={listColor(index)}>
-						<ListEditIcon />
+						{isAdmin ? <ListEditIcon /> : null}
 						<ListDate>{card.jobDate}</ListDate>
 						<ListPersonName>{projectName}</ListPersonName>
 						<ListTime>{timeFormat(card.hours)}</ListTime>

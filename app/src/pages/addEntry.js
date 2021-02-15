@@ -27,7 +27,7 @@ const AddEntry = ({ dispatch, projects, users, currentAddress, currentContractor
 			<Sidebar isOpen={isOpen} toggle={toggle} isAdmin={false} />
 			<Navbar toggle={toggle} />
 			{/* <h1>Choose an Object</h1> */}
-			<SelectUsers />
+			<SelectUsers labelText={'Time spent in:'} />
 			<AddEntryForm />
 			{/*TODO Add animated notification - 'name' erased  */}
 		</>

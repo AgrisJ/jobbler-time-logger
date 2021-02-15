@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { SelecUsersContainer } from './SelectUsersElements';
+import { SelecUsersContainer, DropdownLabel } from './SelectUsersElements';
 import Dropdown from 'react-dropdown';
 import '../../Styles/dropdown.css'
 import { connect } from 'react-redux';
@@ -19,7 +19,8 @@ function SelectUsers(
 		currentContractor,
 		currentAddress,
 		listCardCount = [],
-		dispatch
+		dispatch,
+		labelText
 	}) {
 	const addresses = projects.map(project => {
 		return { id: project.id, address: project.address, projectId: project.projectId }
@@ -137,6 +138,7 @@ function SelectUsers(
 
 	return (
 		<SelecUsersContainer>
+			{labelText ? <DropdownLabel>{labelText}</DropdownLabel> : null}
 			<Dropdown
 				options={contentListPerMode(currentModeIndex)}
 				onChange={event => { selectingDataMode(event) }}

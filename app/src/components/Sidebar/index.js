@@ -4,7 +4,6 @@ import { getLoginData, loggedOut } from '../../Store/slices/login';
 import { SidebarContainer, Icon, CloseIcon, SidebarWrapper, SidebarMenu, SidebarLink, SideBtnWrap, SidebarRoute, LogoutButton } from './SidebarElements';
 
 function Sidebar({ isOpen, toggle, dispatch, isAdmin }) {
-	console.log("🚀 ~ file: index.js ~ line 7 ~ Sidebar ~ isAdmin", isAdmin)
 
 	function handleLogout() {
 		// TODO add a logout API route
