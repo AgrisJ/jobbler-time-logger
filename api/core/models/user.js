@@ -6,6 +6,7 @@ const userSchema = new Schema({
     email: {
         type: String,
         required: true,
+        unique: true,
         //validate: [require('./../validators/isEmail'), 'invalid email']
         validate: {
             validator: function(value) {
@@ -16,7 +17,7 @@ const userSchema = new Schema({
     },
     fullName: {type: String, required: true, minLength: 5, maxLength: 64},
     password: {type: String, required: true, minLength: 64, maxLength: 64},
-    role: {type: String, enum: ['company', 'employee'], required: true},
+    role: {type: String, enum: ['admin', 'company', 'employee'], required: true},
     deleted: {type: Boolean, default: false}
 }, {
     timestamps: true

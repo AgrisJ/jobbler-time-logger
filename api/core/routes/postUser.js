@@ -1,5 +1,4 @@
-// const mongoose = require('mongoose');
-// const Session = require('./../models/session');
+const mongoose = require('mongoose');
 const User = require('./../models/user');
 const express = require("express");
 const router = express.Router();
@@ -14,7 +13,7 @@ router.post('/api/v1/user', authorizer, (req, res) => {
         }
         
         // Respond
-			res.status(201).send({ userId: result._id, name: result.fullName, newToken: req._newToken });
+        res.status(201).send({userId: result._id, name: result.fullName, newToken: req._newToken});
     });
 });
 

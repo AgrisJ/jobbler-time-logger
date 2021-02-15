@@ -26,7 +26,7 @@ module.exports = ((req, res, next) => {
             {method: 'get', path: '/api/v1/timecards/:fromDate/:toDate'},
             {method: 'post', path: '/api/v1/user'},
             {method: 'post', path: '/api/v1/project'},
-            {method: 'post', path: '/api/v1/timecard'},
+            {method: 'post', path: '/api/v1/timecard/:userId'},
             {method: 'delete', path: '/api/v1/project/:projectId'},
             {method: 'delete', path: '/api/v1/user/:userId'},
             {method: 'delete', path: '/api/v1/timecard/:timecardId'},
@@ -65,16 +65,17 @@ module.exports = ((req, res, next) => {
     const token = req.header('token') || null;
     
     // Deny requests with no session or token
-    if (!session /* || !token */) {
+    if (!session /*|| !token*/) {
         res.status(401).end();
         return;
     }
 
     // Get user data
     Session.findOne({session: session/*, token: token*/}, (error, result) => {        
-				// Check for errors & if a result was returned
+        // Check for errors & if a result was returned
         if (error) {res.status(404).end(); return;}
         if (!result) {res.status(401).end(); return;}
+        
         // Remember the session for later use
         req._session = session;
         
@@ -109,23 +110,30 @@ module.exports = ((req, res, next) => {
                         authorized = true;
                         
                         // Save the new token in the database
-                        Session.updateOne({session: session, token: token}, {token: token/*newToken*/}, (error, result) => {
+                        /*Session.updateOne({session: session, token: token}, {token: newToken}, (error, result) => {
                             // Check for errors
                             if (error) {res.status(404).end(); return;}
                             
-                            // // Check if session was modified
-                            // if (result.nModified !== 1) {
-                            //     console.log("🚀 ~ file: authorizer.js ~ line 120 ~ Session.updateOne ~ result", result)
-                            //     res.status(403).end();
-                            //     return;
-                            // }
+                            // Check if session was modified
+                            if (result.nModified !== 1) {
+                                res.status(403).end();
+                                return;
+                            }
                             
                             // Remember the newly made token
                             req._newToken = newToken;
                         
                             // Proceed to request handling in the endpoint that was called
                             return next();
-                        });
+                        });*/
+                        
+                        // Remember the newly made token
+                        // Just not to break the newToken values in employee and company routes
+                        // To be deleted when token comes back
+                        req._newToken = newToken;
+                        
+                        // Proceed to request handling in the endpoint that was called
+                        return next();
                     }
                 }
                 

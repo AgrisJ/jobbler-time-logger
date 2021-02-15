@@ -7,12 +7,14 @@ const User = require('./../models/user');
 
 router.get('/api/v1/users', authorizer, (req, res) => {
     User.find({companyId: req._user.companyId}, (error, results) => {
+        // Check for errors
         if (error) {
             api.utils.log(req.route.path + ' , error: ' + error);
             res.status(500).end();
             return;
         }
         
+        // Check if there were results
         if (!results) {
             res.status(404).end();
             return;

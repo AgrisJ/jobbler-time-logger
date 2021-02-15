@@ -19,7 +19,7 @@ router.post('/api/v1/project', authorizer, (req, res) => {
         }
         
         // Respond
-			res.status(200).send({ projectId: result._id, name: result.name, address: result.address, newToken: req._newToken});
+        res.status(200).send({ projectId: result._id, name: result.name, address: result.address, newToken: req._newToken});
     });
 });
 

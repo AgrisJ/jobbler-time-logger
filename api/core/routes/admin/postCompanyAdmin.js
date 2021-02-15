@@ -13,8 +13,6 @@ router.post('/api/v1/admin/company', authorizer, (req, res) => {
             return;
         }
         
-        // Check if there were results
-        
         // Respond
         res.status(200).send({companyId: result._id});
     });

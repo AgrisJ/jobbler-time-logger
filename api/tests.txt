@@ -1,2 +1,0 @@
-admin routes can be accessed with admin key
-admin routes cannot be accessed without admin key
