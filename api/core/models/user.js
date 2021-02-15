@@ -6,6 +6,7 @@ const userSchema = new Schema({
     email: {
         type: String,
         required: true,
+        unique: true,
         //validate: [require('./../validators/isEmail'), 'invalid email']
         validate: {
             validator: function(value) {
