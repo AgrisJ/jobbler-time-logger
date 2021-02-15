@@ -5,6 +5,15 @@ const router = express.Router();
 const authorizer = require('../../authorizer');
 
 router.patch('/api/v1/user/:userId', authorizer, (req, res) => {
+    // Get body data
+    let data = req.body;
+
+    // In case the password is being patched hash it
+    if (data.password) {
+        data.password = api.utils.passwordHash(req.body.password);
+    }
+
+    // Update user
     User.updateOne({_id: req.params.userId, companyId: req._company._id}, req.body, (error, result) => {
         // Check for errors
         if (error) {

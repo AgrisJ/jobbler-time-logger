@@ -7,9 +7,6 @@ const authorizer = require('../../authorizer');
 
 router.post('/api/v1/login', authorizer, (req, res) => {
     User.findOne({email: req.body.email, password: api.utils.passwordHash(req.body.password)}, (error, result) => {
-        // Remember users role for later
-        const userRole = result.role;
-        
         // Check for errors
         if (error) {
             api.utils.log(req.route.path + ' , error: ' + error);
@@ -22,6 +19,9 @@ router.post('/api/v1/login', authorizer, (req, res) => {
             res.status(404).end();
             return;
         }
+        
+        // Remember user's role for later
+        const userRole = result.role;
         
         // Generate a session id and a token
         const session = api.utils.randomString(64);
