@@ -20,6 +20,7 @@ module.exports = ((req, res, next) => {
         company: [
             {method: 'get', path: '/api/v1/users'}, // ToDo: only companies own users
             {method: 'get', path: '/api/v1/projects'},
+						{method: 'get', path: '/api/v1/user/hours'},
             {method: 'get', path: '/api/v1/user/:userId/hours/:fromDate/:toDate'},
             {method: 'get', path: '/api/v1/hours/:userId/:fromDate/:toDate/:projectId'},
             {method: 'get', path: '/api/v1/hours/project/:projectId/:fromDate/:toDate'},

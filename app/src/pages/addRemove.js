@@ -15,10 +15,10 @@ import { getTimecardArray, timecardsOfUserRemoved, timecardsOfProjectRemoved } f
 import AddDataForm from '../components/AddDataForm';
 import * as actions from '../Store/api';
 import { companyConfig } from '../services/companyConfig';
-import login from '../Store/slices/login';
+import { getLoginData } from '../Store/slices/login';
 
 
-const AddRemove = ({ dispatch, projects, users, currentAddress, currentContractor, currentModeIndex }) => {
+const AddRemove = ({ dispatch, projects, users, currentAddress, currentContractor, currentModeIndex, login, timecards }) => {
 	const [{ isOpen }, setIsOpen] = useState({ isOpen: false });
 	const [{ showModal }, setshowModal] = useState({ showModal: false });
 
@@ -63,29 +63,69 @@ const AddRemove = ({ dispatch, projects, users, currentAddress, currentContracto
 		};
 
 		const handleRemoveUser = () => {
+
+			// delete user
 			dispatch(actions.apiCallBegan({
 				url: `/v1/user/${currentUserId()}`,
-				method: "delete",
+				method: "PATCH",
+				data: {
+					"deleted": true
+				},
 				headers: {
 					session: login.session
 				},
 				onSuccess: "users/userRemoved"
 			}));
 
+			timecards.forEach(card => {
+				// delete all user cards
+				if (card.userId === currentUserId()) {
+					dispatch(actions.apiCallBegan({
+						url: `/v1/timecard/${card.cardId}`,
+						method: "DELETE",
+						headers: {
+							session: login.session
+						},
+						onSuccess: "timecards/timecardRemoved"
+					}));
+				}
+			});
+
+			// remove user and cards from Store
 			dispatch(userRemoved({ userId: currentUserId() }))
 			dispatch(timecardsOfUserRemoved({ id: currentUserId(true) }))
 
 		};
 		const handleRemoveProject = () => {
+
+			// delete project
 			dispatch(actions.apiCallBegan({
 				url: `/v1/project/${currentProjectId()}`,
-				method: "delete",
-				data: { companyId: companyConfig.companyId },
+				method: "PATCH",
+				data: {
+					"active": false
+				},
 				headers: {
 					session: login.session
 				},
 				onSuccess: "projects/projectRemoved"
 			}));
+
+			timecards.forEach(card => {
+				// delete all project cards
+				if (card.projectId === currentProjectId()) {
+					dispatch(actions.apiCallBegan({
+						url: `/v1/timecard/${card.cardId}`,
+						method: "DELETE",
+						headers: {
+							session: login.session
+						},
+						onSuccess: "timecards/timecardRemoved"
+					}));
+				}
+			});
+
+			// remove user and cards from Store
 			dispatch(projectRemoved({ projectId: currentProjectId() }));
 			dispatch(timecardsOfProjectRemoved({ id: currentProjectId(true) }))
 		}
@@ -138,11 +178,12 @@ const mapStateToProps = (state) =>
 ({
 	projects: getProjectArray(state),
 	users: getUsersArray(state),
-	timeCards: getTimecardArray(state),
+	timecards: getTimecardArray(state),
 	// monthIndex: getMonthIndex(state),
 	currentAddress: getcurrentAddress(state),
 	currentContractor: getcurrentContractor(state),
-	currentModeIndex: getcurrentModeIndex(state)
+	currentModeIndex: getcurrentModeIndex(state),
+	login: getLoginData(state)
 })
 
 

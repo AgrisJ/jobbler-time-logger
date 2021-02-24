@@ -7,12 +7,15 @@ const slice = createSlice({
 	reducers: {
 		// actions => action handlers
 		usersReceived: (users, action) => {
-			const items = action.payload.users.map(user => ({
-				id: ++lastId,
-				userId: user._id,
-				name: user.fullName,
-				role: user.role
-			}));
+			const items = action.payload.users
+				.filter(user => user.deleted === false)
+				.filter(user => user.role !== 'company')
+				.map(user => ({
+					id: ++lastId,
+					userId: user._id,
+					name: user.fullName,
+					role: user.role
+				}));
 			items.forEach(user => users.push(user));
 		},
 		userReceived: (users, action) => {

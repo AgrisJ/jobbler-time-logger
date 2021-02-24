@@ -11,7 +11,7 @@ const api = ({ dispatch }) => next => async action => {
 	try {
 
 		const response = await axios.request({
-			baseURL: 'https://localhost/api',
+			baseURL: process.env.REACT_APP_API_URL + '/api',
 			url,
 			method,
 			data,
@@ -21,7 +21,11 @@ const api = ({ dispatch }) => next => async action => {
 		// General
 		dispatch(actions.apiCallSuccess(response.data));
 		// Specific
-		if (onSuccess) dispatch({ type: onSuccess, payload: response.data });
+		const _resData = response.data;
+		const _payloadData = action.payload.data;
+		console.log('payload', { ..._resData, ..._payloadData })
+		console.log('payload deeper', { ...{ _resData }, ...{ _payloadData } })
+		if (onSuccess) dispatch({ type: onSuccess, payload: { ..._resData, ..._payloadData } }); //TODO rename timecardId to cardId
 
 	} catch (error) {
 		// General

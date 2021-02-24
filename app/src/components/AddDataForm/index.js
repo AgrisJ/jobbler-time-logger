@@ -44,7 +44,7 @@ const AddDataForm = ({ currentModeIndex, login, dispatch }) => {
 			url: "/v1/project",
 			method: "post",
 			data: {
-				companyId: companyConfig.companyId,
+				companyId: process.env.REACT_APP_COMPANY_ID,
 				name: nameInput,
 				address: addressInput,
 				active: true
@@ -52,13 +52,13 @@ const AddDataForm = ({ currentModeIndex, login, dispatch }) => {
 			headers: {
 				session: login.session
 			},
-			onSuccess: "projects/projectReceived"
+			onSuccess: "projects/projectReceived" //TODO adjust app to get rid of "name" and "address" fields in the API response
 		}));
 		if (SECOND_MODE) dispatch(actions.apiCallBegan({
 			url: "/v1/user",
 			method: "post",
 			data: {
-				companyId: companyConfig.companyId,
+				companyId: process.env.REACT_APP_COMPANY_ID,
 				fullName: nameInput,
 				email: emailInput,
 				password: passwordInput,
@@ -67,7 +67,7 @@ const AddDataForm = ({ currentModeIndex, login, dispatch }) => {
 			headers: {
 				session: login.session
 			},
-			onSuccess: "users/userReceived"
+			onSuccess: "users/userReceived" //TODO adjust app to get rid of "name" field in the API response
 		}));
 
 		// dispatch(actions.apiCallBegan);
@@ -78,15 +78,15 @@ const AddDataForm = ({ currentModeIndex, login, dispatch }) => {
 
 
 	const firstModeSchema = {
-		nameInput: Joi.string().regex(/^[a-zA-Z0-9ÆæØøÅåĀāĒēĪīŪūĻļĶķŠšČčŅņ\-_ ]+$/).min(3).max(25).required().error(err => {
+		nameInput: Joi.string().regex(/^[a-zA-Z0-9ÆæØøÅåĀāĒēĪīŪūĻļĶķŠšČčŅņ\-,._ ]+$/).min(3).max(30).required().error(err => {
 			return { message: errorMessagePerType(err[0], 'Building Name') }
 		}),
-		addressInput: Joi.string().regex(/^[a-zA-Z0-9ÆæØøÅåĀāĒēĪīŪūĻļĶķŠšČčŅņ\-_ ]+$/).min(3).max(25).required().error(err => {
+		addressInput: Joi.string().regex(/^[a-zA-Z0-9ÆæØøÅåĀāĒēĪīŪūĻļĶķŠšČčŅņ\-,._ ]+$/).min(3).max(30).required().error(err => {
 			return { message: errorMessagePerType(err[0], 'Address') }
 		})
 	}
 	const secondModeSchema = {
-		nameInput: Joi.string().regex(/^[a-zA-Z0-9ÆæØøÅåĀāĒēĪīŪūĻļĶķŠšČčŅņ\-_ ]+$/).min(3).max(25).required().error(err => {
+		nameInput: Joi.string().regex(/^[a-zA-Z0-9ÆæØøÅåĀāĒēĪīŪūĻļĶķŠšČčŅņ\-,._ ]+$/).min(3).max(30).required().error(err => {
 			return { message: errorMessagePerType(err[0], 'Name') }
 		}),
 		emailInput: Joi.string().email({ tlds: { allow: false } }).required().error(err => {

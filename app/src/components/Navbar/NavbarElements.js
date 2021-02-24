@@ -31,6 +31,9 @@ export const NavbarContainer = styled.div`
 	align-items: center;
   flex-direction: column;
 	line-height: 1;
+	 -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
 `
 
 export const NavLogo = styled(LinkR)`
@@ -55,9 +58,9 @@ export const NavSubLogo = styled(LinkR)`
 `
 
 export const MobileIcon = styled.div`
-	display: none;
+	/* display: none; */
 
-	@media screen and (max-width: 760px) {
+	/* @media screen and (max-width: 760px) { */
 		display: block;
 		position: absolute;
 		top: 0;
@@ -66,7 +69,7 @@ export const MobileIcon = styled.div`
 		font-size: 1.8rem;
 		cursor: pointer;
 		color: #636363;
-	}
+	/* } */
 `
 
 export const NavMenu = styled.ul`

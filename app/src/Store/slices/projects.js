@@ -7,12 +7,14 @@ const slice = createSlice({
 	reducers: {
 		// actions => action handlers
 		projectsReceived: (projects, action) => {
-			const items = action.payload.projects.map(project => ({
-				id: ++lastId,
-				projectId: project._id,
-				name: project.name,
-				address: project.address
-			}));
+			const items = action.payload.projects
+				.filter(project => project.active === true)
+				.map(project => ({
+					id: ++lastId,
+					projectId: project._id,
+					name: project.name,
+					address: project.address
+				}));
 			items.forEach(project => projects.push(project));
 		},
 		projectReceived: (project, action) => {

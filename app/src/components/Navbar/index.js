@@ -35,9 +35,9 @@ const Navbar = ({ toggle }) => {
 							<NavLinks to="login">Login</NavLinks>
 						</NavItem>
 					</NavMenu> */}
-					<NavBtn>
+					{/* <NavBtn>
 						<NavBtnLink to="/print">Print Mode</NavBtnLink>
-					</NavBtn>
+					</NavBtn> */}
 				</NavbarContainer>
 			</Nav>
 		</>
