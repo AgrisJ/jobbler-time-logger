@@ -1,13 +1,27 @@
 import React from 'react'
 import { connect } from 'react-redux';
 import { getLoginData, loggedOut } from '../../Store/slices/login';
+import { projectsReset } from '../../Store/slices/projects';
+import { usersReset } from '../../Store/slices/users';
+import { currentModeIndexReset } from '../../Store/slices/currentModeIndex';
+import { currentContractorReset } from '../../Store/slices/currentContractor';
+import { currentAddressReset } from '../../Store/slices/currentAddress';
+import { timecardsReset } from '../../Store/slices/timecards';
 import { SidebarContainer, Icon, CloseIcon, SidebarWrapper, SidebarMenu, SidebarLink, SideBtnWrap, SidebarRoute, LogoutButton } from './SidebarElements';
 
 function Sidebar({ isOpen, toggle, dispatch, isAdmin }) {
 
 	function handleLogout() {
 		// TODO add a logout API route
-		// TODO on logout should clear all the Store
+
+		dispatch(currentAddressReset());
+		dispatch(currentModeIndexReset());
+		dispatch(currentContractorReset());
+
+		dispatch(timecardsReset());
+		dispatch(usersReset());
+		dispatch(projectsReset());
+
 		dispatch(loggedOut());
 		localStorage.setItem('login', "{}");
 	}

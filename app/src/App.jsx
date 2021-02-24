@@ -86,9 +86,9 @@ function App({ dispatch, login, monthIndex, users }) {
 		if (login.isAuthenticated) {
 			if (isAdmin) {
 				monthIndex && dispatch(actions.apiCallBegan({
-					url: `/v1/timecards/${fromDate(monthIndex)}/${toDate(monthIndex)}`,
+					url: `/v1/timecards/${fromDate()}/${toDate()}`,
 					data: {
-						companyId: companyConfig.companyId
+						companyId: process.env.REACT_APP_COMPANY_ID
 					},
 					headers: {
 						session: login.session
@@ -113,7 +113,7 @@ function App({ dispatch, login, monthIndex, users }) {
 				<PrivateRoute path="/admin" login={login} sourceComponent={Admin} exact />
 				<PrivateRoute path="/print" login={login} sourceComponent={PrintReportPage} exact />
 				<PrivateRoute path="/addremove" login={login} sourceComponent={AddRemove} exact />
-				<PrivateRoute path="/addentry" login={login} sourceComponent={AddEntry} exact />
+				<PrivateRoute path="/addentry" login={login} sourceComponent={AddEntry} isAdmin={isAdmin} exact />
 				<PrivateRoute path="/recordoverview" login={login} sourceComponent={recordOverview} exact />
 			</Switch>
 		</Router>
@@ -136,13 +136,13 @@ const mapStateToProps = (state) =>
 export default connect(mapStateToProps)(App);
 
 
-function PrivateRoute({ login, sourceComponent: Component, ...rest }) {
+function PrivateRoute({ login, sourceComponent: Component, isAdmin, ...rest }) {
 	return (
 		<Route
 			{...rest}
 			render={({ location }) => {
 				return login.isAuthenticated ? (
-					<Component />
+					<Component isAdmin={isAdmin} />
 				) : (
 						<Redirect
 							to={{
@@ -159,8 +159,10 @@ function PrivateRoute({ login, sourceComponent: Component, ...rest }) {
 }
 
 function formattedTime(monthIndex, day, selectedYear = new Date().getFullYear()) {
-	let result = new Date(`${selectedYear}-${monthIndex + 1}-${day}`);
-	let formattedTime = new Date(result.getTime() - (result.getTimezoneOffset() * 60000))
+	let result = new Date(selectedYear, monthIndex, +day);
+	const selectedTime = result.getTime();
+	const timezoneAdjustedTime = result.getTimezoneOffset() * 60000;
+	let formattedTime = new Date(selectedTime - timezoneAdjustedTime)
 		.toJSON()
 		.split("T")[0];
 	return formattedTime;

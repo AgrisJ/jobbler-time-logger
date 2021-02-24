@@ -1,32 +1,55 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { connect } from 'react-redux';
-import { getcurrentModeIndex } from '../../Store/slices/currentModeIndex';
 import Joi from 'joi-browser';
 import { FormInput, FormWrapper, FormButton, FormContent, Form, FormH1, FormLabel, ScrollAnchor, ErrorMessage, TotalHoursDisplay, DisplayLabel } from './AddEntryFormElements';
-import { companyConfig } from '../../services/companyConfig';
 import * as actions from '../../Store/api';
 import { getLoginData } from '../../Store/slices/login';
 import { errorMessagePerType, scrollDownTo } from '../AddDataForm';
 import { getcurrentAddress } from '../../Store/slices/currentAddress';
-import { getTimecardArray } from '../../Store/slices/timecards';
+import { getTimecardArray, timecardAdded } from '../../Store/slices/timecards';
 import { useHistory } from 'react-router-dom';
+import MobileDatePicker from 'react-mobile-datepicker';
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
+import "../../Styles/datePickerOverride.css"
+import { getcurrentContractor } from '../../Store/slices/currentContractor';
 
 
-const AddDataForm = ({ login, currentAddress, timecards, dispatch }) => {
+const AddDataForm = ({ login, currentAddress, timecards, dispatch, isAdmin, currentContractor }) => {
 	let history = useHistory();
 
 	const [{ isLoading }, setisLoading] = useState({ isLoading: true });
-	const [{ startTimeInput }, setstartTimeInput] = useState({ startTimeInput: '' });
-	const [{ endTimeInput }, setendTimeInput] = useState({ endTimeInput: '' });
+	const [{ startTimeInput }, setstartTimeInput] = useState({ startTimeInput: new Date() });
+	const [{ endTimeInput }, setendTimeInput] = useState({ endTimeInput: new Date() });
 	const [{ errors }, seterrors] = useState({ errors: {} });
 	const [{ hideForms }, sethideForms] = useState({ hideForms: true });
-
-	// useEffect(() => { currentAddress && localStorage.setItem('currentAddress', JSON.stringify(currentAddress)) }, [currentAddress]);
+	const [{ startTimePickerIsOpen }, setstartTimePickerIsOpen] = useState({ startTimePickerIsOpen: false });
+	const [{ endTimePickerIsOpen }, setendTimePickerIsOpen] = useState({ endTimePickerIsOpen: false });
 
 	useEffect(() => {
 		if (currentAddress.projectId !== null)
 			!currentAddress.loading && setisLoading({ isLoading: false });
 	}, [currentAddress])
+
+	const dateChange = startTimeInput.getDate();
+	const monthChange = startTimeInput.getMonth();
+	const yearChange = startTimeInput.getFullYear();
+
+	// EndTime input sets the same date as StartTime input
+	useEffect(() => {
+		if (endTimeInput.getDate() !== startTimeInput.getDate())
+			setendTimeInput({ endTimeInput: new Date(endTimeInput.setDate(dateChange)) })
+	}, [dateChange])
+
+	useEffect(() => {
+		if (endTimeInput.getFullYear() !== startTimeInput.getFullYear())
+			setendTimeInput({ endTimeInput: new Date(endTimeInput.setFullYear(yearChange)) })
+	}, [yearChange])
+
+	useEffect(() => {
+		if (endTimeInput.getMonth() !== startTimeInput.getMonth())
+			setendTimeInput({ endTimeInput: new Date(endTimeInput.setMonth(monthChange)) })
+	}, [monthChange])
 
 	useEffect(() => { !isLoading && sethideForms({ hideForms: false }); }, [currentAddress, isLoading])
 	useEffect(() => { currentAddress && localStorage.setItem('currentAddress', JSON.stringify(currentAddress)) }, [currentAddress]);
@@ -34,7 +57,7 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch }) => {
 		const findingError = timecards.find(timecard => Object.keys(timecard).includes('error'));
 		const hasError = findingError === undefined ? false : true;
 
-		if (!isLoading && !hasError) history.push("/recordoverview");
+		if (!isLoading && !hasError) history.push("/");
 
 		if (hasError) {
 			const savedErrors = { ...errors };
@@ -51,72 +74,122 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch }) => {
 	function handleEndTimeChange(e) {
 		setendTimeInput({ endTimeInput: e.target.value })
 	}
-	function emptyInputs() {
-		setstartTimeInput({ startTimeInput: '' })
-		setendTimeInput({ endTimeInput: '' })
+	function handleSelectStartTime(time) {
+		setstartTimePickerIsOpen({ startTimePickerIsOpen: false });
+		setstartTimeInput({ startTimeInput: time })
+	}
+	function handleSelectEndTime(time) {
+		setendTimePickerIsOpen({ endTimePickerIsOpen: false });
+		setendTimeInput({ endTimeInput: time })
+	}
+	function handleStartTimeDatePicker(time) {
+		setstartTimeInput({ startTimeInput: time })
+	}
+	function handleEndTimeDatePicker(time) {
+		setendTimeInput({ endTimeInput: time })
+	}
+
+	function handleClick(timeType) {
+		if (timeType === 'start') {
+			inputRefStart.current.blur();
+			setstartTimePickerIsOpen({ startTimePickerIsOpen: true })
+		};
+		if (timeType === 'end') {
+			inputRefEnd.current.blur();
+			setendTimePickerIsOpen({ endTimePickerIsOpen: true })
+		};
+	}
+	function handleCancelTimePicker(timeType) {
+		if (timeType === 'start') setstartTimePickerIsOpen({ startTimePickerIsOpen: false });
+		if (timeType === 'end') setendTimePickerIsOpen({ endTimePickerIsOpen: false });
 	}
 	function dateToday() {
 		const now = new Date();
-		const timezoneCorrectedNow = new Date(`${now} GMT+00:00`)
-		const dateToday = timezoneCorrectedNow.toJSON().split("T")[0];
-		return dateToday;
+		const timezoneCorrectedNow = new Date(now - now.getTimezoneOffset() * 60000)
+		const formattedDate = timezoneCorrectedNow.toJSON().split("T")[0];
+		return formattedDate;
+	}
+	function resultDate() {
+		const startTimeDate = new Date(startTimeInput);
+		const timezoneCorrectedNow = new Date(startTimeDate - startTimeDate.getTimezoneOffset() * 60000)
+		const formattedDate = timezoneCorrectedNow.toJSON().split("T")[0];
+		return formattedDate;
 	}
 	function totalHours(startTime, endTime) {
-		let dateFirst = new Date(`${dateToday()} ${startTime}`);
-		let dateSecond = new Date(`${dateToday()} ${endTime}`); //TODO make it - if endTime is smaller than start Time - switch to tomorrows day
-
-		// time difference
-		let timeDiff = Math.abs(dateSecond.getTime() - dateFirst.getTime());
-		let hours = timeDiff / 60 / 60 / 1000;
+		let msHour = 60 * 60 * 1000,
+			msDay = 60 * 60 * 24 * 1000;
+		const start = new Date(startTime);
+		const end = new Date(endTime);
+		const hours = Math.floor(((end - start) % msDay) / msHour)
 		return hours;
 	}
-	function totalMinutes(startTime, endTime) {
-		let dateFirst = new Date(`${dateToday()} ${startTime}`);
-		let dateSecond = new Date(`${dateToday()} ${endTime}`); //TODO make it - if endTime is smaller than start Time - switch to tomorrows day
 
-		// time difference
-		let timeDiff = (dateSecond.getTime() - dateFirst.getTime()) / 1000;
-		let minutes = (timeDiff / 60) % 60;
+	function totalMinutes(startTime, endTime) {
+		let msMinute = 60 * 1000,
+			msDay = 60 * 60 * 24 * 1000;
+		const start = new Date(startTime);
+		const end = new Date(endTime);
+		const minutes = Math.floor(((end - start) % msDay) / msMinute) % 60;
+
 		return minutes;
+	}
+
+	function totalTime(formatted = false) {
+		const hours = totalHours(startTimeInput, endTimeInput);
+		const minutes = totalMinutes(startTimeInput, endTimeInput);
+		const timeFormat = (hours, minutes) => (`${Math.floor(hours)}h ${Math.abs(minutes)}min`);
+		const readyToReturn = endTimeInput !== '' && startTimeInput !== '';
+
+		const decimalMin = minutes / 60;
+		const decimalTime = +(decimalMin + hours).toPrecision(3);
+
+		if (formatted) {
+			if (readyToReturn) return timeFormat(hours, minutes);
+			else return timeFormat(0, 0);
+		} else {
+			return decimalTime;
+		}
 	}
 
 
 	function doSubmit() {
-		dispatch(actions.apiCallBegan({// TODO ...and here - dispatch(PostUserTimecards());
-			url: "/v1/timecard",
-			method: "post",
-			data: {
-				userId: login.userId,
-				projectId: currentAddress.projectId,
-				date: dateToday(),
-				hours: totalHours(startTimeInput, endTimeInput)
-			},
-			headers: {
-				session: login.session
-			},
-			onError: "timecards/error"
-		}));
+		const hasInputValue = totalHours(startTimeInput, endTimeInput) !== 0;
 
-		dispatch(actions.apiCallBegan({ // TODO ...and here - dispatch(loadUserTimecards());
-			url: "/v1/user/hours",
-			headers: {
-				session: login.session
-			},
-			onSuccess: "timecards/timecardsReceived"
-		}));
+		if (hasInputValue) {
+			dispatch(actions.apiCallBegan({// TODO ...and here - dispatch(PostUserTimecards());
 
+				url: "/v1/timecard",
+				method: "post",
+				data: {
+					userId: isAdmin ? currentContractor.userId : login.userId,
+					projectId: currentAddress.projectId,
+					date: resultDate(),
+					hours: totalTime()
+				},
+				headers: {
+					session: login.session
+				},
+				onError: "timecards/error",
+				onSuccess: "timecards/timecardsReceived"
+			}));
 
+			dispatch(actions.apiCallBegan({ // TODO ...and here - dispatch(loadUserTimecards());
+				url: "/v1/user/hours",
+				headers: {
+					session: login.session
+				},
+				onSuccess: "timecards/timecardsReceived"
+			}));
+		}
 
-		emptyInputs();
-
-		// history.push("/recordoverview");
-	}
+		isAdmin ? history.push("/") : history.push("/recordoverview");
+	};
 
 	const schema = {
-		startTimeInput: Joi.string().regex(/^([0-9]{2}):([0-9]{2})$/).required().error(err => {
+		startTimeInput: Joi.date().iso().required().error(err => {
 			return { message: errorMessagePerType(err[0], 'Start Time') }
 		}),
-		endTimeInput: Joi.string().regex(/^([0-9]{2}):([0-9]{2})$/).required().error(err => {
+		endTimeInput: Joi.date().iso().required().error(err => {
 			return { message: errorMessagePerType(err[0], 'End Time') }
 		})
 	}
@@ -152,44 +225,138 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch }) => {
 		return { display: 'none' }
 	}
 
-	function totalTime() {
-		const hours = parseInt(totalHours(startTimeInput, endTimeInput));
-		const minutes = totalMinutes(startTimeInput, endTimeInput);
-		const timeFormat = (hours, minutes) => (`${hours}h ${minutes}min`);
-		const readyToReturn = endTimeInput !== '' && startTimeInput !== '';
-		if (readyToReturn) return timeFormat(hours, minutes);
-		else return timeFormat(0, 0);
+
+	const datePickerSettings = {
+		theme: 'ios',
+		confirmText: 'Set',
+		cancelText: 'Cancel',
+		showCaption: true,
+		headerFormat: 'YYYY-MM-DD',
+		dateConfig: {
+			'hour': {
+				format: 'hh',
+				caption: 'Hour',
+				step: 1,
+			},
+			'minute': {
+				format: 'mm',
+				caption: 'Min',
+				step: 1,
+			}
+		}
+	};
+
+	const customHeaderDatePicker = target => {
+		const styles = {
+			button: {
+				cursor: 'pointer',
+				borderRadius: '4px',
+				fontFamily: 'Expletus Sans',
+				fontSize: '18px',
+				borderStyle: 'none',
+				background: 'none',
+				zIndex: 3,
+				userSelect: 'none'
+			}
+		};
+		const DateButton = ({ value, onClick }) => (
+			<button style={styles.button} onClick={onClick}>
+				{value}
+			</button>
+		);
+		if (target === 'start')
+			return {
+				customHeader:
+					<DatePicker
+						selected={startTimeInput}
+						onChange={date => handleStartTimeDatePicker(date)}
+						customInput={<DateButton />}
+						dateFormat="yyyy-MM-dd"
+					/>
+			};
+		if (target === 'end')
+			return {
+				customHeader:
+					<DatePicker
+						selected={endTimeInput}
+						onChange={date => handleEndTimeDatePicker(date)}
+						customInput={<DateButton />}
+						dateFormat="yyyy-MM-dd"
+					/>
+			};
+	}
+
+	function getTimeFormat(current_datetime) {
+		const minutes = (current_datetime.getMinutes() < 10 ? '0' : '') + current_datetime.getMinutes();
+		const hours = (current_datetime.getHours() < 10 ? '0' : '') + current_datetime.getHours();
+		return hours + ":" + minutes;
+	}
+
+	const inputRefStart = useRef(null);
+	const inputRefEnd = useRef(null);
+
+	function keepStartDate(date) {
+		const now = Date.now();
+		const inputDateChangedFromToday = new Date(now).getDate() !== new Date(date).getDate();
+		const savedDate = startTimeInput.getDate();
+		const savedMonth = startTimeInput.getMonth();
+		const savedYear = startTimeInput.getFullYear();
+
+		if (!inputDateChangedFromToday) {
+			date = new Date(date.setDate(savedDate));
+			date = new Date(date.setMonth(savedMonth));
+			date = new Date(date.setFullYear(savedYear));
+		}
+
+		return date;
 	}
 
 	return (
 		<>
+			<MobileDatePicker
+				value={startTimeInput}
+				isOpen={startTimePickerIsOpen}
+				onSelect={handleSelectStartTime}
+				onCancel={() => handleCancelTimePicker('start')}
+				{...{ ...datePickerSettings, ...customHeaderDatePicker('start') }} />
+			<MobileDatePicker
+				value={endTimeInput}
+				isOpen={endTimePickerIsOpen}
+				onSelect={handleSelectEndTime}
+				onCancel={() => handleCancelTimePicker('end')}
+				onChange={(e) => handleEndTimeDatePicker(keepStartDate(e))}
+				{...{ ...datePickerSettings, ...customHeaderDatePicker('end') }} />
 			<FormWrapper>
 				<FormContent style={hideForms ? hide() : null}>
 					<Form onSubmit={handleSubmit}>
 						<>
+							<FormLabel htmlFor='for'>Start Time</FormLabel>
+
+							<FormInput
+								onClick={() => { scrollDownTo(".scrollHere"); handleClick('start'); }}
+								onChange={handleStartTimeChange}
+								value={getTimeFormat(startTimeInput)}
+								type='text'
+								hasErrors={errors['startTimeInput']}
+								ref={inputRefStart}
+								required />
+							{errors['startTimeInput'] && <ErrorMessage>{errors['startTimeInput']}</ErrorMessage>}
+						</>
+						<>
 							<FormLabel htmlFor='for'>End Time</FormLabel>
 							<FormInput
+								onClick={() => { handleClick('end'); }}
 								onChange={handleEndTimeChange}
-								value={endTimeInput}
-								type='time'
+								value={getTimeFormat(endTimeInput)}
+								type='text'
+								ref={inputRefEnd}
 								hasErrors={errors['endTimeInput']}
 								required />
 							{errors['endTimeInput'] && <ErrorMessage>{errors['endTimeInput']}</ErrorMessage>}
 						</>
-						<>
-							<FormLabel htmlFor='for'>Start Time</FormLabel>
-							<FormInput
-								onClick={() => scrollDownTo(".scrollHere")}
-								onChange={handleStartTimeChange}
-								value={startTimeInput}
-								type='time'
-								hasErrors={errors['startTimeInput']}
-								required />
-							{errors['startTimeInput'] && <ErrorMessage>{errors['startTimeInput']}</ErrorMessage>}
-						</>
 						<DisplayLabel>Total</DisplayLabel>
 						<TotalHoursDisplay>
-							{totalTime()}
+							{totalTime(true)}
 						</TotalHoursDisplay>
 						<FormButton>DONE</FormButton>
 					</Form>
@@ -205,6 +372,7 @@ const mapStateToProps = (state) =>
 	login: getLoginData(state),
 	currentAddress: getcurrentAddress(state),
 	timecards: getTimecardArray(state),
+	currentContractor: getcurrentContractor(state)
 })
 
 

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import Dropdown from 'react-dropdown';
 import 'react-dropdown/style.css';
 import '../../Styles/dropdown.css'
-import { ControlPanelContainer, ControlPanelContent, ControlPanelMonth, TotalDisplay, TotalDisplayWrapper, TotalTime, BackwardCaret, ForwardCaret, CardCounter } from './ControlPanelElements'
+import { ControlPanelContainer, ControlPanelContent, ControlPanelMonth, TotalDisplay, TotalDisplayWrapper, TotalTime, BackwardCaret, ForwardCaret, CardCounter, AddCardButton } from './ControlPanelElements'
 import { getProjectArray } from '../../Store/slices/projects';
 import { connect } from 'react-redux';
 import { getUsersArray } from '../../Store/slices/users';
@@ -18,6 +18,8 @@ import SelectUsers from '../SelectUsers';
 import { isLocalStored } from './../services/helpfulFunctions';
 import ModeSwitcher from '../ModeSwitcher';
 import { getLoginData, loggedIn } from '../../Store/slices/login';
+import { timeFormat } from '../ContentSection';
+import { useHistory } from 'react-router-dom';
 
 function ControlPanelSection(
 	{
@@ -26,7 +28,7 @@ function ControlPanelSection(
 		projects,
 		users,
 		timecards,
-		monthIndex,
+		monthIndex = 0,
 		currentAddress,
 		currentContractor,
 		currentModeIndex,
@@ -37,16 +39,18 @@ function ControlPanelSection(
 		printAllChecked
 	}
 ) {
+	let history = useHistory();
+
 	const addresses = projects.map(project => {
 		return { id: project.id, address: project.address, projectId: project.projectId }
 	}
 	);
 	const loggedInUserId = login.userId;
 	const contractors = users.map(card => ({ name: card.name, userId: card.userId }));
-	const monthNow = new Date().getMonth();
 	const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 	const IS_PRINT_MODE = ['print'].some(item => window.location.href.indexOf(item) !== -1) ? true : false;
 	const [{ listCardCount }, setListCardCount] = useState({ listCardCount: [] });
+	const [{ monthNow }, setmonthNow] = useState({ monthNow: new Date() });
 
 	const listIds =
 		useCallback(() => idListPerMode(currentModeIndex)
@@ -68,8 +72,10 @@ function ControlPanelSection(
 	const firstTimeLoadedContractor = firstContractor && !currentContractor;
 
 	useEffect(() => {
-		dispatch(monthIndexChanged({ monthIndex: monthNow || 0 }));
+		const getMonth = monthNow !== null ? monthNow.getMonth() : null;
+		dispatch(monthIndexChanged({ monthIndex: getMonth || 0 }));
 		isLocalStored('monthIndex') && dispatch(monthIndexChanged({ monthIndex: +isLocalStored('monthIndex') }));
+
 	}, []);
 
 	useEffect(() => { localStorage.setItem('monthIndex', monthIndex) }, [monthIndex]);
@@ -83,19 +89,18 @@ function ControlPanelSection(
 	const defaultMonth = months[monthIndex];
 	const _onSelectMonth = event => {
 		const foundIndex = months.indexOf(event.value);
-		dispatch(monthIndexChanged({ monthIndex: foundIndex }));
+		const isMonthIndex = typeof monthIndex !== 'undefined' || monthIndex !== null;
+		if (isMonthIndex) dispatch(monthIndexChanged({ monthIndex: foundIndex }));
 	};
 
 	const prevMonth = () => (dispatch(monthIndexChanged({ monthIndex: monthIndex ? monthIndex - 1 : months.length - 1 })));
 	const nextMonth = () => (dispatch(monthIndexChanged({ monthIndex: monthIndex < months.length - 1 ? monthIndex + 1 : 0 })));
-	const hours = time => Math.floor(time);
-	const minutes = time => ((time - hours(time)) * 60).toPrecision(2) / 1;
-	const formattedTime = time => (`${hours(time)}h ${minutes(time)}min`);
 
 	function idListPerMode(mode) {
 		let resultIds = [];
 
 		switch (mode) {
+
 			case 0:
 				resultIds = addresses.map(card => card.projectId)
 				break;
@@ -112,6 +117,9 @@ function ControlPanelSection(
 	const handlePrintAllCheckboxChange = event => {
 		setprintAllChecked({ printAllChecked: event.target.checked });
 	}
+
+	const navigateAddEntryPage = () => history.push("/addentry");
+	const isContractorMode = currentModeIndex === 1;
 
 	function ONLY_ON_PRINT_MODULES() {
 		if (IS_PRINT_MODE)
@@ -132,12 +140,14 @@ function ControlPanelSection(
 			return (
 				<>
 					<TotalDisplayWrapper>
-						<SelectUsers listCardCount={listCardCount} isAdmin={isAdmin} />
+						<SelectUsers listCardCount={listCardCount} isAdmin={isAdmin} /* manualOverride={isAdmin ? 1 : null} */ />
 						<TotalDisplay>
-							Total: <TotalTime>{formattedTime(totalTime)}</TotalTime>
+							Total: <TotalTime>{timeFormat(totalTime)}</TotalTime>
 						</TotalDisplay>
 					</TotalDisplayWrapper>
 					<CardCounter>{`${cardCount} entries`}</CardCounter>
+					{isAdmin && isContractorMode ?
+						<AddCardButton onClick={navigateAddEntryPage} /> : null}
 				</>
 			)
 		else return null;

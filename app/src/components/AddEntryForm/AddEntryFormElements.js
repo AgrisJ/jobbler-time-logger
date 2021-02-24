@@ -21,6 +21,9 @@ width:100%;
 z-index:1;
 margin: 0 auto;
 padding: 32px 32px;
+ -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
 `
 
 export const FormH1 = styled.h1`
@@ -59,6 +62,7 @@ font-family: 'Expletus Sans';
 border-radius: 4px;
 border: ${({ hasErrors }) => (hasErrors ? '1px solid #ff3860' : 'none')};
 box-shadow: ${({ hasErrors }) => (hasErrors ? '0 0 0 0.125em #ff386040' : '')};
+cursor: pointer;
 `
 export const TotalHoursDisplay = styled.div`
 width: 60%;
@@ -71,6 +75,9 @@ background: #f2f2f2;
 color: #828282;
 font-size: 26px;
 font-family: 'Expletus Sans';
+ -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
 `
 export const FormButton = styled.button`
 background-color: #4c8faf;
@@ -94,6 +101,7 @@ font-size: .75rem;
 margin-top: -0.75rem;
 margin-bottom: 0.55rem;
 color: #ff3860;
+text-align: center;
 `
 export const ScrollAnchor = styled.div.attrs(props => ({
 	className: props.className

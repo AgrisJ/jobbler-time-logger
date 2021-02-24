@@ -1,24 +1,11 @@
 import React, { useState } from 'react'
-import { ActionButton, Container } from '../components/common/commonElements';
 import Navbar from '../components/Navbar'
 import SelectUsers from '../components/SelectUsers';
 import Sidebar from '../components/Sidebar'
-import ModeSwitcher from '../components/ModeSwitcher/index';
 import { connect } from 'react-redux';
-import { getUsersArray, userRemoved } from '../Store/slices/users';
-import { getProjectArray, projectRemoved } from '../Store/slices/projects';
-import { currentAddressChanged, getcurrentAddress } from '../Store/slices/currentAddress';
-import { currentContractorChanged, getcurrentContractor } from '../Store/slices/currentContractor';
-import { getcurrentModeIndex } from '../Store/slices/currentModeIndex';
-import Modal from '../components/Modal';
-import { getTimecardArray, timecardsOfUserRemoved, timecardsOfProjectRemoved } from '../Store/slices/timecards';
-import * as actions from '../Store/api';
-import { companyConfig } from '../services/companyConfig';
-import { getLoginData } from '../Store/slices/login';
 import AddEntryForm from '../components/AddEntryForm';
 
-
-const AddEntry = ({ dispatch, projects, users, currentAddress, currentContractor, currentModeIndex, login }) => {
+const AddEntry = ({ isAdmin }) => {
 	const [{ isOpen }, setIsOpen] = useState({ isOpen: false });
 	const toggle = () => setIsOpen({ isOpen: !isOpen });
 
@@ -26,9 +13,8 @@ const AddEntry = ({ dispatch, projects, users, currentAddress, currentContractor
 		<>
 			<Sidebar isOpen={isOpen} toggle={toggle} isAdmin={false} />
 			<Navbar toggle={toggle} />
-			{/* <h1>Choose an Object</h1> */}
-			<SelectUsers labelText={'Time spent in:'} />
-			<AddEntryForm />
+			<SelectUsers labelText={'Time spent in:'} manualOverride={0} />
+			<AddEntryForm isAdmin={isAdmin} />
 			{/*TODO Add animated notification - 'name' erased  */}
 		</>
 	)
@@ -36,14 +22,7 @@ const AddEntry = ({ dispatch, projects, users, currentAddress, currentContractor
 
 const mapStateToProps = (state) =>
 ({
-	projects: getProjectArray(state),
-	users: getUsersArray(state),
-	timeCards: getTimecardArray(state),
-	// monthIndex: getMonthIndex(state),
-	currentAddress: getcurrentAddress(state),
-	currentContractor: getcurrentContractor(state),
-	currentModeIndex: getcurrentModeIndex(state),
-	login: getLoginData(state),
+
 })
 
 

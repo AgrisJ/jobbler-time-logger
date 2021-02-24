@@ -9,6 +9,16 @@
   max-height: 50vh;
 	width: max-content;
 }
+.menuTimecardClass {
+	font-weight: normal;
+	color: #5A5A5A;
+	cursor: pointer;
+  max-height: 50vh;
+	width: max-content;
+	font-family: "Expletus Sans";
+  font-size: 22px;
+  color: rgb(130, 130, 130);
+}
 .monthMenuClass {
 	font-family: 'Expletus Sans';
 	font-weight: normal;
@@ -25,6 +35,12 @@
 	border: unset;
 	padding: 0 26px 0px 0;
 	transition: all 0.3s ease-in-out;
+}
+.controlTimecardClass {
+	border: unset;
+	padding: 0 26px 0px 0;
+	transition: all 0.3s ease-in-out;
+	background-color: unset;
 }
 
 .monthControlClass {

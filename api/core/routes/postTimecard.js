@@ -7,7 +7,7 @@ const authorizer = require('../../authorizer');
 router.post('/api/v1/timecard', authorizer, (req, res) => {
     // Assemble data
     let data = req.body;
-    data.userId = req._user._id;
+    // data.userId = req._user._id;
     data.companyId = req._company._id;
 
     // Insert timecard data into the database

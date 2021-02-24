@@ -57,11 +57,17 @@ const PrintContent = ({
 
 				const projectCards = timeCards
 					.filter(card => card.jobDate.split('-')[1] - 1 === selectedMonth)
-					.filter(c => printAllChecked ? c : c.projectId === currentAddress.projectId)
+
+					// show only the particular project cards
 					.filter((card, index) => {
-						const cardIndexToRemove = card.id === itemId() ? index : null;
+						const cardIndexToRemove = card.projectId === itemId() ? index : null;
 						return index === cardIndexToRemove
 					})
+
+					// show all projects
+					.filter(c => printAllChecked ? c : c.projectId === currentAddress.projectId)
+
+					// card visuals
 					.map(card => {
 						const contractorsName = users.find(user => user.userId === card.userId).name;
 						countHoursPerCard(card, projectCardHours);
@@ -75,20 +81,26 @@ const PrintContent = ({
 					});
 
 				const contractorCards = timeCards
-					.filter(card => {
-						return card.jobDate.split('-')[1] - 1 === selectedMonth
-					})
+
+					// show cards from selected month
+					.filter(card => card.jobDate.split('-')[1] - 1 === selectedMonth)
+
+					// show only the particular user cards
 					.filter((card, index) => {
-						const cardIndexToRemove = card.id === itemId() ? index : null;
+						const cardIndexToRemove = card.userId === itemId() ? index : null;
 						return index === cardIndexToRemove
 					})
+
+					// show all users
 					.filter(c => printAllChecked ? c : users.find(user => user.userId === card.userId).name === currentContractor.name)
+
+					// card visuals
 					.map(card => {
 						const projectName = projects.find(project => project.projectId === card.projectId).address;
 						countHoursPerCard(card, contractorCardHours);
 
 						return (
-							<TableRow key={projectName + '-' + card.projectId}>
+							<TableRow key={projectName + '-' + card.id}>
 								<TableCell>{projectName}</TableCell>
 								<TableCell className='hourLen'>{card.hours}</TableCell>
 							</TableRow>
@@ -109,8 +121,9 @@ const PrintContent = ({
 				}
 				function itemId() {
 					let itemId = null;
-					if (firstMode) itemId = projects.find(project => project.projectId === card.projectId).id;
-					if (secondMode) itemId = users.find(user => user.userId === card.userId).id;
+					if (firstMode) itemId = projects.find(project => project.projectId === card.projectId).projectId;
+					if (secondMode) itemId = users.find(user => user.userId === card.userId).userId;
+
 					return itemId;
 				}
 				const cardTimeSource = firstMode ? projectCardHours : contractorCardHours;

@@ -5,7 +5,16 @@ const router = express.Router();
 const authorizer = require('../../../authorizer');
 
 router.patch('/api/v1/admin/user/:userId', authorizer, (req, res) => {
-    Company.updateOne({_id: req.params.userId}, req.body, (error, result) => {
+    // Get body data
+    let data = req.body;
+
+    // In case the password is being patched hash it
+    if (data.password) {
+        data.password = api.utils.passwordHash(req.body.password);
+    }
+
+    // Update password
+    User.updateOne({_id: req.params.userId}, data, (error, result) => {
         // Check for errors
         if (error) {
             api.utils.log(req.route.path + ' , error: ' + error);

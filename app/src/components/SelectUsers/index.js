@@ -3,7 +3,7 @@ import { SelecUsersContainer, DropdownLabel } from './SelectUsersElements';
 import Dropdown from 'react-dropdown';
 import '../../Styles/dropdown.css'
 import { connect } from 'react-redux';
-import { getcurrentModeIndex } from '../../Store/slices/currentModeIndex';
+import { getcurrentModeIndex, currentModeIndexChanged } from '../../Store/slices/currentModeIndex';
 import { currentAddressChanged, getcurrentAddress } from '../../Store/slices/currentAddress';
 import { currentContractorChanged, getcurrentContractor } from '../../Store/slices/currentContractor';
 import { getProjectArray } from '../../Store/slices/projects';
@@ -12,8 +12,8 @@ import { gettotalTime } from '../../Store/slices/totalTime';
 
 function SelectUsers(
 	{
-		isAdmin,
-		currentModeIndex = isAdmin ? 1 : 0,
+		manualOverride = null,
+		currentModeIndex,
 		projects,
 		users,
 		currentContractor,
@@ -43,6 +43,13 @@ function SelectUsers(
 		isLocalStored('currentContractor') && dispatch(currentContractorChanged(JSON.parse(isLocalStored('currentContractor'))));
 	}, []);
 
+	useEffect(() => {
+		const manualOverrideActivated = manualOverride !== null;
+		if (manualOverrideActivated)
+			dispatch(currentModeIndexChanged(manualOverride));
+
+	}, [currentModeIndex, manualOverride]);
+
 	const _onSelectAddress = event => dispatch(currentAddressChanged(
 		{
 			id: addresses.find(a => a.address === selectSrc(event.value, 'item')).id,
@@ -58,12 +65,6 @@ function SelectUsers(
 		if (currentModeIndex === 0) return _onSelectAddress(event);  // Project hours
 		if (currentModeIndex === 1) return _onSelectContractor(event); // Contractor hours
 	}
-
-	function selectSrc(src, path) {
-		const exists = src => src !== undefined;
-		const sourceIsViable = src => exists(src);
-		return sourceIsViable(src) ? src.props[path] : []
-	};
 
 	function savedChosenOption() {
 		function address() { return contentListPerMode(currentModeIndex).find(address => selectSrc(address, 'item') === currentAddress.address) }; //TODO simplify this after I put dispatch of changing currentAddress / contractor
@@ -167,3 +168,10 @@ const mapStateToProps = state =>
 // mapStateToProps takes state of the store and returns the part you are interested in:
 // the properties of this object will end up as props of our componennt
 export default connect(mapStateToProps)(SelectUsers);
+
+
+export function selectSrc(src, path) {
+	const exists = src => src !== undefined;
+	const sourceIsViable = src => exists(src);
+	return sourceIsViable(src) ? src.props[path] : []
+};

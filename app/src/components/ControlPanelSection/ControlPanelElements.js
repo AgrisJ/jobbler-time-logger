@@ -1,5 +1,6 @@
 import styled from 'styled-components/macro';
 import { AiFillCaretRight, AiFillCaretLeft } from 'react-icons/ai';
+import { AiOutlineFileAdd } from 'react-icons/ai';
 
 export const ControlPanelContainer = styled.div`
 	  background: #fff;
@@ -116,6 +117,7 @@ export const ForwardCaret = styled(AiFillCaretRight)`
 	color: #828282;
 	margin-left: 0.5em;
 `
+
 export const BackwardCaret = styled(AiFillCaretLeft)`
 	color: #828282;
 	margin-right: 0.5em;
@@ -130,4 +132,19 @@ export const CardCounter = styled.div`
 	font-family: 'Expletus Sans';
   color: #4F4F4F;
   font-size: 14px;
+`
+export const AddCardButton = styled(AiOutlineFileAdd)`
+	color: rgba(0,0,0,0.6);
+	position: absolute;
+	bottom: 25px;
+	left: 0;
+	transform: translate(30%,30%);
+	font-size: 1.6em;
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+
+	& :hover {     
+	  color: #dfdfdf;
+	}
 `
