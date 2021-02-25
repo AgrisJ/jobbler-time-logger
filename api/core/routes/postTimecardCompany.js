@@ -9,7 +9,6 @@ router.post('/api/v1/timecard/:userId', authorizer, (req, res) => {
     let data = req.body;
     data.userId = req.params.userId;
     data.companyId = req._company._id;
-    data.date = new Date(data.date);
 
     // Insert timecard data into the database
     Timecard.create(data, (error, result) => {
