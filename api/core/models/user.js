@@ -20,8 +20,8 @@ const userSchema = new Schema({
     role: {type: String, enum: ['admin', 'company', 'employee'], required: true},
     telephone: {type: String, minLength: 8, maxLength: 12, required: true},
     cpr: {type: String, minLength: 10, maxLength: 10, required: true},
-    contractNumber: {type: String, required: true}
-    deleted: {type: Boolean, default: false},
+    contractNumber: {type: String, required: true},
+    deleted: {type: Boolean, default: false}
 }, {
     timestamps: true
 });

@@ -8,8 +8,9 @@ const schema = new Schema({
     hours: {type: Number, required: true, min:0},
     startTime: {type: Date, required: true},
     endTime: {type: Date, required: true},
-    breakTime: {type: Number, default: 0}
+    breakTime: {type: Number, default: 0},
     notes: {type: String},
+    date: {type: Date, required: true} // To be deleted, removed
 }, {
     timestamps: true
 });
