@@ -10,8 +10,10 @@ module.exports = ((req, res, next) => {
         admin: [
             {method: 'get', path: '/api/v1/admin/companies'},
             {method: 'get', path: '/api/v1/admin/users'},
+            {method: 'get', path: '/api/v1/admin/timecards'},
             {method: 'post', path: '/api/v1/admin/company'},
             {method: 'post', path: '/api/v1/admin/user'},
+            {method: 'post', path: '/api/v1/admin/timecard'},
             {method: 'patch', path: '/api/v1/admin/company'},
             {method: 'patch', path: '/api/v1/admin/user'},
             {method: 'delete', path: '/api/v1/admin/company'},

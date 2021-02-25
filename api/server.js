@@ -132,22 +132,30 @@ db.once('open', () => {
     // Import admin routes
     const postCompanyAdmin = require('./core/routes/admin/postCompanyAdmin');
     const postUserAdmin = require('./core/routes/admin/postUserAdmin');
+    const postTimecardAdmin = require('./core/routes/admin/postTimecardAdmin');
     const patchCompanyAdmin = require('./core/routes/admin/patchCompanyAdmin');
     const patchUserAdmin = require('./core/routes/admin/patchUserAdmin');
+    const patchTimecardAdmin = require('./core/routes/admin/patchTimecardAdmin');
     const getCompaniesAdmin = require('./core/routes/admin/getCompaniesAdmin');
     const getUsersAdmin = require('./core/routes/admin/getUsersAdmin');
+    const getTimecardsAdmin = require('./core/routes/admin/getTimecardsAdmin');
     const deleteCompanyAdmin = require('./core/routes/admin/deleteCompanyAdmin');
     const deleteUserAdmin = require('./core/routes/admin/deleteUserAdmin');
+    const deleteTimecardAdmin = require('./core/routes/admin/deleteTimecardAdmin');
     
     // Use admin routes
     server.use('/', postCompanyAdmin);
     server.use('/', postUserAdmin);
+    server.use('/', postTimecardAdmin);
     server.use('/', patchCompanyAdmin);
     server.use('/', patchUserAdmin);
+    server.use('/', patchTimecardAdmin);
     server.use('/', getCompaniesAdmin);
     server.use('/', getUsersAdmin);
+    server.use('/', getTimecardsAdmin);
     server.use('/', deleteCompanyAdmin);
     server.use('/', deleteUserAdmin);
+    server.use('/', deleteTimecardAdmin);
 
     // Run the api server
     server.listen(config.API_PORT, () => {

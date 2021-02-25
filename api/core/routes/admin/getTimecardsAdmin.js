@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
-const Timecard = require('./../models/timecard');
+const Timecard = require('./../../models/timecard');
 const express = require("express");
 const router = express.Router();
-const authorizer = require('../../authorizer');
+const authorizer = require('../../../authorizer');
 const { isDate } = api.validators;
 
-router.get('/api/v1/timecards/:fromDate/:toDate', authorizer, (req, res) => {
+router.get('/api/v1/admin/timecards/:fromDate/:toDate', authorizer, (req, res) => {
     // Validate date
 	if (!isDate(req.params.fromDate) || !isDate(req.params.toDate)) {
         res.status(400).end();
@@ -13,7 +13,7 @@ router.get('/api/v1/timecards/:fromDate/:toDate', authorizer, (req, res) => {
     }
 
     // Get timecards from the database
-    Timecard.find({companyId: req._company._id, startTime: {
+    Timecard.find({startTime: {
         $gte: req.params.fromDate,
         $lte: req.params.toDate
     }}, (error, results) => {
@@ -31,7 +31,7 @@ router.get('/api/v1/timecards/:fromDate/:toDate', authorizer, (req, res) => {
         }
         
         // Respond
-        res.status(200).send({timecards: results, newToken: req._newToken});
+        res.status(200).send({timecards: results});
     });
 });
 
