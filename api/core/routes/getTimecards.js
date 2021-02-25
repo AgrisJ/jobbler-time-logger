@@ -13,7 +13,7 @@ router.get('/api/v1/timecards/:fromDate/:toDate', authorizer, (req, res) => {
     }
 
     // Get timecards from the database
-    Timecard.find({companyId: req._company._id, date: {
+    Timecard.find({companyId: req._company._id, startDate: {
         $gte: req.params.fromDate,
         $lte: req.params.toDate
     }}, (error, results) => {

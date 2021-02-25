@@ -9,8 +9,7 @@ const schema = new Schema({
     startTime: {type: Date, required: true},
     endTime: {type: Date, required: true},
     breakTime: {type: Number, default: 0},
-    notes: {type: String},
-    date: {type: Date, required: true} // To be deleted, removed
+    notes: {type: String}
 }, {
     timestamps: true
 });
