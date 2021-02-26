@@ -63,7 +63,7 @@ function ControlPanelSection(
 				return timecards
 					.filter(c => isAdmin ? c : c.userId === loggedInUserId)
 					.filter(card => card[propForMode] === id)
-					.filter(card => card.jobDate.split('-')[1] - 1 === monthIndex).length
+					.filter(card => card.startTime.split('-')[1] - 1 === monthIndex).length
 			}
 			), [currentModeIndex, monthIndex, timecards]);
 	const firstAddress = useCallback(() => (addresses[0] ? { id: addresses[0].id, address: addresses[0].address, projectId: addresses[0].projectId, loading: false } : null), [addresses]);

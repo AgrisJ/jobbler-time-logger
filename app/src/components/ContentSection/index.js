@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { ContentListItem, ListEditIcon, ListDate, ListPersonName, ListTime, ItemDeleteIcon, DateInput, DateForm, DateButton } from './ContentElements';
+import { ContentListItem, ListEditIcon, ListDate, ListPersonName, ListTime, ItemDeleteIcon, DateInput, DateForm, DateButton, NotesIcon, NotesText, NotesContainer } from './ContentElements';
 import { connect } from 'react-redux';
 import { getProjectArray } from '../../Store/slices/projects';
 import { getUsersArray } from '../../Store/slices/users';
@@ -18,6 +18,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import "../../Styles/datePickerOverride.css"
 import { ErrorMessage } from '../AddEntryForm/AddEntryFormElements';
 import AddressPicker from './../AddressPicker/index';
+import { getnotesArray } from '../../Store/slices/notes';
 
 const ContentSection = (
 	{
@@ -30,7 +31,8 @@ const ContentSection = (
 		currentContractor,
 		users,
 		isAdmin,
-		login
+		login,
+		notes
 	}
 ) => {
 	const [{ savedTime }, setSavedTime] = useState({ savedTime: 0 })
@@ -43,6 +45,7 @@ const ContentSection = (
 	const secondMode = currentModeIndex === 1; // Contractor hours
 	const [{ showModal }, setshowModal] = useState({ showModal: false });
 	const [{ savedCardId }, setsavedCardId] = useState({ savedCardId: null });
+	const [{ expandedNotesCards }, setexpandedNotesCards] = useState({ expandedNotesCards: [] });
 	const [{ errors }, seterrors] = useState({ errors: {} });
 	useEffect(() => {
 		const findingError = timeCards.find(timecard => Object.keys(timecard).includes('error'));
@@ -70,7 +73,7 @@ const ContentSection = (
 		let cardsCounted = 0;
 
 		const projectTime = timeCards
-			.filter(card => card.jobDate.split('-')[1] - 1 === selectedMonth)
+			.filter(card => card.startTime.split("T")[0].split("-")[1] - 1 === selectedMonth)
 			.filter(c => c.projectId === projectId)
 			.filter(c => isAdmin ? c : c.userId === loggedInUserId)
 			.map((card, index) => {
@@ -85,7 +88,7 @@ const ContentSection = (
 			})[0] || [0]
 
 		const contractorTime = timeCards
-			.filter(card => card.jobDate.split('-')[1] - 1 === selectedMonth)
+			.filter(card => card.startTime.split("T")[0].split("-")[1] - 1 === selectedMonth)
 			.filter(card => {
 				const _selectedContractor = users.find(user => user.userId === card.userId);
 				const contractorName = _selectedContractor ? _selectedContractor.name : "--contractor doesn't exist--";
@@ -142,6 +145,14 @@ const ContentSection = (
 
 	};
 
+	function expandNotes(cardId) {
+		setexpandedNotesCards(
+			{
+				expandedNotesCards: [...expandedNotesCards, cardId]
+			}
+		);
+	}
+
 	function dateFormat(date) {
 		const timezoneCorrectedNow = new Date(date - date.getTimezoneOffset() * 60000)
 		const formattedDate = timezoneCorrectedNow.toJSON().split("T")[0];
@@ -157,7 +168,10 @@ const ContentSection = (
 				fontSize: '18px',
 				borderStyle: 'none',
 				background: 'none',
-				zIndex: 0
+				zIndex: 0,
+				userSelect: 'none',
+				webkitUserSelect: 'none', /* Safari */
+				msUserSelect: 'none' /* IE 10 and IE 11 */
 			}
 		};
 		const DateButton = ({ value, onClick }) => (
@@ -173,7 +187,7 @@ const ContentSection = (
 				url: `/v1/timecard/${cardId}`,
 				method: "PATCH",
 				data: {
-					"date": renamedDate
+					"startTime": renamedDate
 				},
 				headers: {
 					session: login.session
@@ -182,11 +196,11 @@ const ContentSection = (
 			}));
 
 			// change card on Store
-			dispatch(timecardRenamed({ cardId: cardId, date: renamedDate }));
+			dispatch(timecardRenamed({ cardId: cardId, startTime: renamedDate }));
 		};
 
-		const projectCards = timeCards
-			.filter(card => card.jobDate.split('-')[1] - 1 === selectedMonth)
+		const projectCards = timeCards //TODO should order cards by date
+			.filter(card => card.startTime.split("T")[0].split("-")[1] - 1 === selectedMonth)
 			.filter(c => c.projectId === projectId)
 			.filter(c => isAdmin ? c : c.userId === loggedInUserId)
 			.map((card, index) => {
@@ -198,23 +212,33 @@ const ContentSection = (
 				const contractorName = _selectedContractor ? _selectedContractor.name : "--contractor doesn't exist--";
 				const calculatedTime = card.hours;
 				const contractorsName = isAdmin ? contractorName : projectName;
+				const hasNotes = card.notes !== '' && typeof card.notes !== 'undefined';
+
 				return (
 					<ContentListItem key={card.id} listColor={listColor(index)}>
 						{isAdmin ? <ItemDeleteIcon onClick={() => handleRemoveTimecard(card.cardId)} /> : null}
 						{isAdmin ? <DatePicker
-							selected={new Date(card.jobDate)}
+							selected={new Date(card.startTime)}
 							onChange={date => renameCard(dateFormat(date), card.cardId)}
 							customInput={<DateButton />}
 							dateFormat="yyyy-MM-dd"
-						/> : <ListDate>{card.jobDate}</ListDate>}
+						/> : <ListDate>{card.startTime.split("T")[0]}</ListDate>}
 						<ListPersonName>{contractorsName}</ListPersonName>
+						{hasNotes ?
+							<NotesIcon onClick={() => expandNotes(card.cardId)} /> : null}
+						{hasNotes && expandedNotesCards.includes(card.cardId) ?
+							<NotesContainer>
+								<NotesText>
+									{card.notes}
+								</NotesText>
+							</NotesContainer> : null}
 						<ListTime>{timeFormat(calculatedTime)}</ListTime>
 					</ContentListItem>
 				)
 			});
 
-		const contractorCards = timeCards
-			.filter(card => card.jobDate.split('-')[1] - 1 === selectedMonth)
+		const contractorCards = timeCards //TODO should order cards by date
+			.filter(card => card.startTime.split("T")[0].split("-")[1] - 1 === selectedMonth)
 			.filter(card => {
 				const _selectedContractor = users.find(user => user.userId === card.userId);
 				const contractorName = _selectedContractor ? _selectedContractor.name : "--contractor doesn't exist--";
@@ -226,20 +250,33 @@ const ContentSection = (
 			.map((card, index) => {
 				const selectedProject = projects.find(project => project.projectId === card.projectId);
 				const projectName = selectedProject ? selectedProject.address : "--project doesn't exist--";
+				const hasNotes = card.notes !== '' && typeof card.notes !== 'undefined';
+
+
 				return (
 					<ContentListItem key={`${card.projectId}-${card.id}`} listColor={listColor(index)}>
-						{isAdmin ? <ItemDeleteIcon onClick={() => handleRemoveTimecard(card.cardId)} /> : null}
-						{isAdmin ? <DatePicker
-							selected={new Date(card.jobDate)}
-							onChange={date => renameCard(dateFormat(date), card.cardId)}
-							customInput={<DateButton />}
-							dateFormat="yyyy-MM-dd"
-						/> : <ListDate>{card.jobDate}</ListDate>}
-						{isAdmin ? <AddressPicker
-							cardId={card.cardId}
-							projectName={projectName}
-						/> : <ListPersonName>{projectName}</ListPersonName>}
-						{/*TODO patch projectId - should open a dropdown of projects to choose from */}
+						{isAdmin ?
+							<ItemDeleteIcon onClick={() => handleRemoveTimecard(card.cardId)} /> : null}
+						{isAdmin ?
+							<DatePicker
+								selected={new Date(card.startTime)}
+								onChange={date => renameCard(dateFormat(date), card.cardId)}
+								customInput={<DateButton />}
+								dateFormat="yyyy-MM-dd"
+							/> : <ListDate>{card.startTime.split("T")[0]}</ListDate>}
+						{isAdmin ?
+							<AddressPicker
+								cardId={card.cardId}
+								projectName={projectName}
+							/> : <ListPersonName>{projectName}</ListPersonName>}
+						{hasNotes ?
+							<NotesIcon onClick={() => expandNotes(card.cardId)} /> : null}
+						{hasNotes && expandedNotesCards.includes(card.cardId) ?
+							<NotesContainer>
+								<NotesText>
+									{card.notes}
+								</NotesText>
+							</NotesContainer> : null}
 						<ListTime>{timeFormat(card.hours)}</ListTime>
 					</ContentListItem>
 				)
@@ -273,7 +310,8 @@ const mapStateToProps = (state) =>
 	currentAddress: getcurrentAddress(state),
 	currentContractor: getcurrentContractor(state),
 	currentModeIndex: getcurrentModeIndex(state),
-	login: getLoginData(state)
+	login: getLoginData(state),
+	notes: getnotesArray(state)
 })
 
 

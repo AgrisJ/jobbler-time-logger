@@ -10,27 +10,27 @@ console.log('\x1b[33mStarting server\x1b[0m');
 // Establish a database connection
 process.stdout.write('Establishing database connection...');
 const dbAddress = config.API_DEV_MODE ? config.DB_ADDRESS_DEV : config.DB_ADDRESS_PROD;
-mongoose.connect(dbAddress, {useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.connect(dbAddress, { useNewUrlParser: true, useUnifiedTopology: true });
 global.db = mongoose.connection;
 
 // Log unexpected (unhandled) errors
 process.on('uncaughtException', function (exception) {
-    console.log('\x1b[31mUnexpected exception\x1b[0m');
-    api.utils.log(exception);
-    //process.exit(1);
+	console.log('\x1b[31mUnexpected exception\x1b[0m');
+	api.utils.log(exception);
+	//process.exit(1);
 });
 
 // Log unexpected promise rejections
-process.on('unhandledRejection', function(reason, p){
-    console.log('\x1b[31mUnhandled rejection\x1b[0m');
-    api.utils.log(exception);
-    //process.exit(1);
+process.on('unhandledRejection', function (reason, p) {
+	console.log('\x1b[31mUnhandled rejection\x1b[0m');
+	api.utils.log(exception);
+	//process.exit(1);
 });
 
 // Log database errors
 db.on('error', (error) => {
-    api.utils.log(error);
-    //process.exit(1);
+	api.utils.log(error);
+	//process.exit(1);
 });
 
 // Prevent immediate server exit
@@ -38,26 +38,26 @@ process.stdin.resume();
 
 // Handle server exit
 function closeServer(options, exitCode) {
-    // Log to console and close mysql connection
-    if (options.cleanup) {
+	// Log to console and close mysql connection
+	if (options.cleanup) {
 		console.log('\x1b[33mServer shutting down\x1b[0m');
 
-        // Perform any cleanup operations before closing the server here
-        // ..
-    }
+		// Perform any cleanup operations before closing the server here
+		// ..
+	}
 
-    // Exit
-    if (options.exit) { 
+	// Exit
+	if (options.exit) {
 		process.exit();
-    }
+	}
 }
 
 // Handle server exit, close, crash, etc. events
-process.on('exit', closeServer.bind(null, {cleanup:true}));
-process.on('SIGINT', closeServer.bind(null, {exit:true}));
-process.on('SIGUSR1', closeServer.bind(null, {exit:true}));
-process.on('SIGUSR2', closeServer.bind(null, {exit:true}));
-process.on('uncaughtException', closeServer.bind(null, {exit:true}));
+process.on('exit', closeServer.bind(null, { cleanup: true }));
+process.on('SIGINT', closeServer.bind(null, { exit: true }));
+process.on('SIGUSR1', closeServer.bind(null, { exit: true }));
+process.on('SIGUSR2', closeServer.bind(null, { exit: true }));
+process.on('uncaughtException', closeServer.bind(null, { exit: true }));
 
 // Once a connection is established run the rest of the server code
 db.once('open', () => {

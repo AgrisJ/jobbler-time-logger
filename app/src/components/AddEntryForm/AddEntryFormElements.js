@@ -64,6 +64,22 @@ border: ${({ hasErrors }) => (hasErrors ? '1px solid #ff3860' : 'none')};
 box-shadow: ${({ hasErrors }) => (hasErrors ? '0 0 0 0.125em #ff386040' : '')};
 cursor: pointer;
 `
+export const FormTextArea = styled.textarea`
+width: ${({ isNoteInAction }) => (isNoteInAction ? '90%' : '60%')};
+justify-self: center;
+padding: 8px 8px;
+margin-bottom: 14px;
+background: #f2f2f2;
+color: #828282;
+text-align: left;
+font-size: 14px;
+font-family: 'Expletus Sans';
+border-radius: 4px;
+border: ${({ hasErrors }) => (hasErrors ? '1px solid #ff3860' : 'none')};
+box-shadow: ${({ hasErrors }) => (hasErrors ? '0 0 0 0.125em #ff386040' : '')};
+transition: all 0.5s;
+cursor: pointer;
+`
 export const TotalHoursDisplay = styled.div`
 width: 60%;
 justify-self: center;
@@ -71,7 +87,7 @@ text-align: center;
 padding: 16px 16px;
 margin-bottom: 14px;
 border-radius: 4px;
-background: #f2f2f2;
+background: #fff;
 color: #828282;
 font-size: 26px;
 font-family: 'Expletus Sans';

@@ -9,6 +9,7 @@ import currentModeIndexReducer from '../slices/currentModeIndex';
 import totalTimeReducer from '../slices/totalTime';
 import cardCountReducer from '../slices/cardCount';
 import loginReducer from '../slices/login';
+import noteReducer from '../slices/notes';
 
 
 export default combineReducers({
@@ -21,5 +22,6 @@ export default combineReducers({
 	currentModeIndex: currentModeIndexReducer,
 	totalTime: totalTimeReducer,
 	cardCount: cardCountReducer,
-	login: loginReducer
+	login: loginReducer,
+	notes: noteReducer
 });
