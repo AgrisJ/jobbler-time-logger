@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro';
-import { FaPen } from 'react-icons/fa';
+import { FaPen, FaRegCommentDots } from 'react-icons/fa';
 import { TiDelete } from 'react-icons/ti';
 
 export const ContentListItem = styled.div`
@@ -12,6 +12,27 @@ export const ContentListItem = styled.div`
   padding: 0.6em;
 	width: -webkit-fill-available;
 	width: -moz-available;
+`
+export const NotesContainer = styled.div`
+  position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #fffc;
+	flex-direction: column;
+  padding: 0.6em;
+	border-radius: 5px;
+  margin: 7px 0px;
+  width: inherit;
+`
+export const NotesText = styled.p`
+font-family: 'Expletus Sans';
+	font-weight: normal;
+	font-size: 12px;
+	color: #828282;
+	 -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
 `
 
 export const ListEditIcon = styled(FaPen)`
@@ -38,6 +59,22 @@ export const ItemDeleteIcon = styled(TiDelete)`
 	color: #fff;
 	}
 `
+export const NotesIcon = styled(FaRegCommentDots)`
+	color: rgba(0, 0, 0, 0.24);
+	position: absolute;
+	top: 38px;
+	right: 12px;
+	transform: translate(30%,30%);
+	transform: scaleX(-1);
+	font-size: 1.6em;
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+
+	& :hover {     
+	color: #fff;
+	}
+`
 
 export const ListDate = styled.div`
 	font-family: 'Expletus Sans';
@@ -50,6 +87,9 @@ export const ListDate = styled.div`
 	font-weight: bold;
 	color: #fff;
 	}
+	 -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
 	 
 `
 export const ListPersonName = styled.div`
@@ -57,6 +97,9 @@ export const ListPersonName = styled.div`
 	font-weight: normal;
 	font-size: 22px;
 	color: #828282;
+	 -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
 `
 export const ListTime = styled.div`
 	font-family: 'Roboto Light';
@@ -67,6 +110,9 @@ export const ListTime = styled.div`
 	top: 0;
 	right: 0;
 	transform: translate(-30%,30%);
+	 -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
 `
 
 export const DateInput = styled.div`

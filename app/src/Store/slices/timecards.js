@@ -1,10 +1,11 @@
 import { createSelector, createSlice } from '@reduxjs/toolkit';
 import { useSelector } from 'react-redux';
+import { resultDate } from '../../components/AddEntryForm';
 let lastId = 0;
 
 const slice = createSlice({
 	name: 'timecards',
-	initialState: [{ id: 0, cardId: '', userId: '', projectId: '', jobDate: '', hours: '' }],
+	initialState: [{ id: 0, cardId: '', userId: '', projectId: '', startTime: '', hours: '' }],
 	reducers: {
 		// actions => action handlers
 		timecardsReceived: (timecards, action) => { //TODO seperate action for receiveing timecards after adding one
@@ -20,7 +21,10 @@ const slice = createSlice({
 							cardId: timecard._id,
 							userId: timecard.userId,
 							projectId: timecard.projectId,
-							jobDate: timecard.date.split("T")[0],
+							startTime: timecard.startTime/* .split("T")[0] */, //TODO perhaps need to keep the whole date fromat
+							endTime: timecard.endTime/* .split("T")[0] */,
+							breakTime: timecard.breakTime,
+							notes: timecard.notes,
 							hours: timecard.hours
 						})
 					});
@@ -31,7 +35,10 @@ const slice = createSlice({
 							cardId: action.payload.timecardId,
 							userId: action.payload.userId,
 							projectId: action.payload.projectId,
-							jobDate: action.payload.date ? action.payload.date.split("T")[0] : '2000-01-01',
+							startTime: action.payload.startTime ? resultDate(action.payload.startTime) : '2000-01-01T00:00:00.000Z',
+							endTime: action.payload.endTime ? resultDate(action.payload.endTime) : '2000-01-01T00:00:00.000Z',
+							breakTime: action.payload.breakTime,
+							notes: action.payload.notes,
 							hours: action.payload.hours
 						}
 
@@ -57,7 +64,7 @@ const slice = createSlice({
 				cardId: null,
 				userId: null,
 				projectId: null,
-				jobDate: "2000-01-01",
+				startTime: "2000-01-01",
 				hours: null,
 				error: `Error - ${action.payload.message}`
 			})
@@ -68,14 +75,16 @@ const slice = createSlice({
 				cardId: action.payload.cardId,
 				userId: action.payload.userId,
 				projectId: action.payload.projectId,
-				jobDate: action.payload.jobDate,
+				startTime: action.payload.startTime,
+				breakTime: action.payload.breakTime,
+				notes: action.payload.notes,
 				hours: action.payload.hours
 			})
 		},
 		timecardRenamed: (timecards, action) => {
 			const selectedCard = timecards.find(card => card.cardId === action.payload.cardId)
-			const newDate = action.payload.date;
-			selectedCard.jobDate = newDate;
+			const newDate = action.payload.startTime;
+			selectedCard.startTime = newDate;
 		},
 		timecardProjectChanged: (timecards, action) => {
 			const selectedCard = timecards.find(card => card.cardId === action.payload.cardId)

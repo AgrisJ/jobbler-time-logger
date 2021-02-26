@@ -48,7 +48,7 @@ const PrintContent = ({
 		}
 
 		const renderDataItems = timeCards
-			.filter(card => card.jobDate.split('-')[1] - 1 === selectedMonth)
+			.filter(card => card.startTime.split('-')[1] - 1 === selectedMonth)
 			.reduce((items, item) => items.find(x => x[idType()] === item[idType()]) ? [...items] : [...items, item], [])
 			.map((card, index) => {
 				rowCount = index + 1;
@@ -56,7 +56,7 @@ const PrintContent = ({
 				const contractorCardHours = [];
 
 				const projectCards = timeCards
-					.filter(card => card.jobDate.split('-')[1] - 1 === selectedMonth)
+					.filter(card => card.startTime.split('-')[1] - 1 === selectedMonth)
 
 					// show only the particular project cards
 					.filter((card, index) => {
@@ -83,7 +83,7 @@ const PrintContent = ({
 				const contractorCards = timeCards
 
 					// show cards from selected month
-					.filter(card => card.jobDate.split('-')[1] - 1 === selectedMonth)
+					.filter(card => card.startTime.split('-')[1] - 1 === selectedMonth)
 
 					// show only the particular user cards
 					.filter((card, index) => {
