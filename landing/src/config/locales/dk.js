@@ -11,7 +11,7 @@ const messages = {
     home_heading: 'Virksomhed timer system',
     home_jobbler_description: 'Jobbler er en nemt at bruge timer system til virksomheder og deres arbejdere',
     features: 'Funktioner',
-    customizable: 'Tilpasning',
+    customization: 'Tilpasning',
     home_extra_features: 'Kunne ikke finde den funktion du behøver? Vi laver hvad du har brug for',
     home_feature_1: 'Mange adresser',
     home_feature_2: 'Mange brugere',

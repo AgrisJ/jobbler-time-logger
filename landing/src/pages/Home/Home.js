@@ -29,7 +29,7 @@ const HomePage = () => {
                         
                         <Card>
                             <Card.Body>
-                                <Card.Title>{intl.formatMessage({id: 'customizable'})}:</Card.Title>
+                                <Card.Title>{intl.formatMessage({id: 'customization'})}:</Card.Title>
                             </Card.Body>
                             <Card.Body>{intl.formatMessage({id: 'home_extra_features'})}</Card.Body>
                         </Card>

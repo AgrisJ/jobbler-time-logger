@@ -21,7 +21,7 @@ const messages = {
     home_heading: 'Company timecard system',
     home_jobbler_description: 'Jobbler is an easy to use timecard system for companies and their employees',
     features: 'Features',
-    customizable: 'Customizable',
+    customization: 'Customization',
     home_extra_features:'Didn\'t find the feature you were looking for? Fear not, we provide customization to fit your needs',
     home_feature_1: 'Many addresses',
     home_feature_2: 'Many users',

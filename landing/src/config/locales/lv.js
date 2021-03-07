@@ -11,7 +11,7 @@ const messages = {
     home_heading: 'Darba stundu sistēmu kompānijām',
     home_jobbler_description: 'Jobbler ir vienkārši lietojama darba stundu sistēma kompānijām un to darbiniekiem',
     features: 'Sistēmas iespējas',
-    customizable: 'Sistēmas pielāgošana',
+    customization: 'Sistēmas pielāgošana',
     home_extra_features: 'Neatradi tādu funkcionalitāti, kāda tev nepieciešama? Mēs pielāgojam sistēmu pēc jūsu vajadzībām.',
     home_feature_1: 'Daudzas adreses/objekti',
     home_feature_2: 'Daudzi lietotāji',

@@ -36,11 +36,11 @@ const getMenuItems = (props) => {
             visible: true,
             primaryText: intl.formatMessage({ id: 'home' }),
         },
-        {
+        /*{
             value: '/about',
             visible: true,
             primaryText: intl.formatMessage({ id: 'about' }),
-        },
+        },*/
         {
             value: undefined,
             primaryText: intl.formatMessage({ id: 'language' }),
