@@ -1,0 +1,30 @@
+.page-signin {
+    background:url("./../../images/aaron-huber-s95oB2n9jng-unsplash.jpg");
+    background-size:cover;
+    background-position:center center;
+}
+
+.form-signin {
+    position:absolute;
+    border:1px solid #ced4da;
+    border-radius:5px;
+    padding:15px;
+    max-width:280px;
+    position: absolute;
+    left:50%;
+    top:40%;
+    transform:translate(-50%, -50%);
+    background:#fff;
+}
+
+.form-signin > h2 {
+    text-align:center;
+    margin-bottom:25px;
+}
+
+@media(max-width: 480px) {
+    .form-signin {
+        top:146px;
+        transform:auto;
+    }
+}
