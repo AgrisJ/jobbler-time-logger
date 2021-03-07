@@ -3,6 +3,7 @@
 # dependencies
 /api/node_modules
 /app/node_modules
+/landing/node_modules
 /node_modules
 /.pnp
 !/app/node_modules/react-dropdown
@@ -13,11 +14,13 @@
 # production
 /api/build
 /app/build
+/landing/build
 /build
 
 # testing
 /api/coverage
 /app/coverage
+/landing/coverage
 /coverage
 
 # logs
