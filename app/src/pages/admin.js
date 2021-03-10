@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import ControlPanelSection from '../components/ControlPanelSection';
@@ -14,10 +14,12 @@ function Admin() {
 
 	return (
 		<>
-			<Sidebar isOpen={isOpen} toggle={toggle} isAdmin={true} />
-			<Navbar toggle={toggle} />
-			<ControlPanelSection isAdmin={true} />
-			<ContentSection isAdmin={true} />
+			<div>
+				<Sidebar isOpen={isOpen} toggle={toggle} isAdmin={true} />
+				<Navbar toggle={toggle} />
+				<ControlPanelSection isAdmin={true} />
+				<ContentSection isAdmin={true} />
+			</div>
 		</>
 	)
 }
