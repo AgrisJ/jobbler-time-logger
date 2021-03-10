@@ -25,6 +25,44 @@ export const NotesContainer = styled.div`
   margin: 7px 0px;
   width: inherit;
 `
+export const TimeEditContainer = styled.div`
+  position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #fffc;
+	flex-direction: column;
+  padding: 0.6em;
+	border-radius: 5px;
+  margin: 7px 0px;
+  width: inherit;
+`
+export const PickerLabel = styled.p`
+	margin-bottom: 0px;
+	font-size: 18px;
+	color: #000;
+	text-align: center;
+	font-family: 'Expletus Sans';
+	-webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+`
+
+export const TimeInput = styled.input`
+	width: 40%;
+	justify-self: center;
+	padding: 8px 8px;
+	margin-bottom: 14px;
+	background: #e8e8e8;
+	color: #828282;
+	text-align: center;
+	font-size: 26px;
+	font-family: 'Expletus Sans';
+	border-radius: 4px;
+	border: none;
+	cursor: pointer;
+`
+
 export const NotesText = styled.p`
 font-family: 'Expletus Sans';
 	font-weight: normal;

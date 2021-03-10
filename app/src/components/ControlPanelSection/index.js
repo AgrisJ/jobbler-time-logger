@@ -36,7 +36,9 @@ function ControlPanelSection(
 		cardCount,
 		dispatch,
 		setprintAllChecked,
-		printAllChecked
+		printAllChecked,
+		setnotesModeOn,
+		notesModeOn
 	}
 ) {
 	let history = useHistory();
@@ -117,6 +119,9 @@ function ControlPanelSection(
 	const handlePrintAllCheckboxChange = event => {
 		setprintAllChecked({ printAllChecked: event.target.checked });
 	}
+	const handleNotesModeCheckboxChange = event => {
+		setnotesModeOn({ notesModeOn: event.target.checked });
+	}
 
 	const navigateAddEntryPage = () => history.push("/addentry");
 	const isContractorMode = currentModeIndex === 1;
@@ -125,11 +130,19 @@ function ControlPanelSection(
 		if (IS_PRINT_MODE)
 			return (
 				<>
-					<Checkbox
-						checked={printAllChecked}
-						onChange={handlePrintAllCheckboxChange}
-						labelText={'Select All'}
-					/>
+					<div style={{ display: 'flex' }}>
+						<Checkbox
+							checked={printAllChecked}
+							onChange={handlePrintAllCheckboxChange}
+							labelText={'Select All'}
+						/>
+						{isContractorMode &&
+							<Checkbox
+								checked={notesModeOn}
+								onChange={handleNotesModeCheckboxChange}
+								labelText={'Notes On/Off'}
+							/>}
+					</div>
 				</>
 			)
 		else return null;

@@ -83,8 +83,21 @@ const slice = createSlice({
 		},
 		timecardRenamed: (timecards, action) => {
 			const selectedCard = timecards.find(card => card.cardId === action.payload.cardId)
-			const newDate = action.payload.startTime;
-			selectedCard.startTime = newDate;
+			const newStartDate = action.payload.startTime;
+			const newEndDate = action.payload.endTime;
+			selectedCard.startTime = newStartDate;
+			selectedCard.endTime = newEndDate;
+		},
+		timecardWorkingTimeEdited: (timecards, action) => {
+			const selectedCard = timecards.find(card => card.cardId === action.payload.cardId)
+			const newStartTime = action.payload.startTime;
+			const newEndTime = action.payload.endTime;
+			const newHours = action.payload.hours;
+			const newBreakTime = action.payload.breakTime;
+			selectedCard.startTime = newStartTime;
+			selectedCard.endTime = newEndTime;
+			selectedCard.hours = newHours;
+			selectedCard.breakTime = newBreakTime;
 		},
 		timecardProjectChanged: (timecards, action) => {
 			const selectedCard = timecards.find(card => card.cardId === action.payload.cardId)
@@ -126,7 +139,7 @@ export function TimeCards(id) {
 	return cards;
 }
 
-export const { timecardAdded, timecardRemoved, timecardsOfUserRemoved, timecardsOfProjectRemoved, timecardProjectChanged, timecardRenamed, timecardsReceived, timecardsReset, error } = slice.actions;
+export const { timecardAdded, timecardRemoved, timecardsOfUserRemoved, timecardsOfProjectRemoved, timecardProjectChanged, timecardRenamed, timecardWorkingTimeEdited, timecardsReceived, timecardsReset, error } = slice.actions;
 export default slice.reducer;
 
 

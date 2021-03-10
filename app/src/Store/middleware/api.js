@@ -23,8 +23,8 @@ const api = ({ dispatch }) => next => async action => {
 		// Specific
 		const _resData = response.data;
 		const _payloadData = action.payload.data;
-		console.log('payload', { ..._resData, ..._payloadData })
-		console.log('payload deeper', { ...{ _resData }, ...{ _payloadData } })
+		// console.log('payload', { ..._resData, ..._payloadData })
+		// console.log('payload deeper', { ...{ _resData }, ...{ _payloadData } })
 		if (onSuccess) dispatch({ type: onSuccess, payload: { ..._resData, ..._payloadData } }); //TODO rename timecardId to cardId
 
 	} catch (error) {

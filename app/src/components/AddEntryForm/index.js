@@ -18,11 +18,14 @@ import { noteAdded, getnotesArray } from '../../Store/slices/notes';
 
 const AddDataForm = ({ login, currentAddress, timecards, dispatch, isAdmin, currentContractor, notes }) => {
 	let history = useHistory();
+	const dateNow = new Date();
+	dateNow.setMinutes(0)
+	const dateNowZeroMins = dateNow;
 
 	const [{ isLoading }, setisLoading] = useState({ isLoading: true });
 	const [{ isNoteInAction }, setisNoteInAction] = useState({ isNoteInAction: false });
-	const [{ startTimeInput }, setstartTimeInput] = useState({ startTimeInput: new Date() });
-	const [{ endTimeInput }, setendTimeInput] = useState({ endTimeInput: new Date() });
+	const [{ startTimeInput }, setstartTimeInput] = useState({ startTimeInput: dateNowZeroMins });
+	const [{ endTimeInput }, setendTimeInput] = useState({ endTimeInput: dateNowZeroMins });
 	const [{ breakTimeInput }, setbreakTimeInput] = useState({ breakTimeInput: new Date('January 1, 2000') });
 	const [{ noteInput }, setnoteInput] = useState({ noteInput: '' });
 	const [{ errors }, seterrors] = useState({ errors: {} });
@@ -36,16 +39,16 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch, isAdmin, curr
 			!currentAddress.loading && setisLoading({ isLoading: false });
 	}, [currentAddress])
 
-	const dateChange = startTimeInput.getDate();
+	// const dateChange = startTimeInput.getDate();
 	const monthChange = startTimeInput.getMonth();
 	const yearChange = startTimeInput.getFullYear();
 	const breakDateChange = breakTimeInput.getDate();
 
 	// EndTime input sets the same date as StartTime input
-	useEffect(() => { // TODO solve case: if real time is 2:00 and you adjust startTime to previous day...
-		if (endTimeInput.getDate() !== startTimeInput.getDate())
-			setendTimeInput({ endTimeInput: new Date(endTimeInput.setDate(dateChange)) })
-	}, [dateChange])
+	// useEffect(() => { 
+	// 	if (endTimeInput.getDate() < startTimeInput.getDate())
+	// 		setendTimeInput({ endTimeInput: new Date(endTimeInput.setDate(dateChange)) })
+	// }, [dateChange])
 
 	useEffect(() => {
 		if (endTimeInput.getFullYear() !== startTimeInput.getFullYear())
@@ -114,6 +117,9 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch, isAdmin, curr
 	function handleEndTimeDatePicker(time) {
 		setendTimeInput({ endTimeInput: time })
 	}
+	function handleBreakTimeDatePicker(time) {
+		setbreakTimeInput({ breakTimeInput: time })
+	}
 
 	function handleClick(timeType) {
 		if (timeType === 'start') {
@@ -131,8 +137,6 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch, isAdmin, curr
 		if (timeType === 'note') {
 			setisNoteInAction({ isNoteInAction: true });
 		};
-
-
 	}
 	function handleCancelTimePicker(timeType) {
 		if (timeType === 'start') setstartTimePickerIsOpen({ startTimePickerIsOpen: false });
@@ -146,52 +150,16 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch, isAdmin, curr
 	// 	return formattedDate;
 	// }
 
-	function totalHours(startTime, endTime) {
-		let msHour = 60 * 60 * 1000,
-			msDay = 60 * 60 * 24 * 1000;
-		const start = new Date(startTime);
-		const end = new Date(endTime);
-		const hours = Math.floor(((end - start) % msDay) / msHour)
-		return hours;
-	}
-
-	function totalMinutes(startTime, endTime) {
-		let msMinute = 60 * 1000,
-			msDay = 60 * 60 * 24 * 1000;
-		const start = new Date(startTime);
-		const end = new Date(endTime);
-		const minutes = Math.floor(((end - start) % msDay) / msMinute) % 60;
-
-		return minutes;
-	}
-
-	function totalTime(
-		formatted = false,
-		start = startTimeInput,
-		end = endTimeInput
-	) {
-		const hours = totalHours(start, end);
-		const minutes = totalMinutes(start, end);
-		const timeFormat = (hours, minutes) => (`${Math.floor(hours)}h ${Math.abs(minutes)}min`);
-		const readyToReturn = end !== '' && start !== '';
-
-		const decimalMin = minutes / 60;
-		const decimalTime = +(decimalMin + hours).toPrecision(3);
-
-		if (formatted) {
-			if (readyToReturn) return timeFormat(hours, minutes);
-			else return timeFormat(0, 0);
-		} else {
-			return decimalTime;
-		}
-	}
 
 
-	function doSubmit() { // TODO add note field to the sending data
-		const hasInputValue = totalHours(startTimeInput, endTimeInput) !== 0;
+
+	function doSubmit() {
+		const hasInputValue = startTimeInput !== endTimeInput;
 		const adminEnding = isAdmin ? '/' + currentContractor.userId : '';
 		const totalBreakTime = totalTime(false, new Date('January 1, 2000'), breakTimeInput);
-		const calculatedTotalTime = totalTime() - totalBreakTime;
+
+		const changedStartTime = new Date(startTimeInput).toJSON();
+		const changedEndTime = new Date(endTimeInput).toJSON();
 
 		if (hasInputValue) {
 			dispatch(actions.apiCallBegan({// TODO ...and here - dispatch(PostUserTimecards());
@@ -201,11 +169,10 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch, isAdmin, curr
 				data: {
 					userId: isAdmin ? currentContractor.userId : login.userId,
 					projectId: currentAddress.projectId,
-					// startTime: resultDate(startTimeInput),
-					startTime: startTimeInput,
-					endTime: endTimeInput,
+					startTime: changedStartTime,
+					endTime: changedEndTime,
 					breakTime: totalBreakTime,
-					hours: totalTime(),
+					hours: totalTime(false, startTimeInput, endTimeInput),
 					notes: noteInput
 				},
 				headers: {
@@ -222,13 +189,14 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch, isAdmin, curr
 				},
 				onSuccess: "timecards/timecardsReceived"
 			}));
+			isAdmin ? history.push("/") : history.push("/recordoverview");
 		};
 
-		isAdmin ? history.push("/") : history.push("/recordoverview");
 	};
 
 	const schema = {
 		startTimeInput: Joi.date().iso().required().error(err => {
+
 			return { message: errorMessagePerType(err[0], 'Start Time') }
 		}),
 		endTimeInput: Joi.date().iso().required().error(err => {
@@ -270,8 +238,8 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch, isAdmin, curr
 
 	const datePickerSettings = {
 		theme: 'ios',
-		confirmText: 'Set',
-		cancelText: 'Cancel',
+		confirmText: '',
+		cancelText: '',
 		showCaption: true,
 		headerFormat: 'YYYY-MM-DD',
 		dateConfig: {
@@ -283,14 +251,14 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch, isAdmin, curr
 			'minute': {
 				format: 'mm',
 				caption: 'Min',
-				step: 1,
+				step: 5,
 			}
 		}
 	};
 	const datePickerSettingsBreak = {
 		theme: 'ios',
-		confirmText: 'Set',
-		cancelText: 'Cancel',
+		confirmText: '',
+		cancelText: '',
 		showCaption: true,
 		headerFormat: '',
 		dateConfig: {
@@ -302,7 +270,7 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch, isAdmin, curr
 			'minute': {
 				format: 'mm',
 				caption: 'Minutes',
-				step: 1,
+				step: 5,
 			}
 		}
 	};
@@ -318,15 +286,18 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch, isAdmin, curr
 				background: 'none',
 				zIndex: 3,
 				userSelect: 'none',
-				webkitUserSelect: 'none', /* Safari */
+				WebkitUserSelect: 'none', /* Safari */
 				msUserSelect: 'none' /* IE 10 and IE 11 */
 			}
 		};
-		const DateButton = ({ value, onClick }) => (
-			<button style={styles.button} onClick={onClick}>
+		const DateButton = React.forwardRef((props, ref) => {
+			const { value, onClick } = props;
+			return (<button style={styles.button} onClick={onClick} ref={ref}>
 				{value}
 			</button>
-		);
+			)
+		});
+
 		if (target === 'start')
 			return {
 				customHeader:
@@ -349,11 +320,6 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch, isAdmin, curr
 			};
 	}
 
-	function getTimeFormat(current_datetime) {
-		const minutes = (current_datetime.getMinutes() < 10 ? '0' : '') + current_datetime.getMinutes();
-		const hours = (current_datetime.getHours() < 10 ? '0' : '') + current_datetime.getHours();
-		return hours + ":" + minutes;
-	}
 
 	const inputRefStart = useRef(null);
 	const inputRefEnd = useRef(null);
@@ -384,21 +350,22 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch, isAdmin, curr
 					isOpen={startTimePickerIsOpen}
 					onSelect={handleSelectStartTime}
 					onCancel={() => handleCancelTimePicker('start')}
+					onChange={(e) => handleStartTimeDatePicker(keepStartDate(e))}
 					{...{ ...datePickerSettings, ...customHeaderDatePicker('start') }} />
 				<MobileDatePicker
 					value={endTimeInput}
 					isOpen={endTimePickerIsOpen}
 					onSelect={handleSelectEndTime}
 					onCancel={() => handleCancelTimePicker('end')}
-					onChange={(e) => handleEndTimeDatePicker(keepStartDate(e))}
+					onChange={(e) => handleEndTimeDatePicker(/* keepStartDate( */e/* ) */)}
 					{...{ ...datePickerSettings, ...customHeaderDatePicker('end') }} />
 				<MobileDatePicker
 					value={breakTimeInput}
 					isOpen={breakTimePickerIsOpen}
 					onSelect={handleSelectBreakTime}
 					onCancel={() => handleCancelTimePicker('break')}
-					// onChange={(e) => handleBreakTimeDatePicker(keepStartDate(e))}
-					{...{ ...datePickerSettingsBreak }} />
+					onChange={(e) => handleBreakTimeDatePicker(e)}
+					{...datePickerSettingsBreak} />
 			</>
 		)
 	}
@@ -447,7 +414,7 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch, isAdmin, curr
 						</>
 						<DisplayLabel>Total</DisplayLabel>
 						<TotalHoursDisplay>
-							{totalTime(true)}
+							{totalTime(true, startTimeInput, endTimeInput)}
 						</TotalHoursDisplay>
 						<>
 							<FormLabel htmlFor='for'>Note</FormLabel> {/*TODO add a character counter */}
@@ -486,6 +453,51 @@ const mapStateToProps = (state) =>
 // the properties of this object will end up as props of our componennt
 export default connect(mapStateToProps)(AddDataForm);
 
+export function getTimeFormat(current_datetime) {
+	const minutes = (current_datetime.getMinutes() < 10 ? '0' : '') + current_datetime.getMinutes();
+	const hours = (current_datetime.getHours() < 10 ? '0' : '') + current_datetime.getHours();
+	return hours + ":" + minutes;
+}
+
+export function totalHours(startTime, endTime) {
+	let msHour = 60 * 60 * 1000,
+		msDay = 60 * 60 * 24 * 1000;
+	const start = new Date(startTime);
+	const end = new Date(endTime);
+	const hours = Math.floor(((end - start) % msDay) / msHour)
+	return hours;
+}
+
+export function totalMinutes(startTime, endTime) {
+	let msMinute = 60 * 1000,
+		msDay = 60 * 60 * 24 * 1000;
+	const start = new Date(startTime);
+	const end = new Date(endTime);
+	const minutes = Math.floor(((end - start) % msDay) / msMinute) % 60;
+
+	return minutes;
+}
+
+export function totalTime(
+	formatted = false,
+	start,
+	end
+) {
+	const hours = totalHours(start, end);
+	const minutes = totalMinutes(start, end);
+	const timeFormat = (hours, minutes) => (`${Math.floor(hours)}h ${Math.abs(minutes)}min`);
+	const readyToReturn = end !== '' && start !== '';
+
+	const decimalMin = minutes / 60;
+	const decimalTime = +(decimalMin + hours).toPrecision(3);
+
+	if (formatted) {
+		if (readyToReturn) return timeFormat(hours, minutes);
+		else return timeFormat(0, 0);
+	} else {
+		return decimalTime;
+	}
+}
 
 export function resultDate(date) {
 	const DATE = new Date(date);
@@ -493,3 +505,10 @@ export function resultDate(date) {
 	const formattedDate = timezoneCorrectedNow.toJSON()/* .split("T")[0] */;
 	return formattedDate;
 }
+
+export function decimalToTime(time) {
+	let hrs = Math.floor(time)
+	let min = Math.round(time % 1 * 60)
+	min = min < 10 ? "0" + min : min.toString();
+	return hrs + ":" + min;
+};
