@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { FaBars } from 'react-icons/fa'
-import { MobileIcon, Nav, NavbarContainer, NavItem, NavLogo, NavMenu, NavLinks, NavSubLogo, NavBtn, NavBtnLink } from './NavbarElements';
+import { MobileIcon, Nav, NavbarContainer, NavItem, NavLogo, NavMenu, NavLinks, NavLogoLink, NavSubLogo, NavBtn, NavBtnLink } from './NavbarElements';
 
 const Navbar = ({ toggle }) => {
 	const [{ scrollNav }, setScrollNav] = useState({ scrollNav: false });
@@ -25,7 +25,9 @@ const Navbar = ({ toggle }) => {
 			<Nav scrollNav={scrollNav}>
 				<NavbarContainer>
 					<MobileIcon onClick={toggle}><FaBars /></MobileIcon>
-					<NavLogo to="/">Sidna Byg</NavLogo>
+					<NavLogoLink to="/">
+						<NavLogo src="/sidna_byg_logo.png" alt="logo" />
+					</NavLogoLink>
 					<NavSubLogo to="/">time logger</NavSubLogo>
 					{/* <NavMenu>
 						<NavItem>

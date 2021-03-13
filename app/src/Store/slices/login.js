@@ -37,8 +37,7 @@ const slice = createSlice({
 			}
 		},
 		errorHandled: (state, action) => {
-			state.error = action.payload.error;
-			return state;
+			state.error = action.payload;
 		}
 	}
 });

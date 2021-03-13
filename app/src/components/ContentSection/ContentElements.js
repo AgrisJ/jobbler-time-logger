@@ -18,7 +18,8 @@ export const NotesContainer = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: #fffc;
+	/* background: #fffc; */
+	background: rgb(255 255 255 / 69%);
 	flex-direction: column;
   padding: 0.6em;
 	border-radius: 5px;
@@ -40,7 +41,8 @@ export const TimeEditContainer = styled.div`
 export const PickerLabel = styled.p`
 	margin-bottom: 0px;
 	font-size: 18px;
-	color: #000;
+	/* color: #000; */
+	color: rgb(31, 90, 152);
 	text-align: center;
 	font-family: 'Expletus Sans';
 	-webkit-user-select: none; /* Safari */
@@ -53,8 +55,10 @@ export const TimeInput = styled.input`
 	justify-self: center;
 	padding: 8px 8px;
 	margin-bottom: 14px;
-	background: #e8e8e8;
-	color: #828282;
+	background: rgb(77 119 164 / 55%);
+	color: rgb(255 255 255);
+	/* background: #e8e8e8;
+	color: #828282; */
 	text-align: center;
 	font-size: 26px;
 	font-family: 'Expletus Sans';
@@ -83,7 +87,8 @@ export const ListEditIcon = styled(FaPen)`
 `
 
 export const ItemDeleteIcon = styled(TiDelete)`
-	color: rgba(0, 0, 0, 0.34);
+	/* color: rgba(0, 0, 0, 0.34); */
+	color: rgb(102 126 142 / 73%);
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -98,7 +103,8 @@ export const ItemDeleteIcon = styled(TiDelete)`
 	}
 `
 export const NotesIcon = styled(FaRegCommentDots)`
-	color: rgba(0, 0, 0, 0.24);
+	/* color: rgba(0, 0, 0, 0.24); */
+	color: rgb(102 126 142 / 65%);
 	position: absolute;
 	top: 38px;
 	right: 12px;
@@ -110,7 +116,8 @@ export const NotesIcon = styled(FaRegCommentDots)`
 	cursor: pointer;
 
 	& :hover {     
-	color: #fff;
+	/* color: #fff; */
+	color: rgb(69 116 174 / 19%);
 	}
 `
 
@@ -134,7 +141,8 @@ export const ListPersonName = styled.div`
 	font-family: 'Expletus Sans';
 	font-weight: normal;
 	font-size: 22px;
-	color: #828282;
+	/* color: #828282; */
+	color: rgb(31 90 152 / 68%);
 	 -webkit-user-select: none; /* Safari */
   -ms-user-select: none; /* IE 10 and IE 11 */
   user-select: none; /* Standard syntax */
@@ -143,7 +151,8 @@ export const ListTime = styled.div`
 	font-family: 'Roboto Light';
 	font-weight: normal;
 	font-size: 15px;
-	color: #828282;
+	/* color: #828282; */
+	color: rgb(31 90 152);
 	position: absolute;
 	top: 0;
 	right: 0;

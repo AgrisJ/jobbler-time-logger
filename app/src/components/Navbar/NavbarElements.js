@@ -4,7 +4,7 @@ import { Link as LinkS } from 'react-scroll';
 
 export const Nav = styled.nav`
 	background:white;
-	height: 120px;
+	height: 136px;
 	// margin-top: -80px;
 	display: flex;
 	justify-content: center;
@@ -31,20 +31,26 @@ export const NavbarContainer = styled.div`
 	align-items: center;
   flex-direction: column;
 	line-height: 1;
-	 -webkit-user-select: none; /* Safari */
+	-webkit-user-select: none; /* Safari */
   -ms-user-select: none; /* IE 10 and IE 11 */
   user-select: none; /* Standard syntax */
+	margin-bottom: 1.2em;
 `
 
-export const NavLogo = styled(LinkR)`
+export const NavLogoLink = styled(LinkR)`
 	font-family: 'Expletus Sans';
 	color: #636363;
 	justify-self: center;
 	cursor: pointer;
-	font-size: 2.6rem;
+	/* font-size: 2.6rem; */
 	display: flex;
 	align-items: center;
 	text-decoration: none;
+	`
+
+export const NavLogo = styled.img`
+	width: 145px;
+	margin: 0.8em 0;
 `
 export const NavSubLogo = styled(LinkR)`
 	font-family: 'Expletus Sans';

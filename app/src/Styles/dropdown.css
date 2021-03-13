@@ -1,7 +1,8 @@
 .menuClass {
 	font-family: 'Roboto Light';
 	font-weight: normal;
-	color: #5A5A5A;
+	/* color: #5A5A5A; */
+	color: rgb(31 90 152);
 	font-size: 23px;
 	margin: 0.3em 0;
 	cursor: pointer;
@@ -16,8 +17,9 @@
   max-height: 50vh;
 	width: max-content;
 	font-family: "Expletus Sans";
-  font-size: 22px;
-  color: rgb(130, 130, 130);
+  font-size: 20px;
+  /* color: rgb(130, 130, 130); */
+  color: rgb(31 90 152 / 68%);
 	 -webkit-user-select: none; /* Safari */
   -ms-user-select: none; /* IE 10 and IE 11 */
   user-select: none; /* Standard syntax */
@@ -25,7 +27,8 @@
 .monthMenuClass {
 	font-family: 'Expletus Sans';
 	font-weight: normal;
-	color: #4F4F4F;
+	/* color: #4F4F4F; */
+	color: rgb(31 90 152);
 	font-size: 20px;
 	margin: 0.3em 0;
 
@@ -52,7 +55,7 @@
 	transition: all 0.3s ease-in-out;
 }
 .arrow-closed {
-	  border-color: #828282 transparent transparent;
+	  border-color: rgb(31 90 152 / 60%) transparent transparent;
 		border-width: 6px 6px 0;
     border-style: solid;
     content: ' ';
@@ -65,7 +68,7 @@
     width: 0;
 }
 .arrow-open {
-	  border-color:  transparent transparent #828282;
+	  border-color:  transparent transparent rgb(31 90 152 / 60%);
 		border-width: 0 6px 6px;
     border-style: solid;
     content: ' ';

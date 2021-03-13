@@ -9,9 +9,18 @@ const api = ({ dispatch }) => next => async action => {
 	const { url, method, data, headers, onSuccess, onError } = action.payload;
 
 	try {
+		const IS_DEV = ['dev'].some(item => window.location.href.indexOf(item) !== -1) ? true : false;
+		const preparedURL = apiURL => {
+			let url = apiURL.split('.');
+			url.shift();
+			url.unshift('https://dev');
+			url = url.join('.');
+			return url;
+		}
+		const API_URL = IS_DEV ? preparedURL(process.env.REACT_APP_API_URL) : process.env.REACT_APP_API_URL;
 
 		const response = await axios.request({
-			baseURL: process.env.REACT_APP_API_URL + '/api',
+			baseURL: API_URL + '/api',
 			url,
 			method,
 			data,

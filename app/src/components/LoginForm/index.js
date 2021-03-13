@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { scrollDownTo } from '../AddDataForm';
 import { ScrollAnchor } from '../AddDataForm/AddDataFormElements';
-import { FormInput, LoginFormWrapper, FormButton, FormContent, Form, FormH1, FormLabel, Text, ErrorMessage } from './LoginFormElements';
+import { FormInput, LoginFormWrapper, FormButton, FormContent, Form, FormH1, FormLabel, Text, ErrorMessage, LoginLogo } from './LoginFormElements';
 import Joi from 'joi-browser';
 import { errorMessagePerType } from './../AddDataForm/index';
 import { connect } from 'react-redux';
@@ -9,7 +9,7 @@ import * as actions from '../../Store/api';
 import { getLoginData } from '../../Store/slices/login';
 import { useHistory } from 'react-router-dom';
 
-const LoginForm = ({ dispatch }) => {
+const LoginForm = ({ dispatch, login }) => {
 
 	const [{ emailInput }, setemailInput] = useState({ emailInput: '' });
 	const [{ passwordInput }, setpasswordInput] = useState({ passwordInput: '' });
@@ -39,15 +39,31 @@ const LoginForm = ({ dispatch }) => {
 			onError: "login/errorHandled"
 		}));
 
-		// history.push("/"); // TODO handle an incorrect email or password
-		// dispatch(actions.apiCallBegan);
-
-		emptyInputs();
+		// emptyInputs();
 	}
+
+	useEffect(() => {
+		const findingError = login.error;
+		const hasError = findingError === undefined ? false : true;
+
+
+		if (hasError) {
+			const savedErrors = { ...errors };
+			let message = login.error && login.error.message
+
+			// Message type
+			if (message.includes('404')) message = "Email/Password is not correct";
+
+			savedErrors['emailInput'] = message;
+			savedErrors['passwordInput'] = message;
+			seterrors({ errors: savedErrors })
+		}
+
+	}, [login])
+
 
 	const loginSchema = {
 		emailInput: Joi.string().email({ tlds: { allow: false } }).required().error(err => {
-
 			return { message: errorMessagePerType(err[0], 'Email') }
 		}),
 		passwordInput: Joi.string().regex(/^[a-zA-Z0-9ÆæØøÅåĀāĒēĪīŪūĻļĶķŠšČčŅņ\-_ !]+$/).min(3).max(16).required().error(err => {
@@ -86,7 +102,8 @@ const LoginForm = ({ dispatch }) => {
 	return (
 		<>
 			<LoginFormWrapper>
-				<FormContent >
+				<LoginLogo src="/sidna_byg_logo.png" alt="logo" />
+				<FormContent>
 					<Form onSubmit={handleSubmit}>
 						<FormH1>Sign in to your account</FormH1>
 						<FormLabel htmlFor='for'>Email</FormLabel>
@@ -108,7 +125,7 @@ const LoginForm = ({ dispatch }) => {
 							required />
 						{errors['passwordInput'] && <ErrorMessage>{errors['passwordInput']}</ErrorMessage>}
 						<FormButton>Login</FormButton>
-						<Text>Enjoy!</Text>
+						{/* <Text>Enjoy!</Text> */}
 					</Form>
 				</FormContent>
 			</LoginFormWrapper>

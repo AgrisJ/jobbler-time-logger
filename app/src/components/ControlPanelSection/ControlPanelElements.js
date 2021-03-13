@@ -103,23 +103,29 @@ export const TotalDisplayWrapper = styled.div`
 
 export const TotalDisplay = styled.div`
 	font-family: 'Expletus Sans';
-	background: #F2F2F2;
-	padding: 0.2em 0.5em;
+	/* background: #F2F2F2;
+	padding: 0.2em 0.5em; */
+	background: rgb(7 60 91 / 5%);
+  padding: 0.4em 0.7em;
+  border-radius: 40px;
 `
 export const TotalTime = styled.span`
 	font-family: 'Expletus Sans';
-	color: #828282;
+	/* color: #828282; */
+	color: rgb(31 90 152);
 	font-size: 1.2em;
 	font-weight: normal;
 `
 
 export const ForwardCaret = styled(AiFillCaretRight)`
-	color: #828282;
+	/* color: #828282; */
+	color: rgb(31 90 152 / 60%);
 	margin-left: 0.5em;
 `
 
 export const BackwardCaret = styled(AiFillCaretLeft)`
-	color: #828282;
+	/* color: #828282; */
+	color: rgb(31 90 152 / 60%);
 	margin-right: 0.5em;
 `
 
@@ -130,11 +136,13 @@ export const CardCounter = styled.div`
 	position: absolute;
   bottom: 0.5em;
 	font-family: 'Expletus Sans';
-  color: #4F4F4F;
+  /* color: #4F4F4F; */
+  color: rgb(37 95 157);
   font-size: 14px;
 `
 export const AddCardButton = styled(AiOutlineFileAdd)`
-	color: rgba(0,0,0,0.6);
+	/* color: rgba(0,0,0,0.6); */
+	color: rgb(41 70 90);
 	position: absolute;
 	bottom: 25px;
 	left: 0;

@@ -162,7 +162,7 @@ export const TableCell = styled.td.attrs(props => ({
 					text-align: center;
 		}
 		&.thirty { 
-					width: 25%;
+					width: 20%;
 		}
 		&.ten {
 					width: 10%; // TODO doesn't apply on printmode and looks bad with names like: Andis Zos 140788-4767
@@ -170,11 +170,11 @@ export const TableCell = styled.td.attrs(props => ({
 		&.hourLen {
 					width: 40px;
 		}
-		/* &.dateColumn {width: 200px;} */
+		&.dateColumn {width: 200px;}
 	
 
 		 @media print {
-				}
+			}
 
 		border: solid 1px black;
 		padding: 0.5em;
@@ -187,6 +187,10 @@ export const TableRow = styled.tr.attrs(props => ({
 	&.breakThis { 
 		page-break-inside: avoid; 
 		page-break-after:always;	
+	}
+	&.breakBeforeThis { 
+		page-break-inside: avoid; 
+		page-break-before:always;	
 	}
 }
 

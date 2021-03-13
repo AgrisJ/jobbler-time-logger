@@ -307,6 +307,7 @@ const ContentSection = (
 				fontSize: '18px',
 				borderStyle: 'none',
 				background: 'none',
+				color: 'rgb(31 90 152)',
 				zIndex: 0,
 				userSelect: 'none',
 				WebkitUserSelect: 'none', /* Safari */
@@ -721,8 +722,10 @@ export default connect(mapStateToProps)(ContentSection);
 
 function hours(time) { return Math.floor(time) };
 function minutes(time) { return Math.ceil(((time - hours(time)) * 60).toPrecision(2) / 1) };
-function colorAlternator(id) { return id % 2 == (0) ? '0.1' : '0.2' };
-export function listColor(id) { return (`rgb(0 0 0 / ${colorAlternator(id)})`) };
+// function colorAlternator(id) { return id % 2 == (0) ? '0.1' : '0.2' };
+function colorAlternator(id) { return id % 2 == (0) ? '22%' : '52%' };
+// export function listColor(id) { return (`rgb(0 0 0 / ${colorAlternator(id)})`) };
+export function listColor(id) { return (`linear-gradient(to right, rgb(7 60 91 / ${colorAlternator(id)}), rgb(255 255 255 / 0%));`) };
 export function timeFormat(time) { return (`${hours(time)}h ${minutes(time)}min`) };
 export function timezoneCorrect(date) {
 	const convert = new Date(date);

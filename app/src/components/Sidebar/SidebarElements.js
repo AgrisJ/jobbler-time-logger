@@ -8,7 +8,7 @@ export const SidebarContainer = styled.aside`
 	z-index: 999;
 	width: 100%;
 	height: 100%;
-	background: #0d0d0d;
+	background: #152630;
 	display: grid;
 	align-items: center;
 	top: 0;
@@ -38,10 +38,10 @@ export const LogoutButton = styled(LinkR)`
 	left: 1.5rem;
 
 	border-radius: 50px;
-	background: #747474;
+	background: #215c87fc;
 	white-space: nowrap;
 	padding: 8px 20px;
-	color: #ffd4a7;
+	color: #fff;
 	font-size: 14px;
 	outline: none;
 	border: none;

@@ -11,7 +11,7 @@ const AddEntry = ({ isAdmin }) => {
 
 	return (
 		<>
-			<Sidebar isOpen={isOpen} toggle={toggle} isAdmin={false} />
+			<Sidebar isOpen={isOpen} toggle={toggle} isAdmin={isAdmin} />
 			<Navbar toggle={toggle} />
 			<SelectUsers labelText={'Time spent in:'} manualOverride={0} />
 			<AddEntryForm isAdmin={isAdmin} />

@@ -69,12 +69,18 @@ const PrintContent = ({
 					const userId = entry.userId;
 					const projectId = entry.projectId;
 					const groupName = objKey(entry);
-					const foundGroup = entries.find(item => objKey(item) === groupName);
+					const groupExists = entries.map(item => objKey(item)).includes(groupName);
+					const lastIndexOfGroup = entries.map(item => objKey(item)).lastIndexOf(groupName);
+					const foundGroup = entries[lastIndexOfGroup];
+					const prevEntryUserId = entries[entries.length - 1] && entries[entries.length - 1].userId;
+					const differentUser = prevEntryUserId ? prevEntryUserId !== userId : false;
 					const entryContents = entry[groupName];
 
-					if (foundGroup)
+
+					if (groupExists && !differentUser)
 						foundGroup[groupName].push(entryContents);
-					else entries.push({ [groupName]: [entryContents], userId, projectId })
+					else entries.push({ [groupName]: [entryContents], userId, projectId });
+
 
 					return entries;
 				}, [])
@@ -105,7 +111,9 @@ const PrintContent = ({
 				rowCount = index + 1;
 				const projectCardHours = [];
 				const contractorCardHours = [];
-				const projectCards = timecards
+
+
+				const projectCards = timecards //TODO prepare projectCards same way as contractorCards
 					.filter(card => card.startTime.split('-')[1] - 1 === selectedMonth)
 
 					// show only the particular project cards
@@ -260,12 +268,12 @@ const PrintContent = ({
 								<TableWrapper key={nanoid()} className='printSize'>
 									<tbody>
 
-										<TableRow className={'breakThis'}>
+										<TableRow className={'breakBeforeThis'}>
 											<TableCell style={{ fontWeight: 'bold' }}>{projectName}</TableCell>
 											{!notesModeOn && <TableCell style={{ textAlign: 'end', fontWeight: 'bold' }}>{isRounded(timeSumPerProject)}</TableCell>}
 										</TableRow>
 
-										<TableRow>
+										<TableRow className={'breakThis'}>
 											<TableCell colSpan="2">
 
 												<TableWrapper style={{ border: 'unset' }} className='printSize'>
@@ -286,7 +294,7 @@ const PrintContent = ({
 
 				function cardList(filterParam) {
 					if (firstMode) return projectCards;
-					if (secondMode) return <PreparedForPrint linesPerPage={21} filterParam={filterParam} />;
+					if (secondMode) return <PreparedForPrint linesPerPage={22} filterParam={filterParam} />;
 				}
 				function itemName() {
 					let itemName = null;
@@ -377,7 +385,7 @@ const PrintContent = ({
 								<Period className='printSize'>Period: {months[monthIndex]}</Period>
 							</div>
 							<div style={{ textAlign: 'right' }}>
-								<PrintLogo src="/sidnaByg_logo.png" alt="logo" />
+								<PrintLogo src="/sidna_byg_logo.png" alt="logo" />
 								<Period className='printSize'>Year: 2021</Period>{/*TODO make year dynamic */}
 							</div>
 						</PeriodHeading>
