@@ -19,6 +19,9 @@ const AddDataForm = ({ currentModeIndex, login, dispatch }) => {
 	const [{ emailInput }, setemailInput] = useState({ emailInput: '' });
 	const [{ addressInput }, setaddressInput] = useState({ addressInput: '' });
 	const [{ passwordInput }, setpasswordInput] = useState({ passwordInput: '' });
+	const [{ telephoneInput }, settelephoneInput] = useState({ telephoneInput: '' });
+	const [{ cprInput }, setcprInput] = useState({ cprInput: '' });
+	const [{ contractnrInput }, setcontractnrInput] = useState({ contractnrInput: '' });
 	const [{ errors }, seterrors] = useState({ errors: {} });
 
 	function handleNameChange(e) {
@@ -33,11 +36,24 @@ const AddDataForm = ({ currentModeIndex, login, dispatch }) => {
 	function handlePasswordChange(e) {
 		setpasswordInput({ passwordInput: e.target.value })
 	}
+	function handleTelephoneChange(e) {
+		settelephoneInput({ telephoneInput: e.target.value })
+	}
+	function handleCPRChange(e) {
+		setcprInput({ cprInput: e.target.value })
+	}
+	function handleContractnrChange(e) {
+		setcontractnrInput({ contractnrInput: e.target.value })
+	}
+
 	function emptyInputs() {
 		setnameInput({ nameInput: '' })
 		setemailInput({ emailInput: '' })
 		setaddressInput({ addressInput: '' })
 		setpasswordInput({ passwordInput: '' })
+		settelephoneInput({ telephoneInput: '' })
+		setcprInput({ cprInput: '' })
+		setcontractnrInput({ contractnrInput: '' })
 	}
 	function doSubmit() {
 		if (FIRST_MODE) dispatch(actions.apiCallBegan({
@@ -62,6 +78,9 @@ const AddDataForm = ({ currentModeIndex, login, dispatch }) => {
 				fullName: nameInput,
 				email: emailInput,
 				password: passwordInput,
+				telephone: telephoneInput,
+				cpr: cprInput,
+				contractNumber: contractnrInput,
 				role: "employee"
 			},
 			headers: {
@@ -94,6 +113,15 @@ const AddDataForm = ({ currentModeIndex, login, dispatch }) => {
 		}),
 		passwordInput: Joi.string().regex(/^[a-zA-Z0-9ÆæØøÅåĀāĒēĪīŪūĻļĶķŠšČčŅņ\-_ !]+$/).min(3).max(16).required().error(err => {
 			return { message: errorMessagePerType(err[0], 'Password') }
+		}),
+		telephoneInput: Joi.string().regex(/^[a-zA-Z0-9 +]+$/).min(3).max(16).required().error(err => {
+			return { message: errorMessagePerType(err[0], 'Telephone') }
+		}),
+		cprInput: Joi.string().regex(/^[0-9]+$/).min(3).max(16).required().error(err => {
+			return { message: errorMessagePerType(err[0], 'Cpr') }
+		}),
+		contractnrInput: Joi.string().regex(/^[a-zA-Z0-9-_ ]+$/).min(3).max(16).required().error(err => {
+			return { message: errorMessagePerType(err[0], 'Contractnr') }
 		})
 	}
 
@@ -106,7 +134,10 @@ const AddDataForm = ({ currentModeIndex, login, dispatch }) => {
 		const secondModeFields = {
 			...{ nameInput },
 			...{ emailInput },
-			...{ passwordInput }
+			...{ passwordInput },
+			...{ telephoneInput },
+			...{ cprInput },
+			...{ contractnrInput }
 		};
 
 		const fieldSwitcher = () => {
@@ -176,6 +207,33 @@ const AddDataForm = ({ currentModeIndex, login, dispatch }) => {
 						hasErrors={errors['passwordInput']}
 						required />
 					{errors['passwordInput'] && <ErrorMessage>{errors['passwordInput']}</ErrorMessage>}
+					<FormLabel htmlFor='for'>Telephone</FormLabel>
+					<FormInput
+						onClick={() => scrollDownTo(".scrollHere")}
+						onChange={handleTelephoneChange}
+						value={telephoneInput}
+						type='tel'
+						hasErrors={errors['telephoneInput']}
+						required />
+					{errors['telephoneInput'] && <ErrorMessage>{errors['telephoneInput']}</ErrorMessage>}
+					<FormLabel htmlFor='for'>CPR Nr</FormLabel>
+					<FormInput
+						onClick={() => scrollDownTo(".scrollHere")}
+						onChange={handleCPRChange}
+						value={cprInput}
+						type='number'
+						hasErrors={errors['cprInput']}
+						required />
+					{errors['cprInput'] && <ErrorMessage>{errors['cprInput']}</ErrorMessage>}
+					<FormLabel htmlFor='for'>Contract Nr</FormLabel>
+					<FormInput
+						onClick={() => scrollDownTo(".scrollHere")}
+						onChange={handleContractnrChange}
+						value={contractnrInput}
+						type='text'
+						hasErrors={errors['contractnrInput']}
+						required />
+					{errors['contractnrInput'] && <ErrorMessage>{errors['contractnrInput']}</ErrorMessage>}
 				</>
 			)
 	}
@@ -225,9 +283,13 @@ export function scrollDownTo(cssQuerry) {
 export function errorMessagePerType(error, fieldName) {
 	let result = '';
 
+	console.log("🚀 ~ file: index.js ~ line 287 ~ errorMessagePerType ~ error.type", error)
 	switch (error.type) {
 		case "any.empty":
 			result = `${fieldName} should not be empty!`;
+			break;
+		case "any.allowOnly":
+			result = `${fieldName} allows only ${error.context.valids}`;
 			break;
 		case "string.min":
 			result = `${fieldName} should have at least ${error.context.limit} characters!`;

@@ -16,6 +16,7 @@ import { companyConfig } from './services/companyConfig';
 import { getMonthIndex } from './Store/slices/monthIndex';
 import recordOverview from './pages/recordOverview';
 import AddEntry from './pages/addEntry';
+import EditUsers from './pages/editUsers';
 
 function App({ dispatch, login, monthIndex, users }) {
 	const storedLogin = localStorage.getItem('login');
@@ -47,16 +48,6 @@ function App({ dispatch, login, monthIndex, users }) {
 					onSuccess: "users/usersReceived"
 				}));
 			}
-			// if (!isAdmin) {
-			// 	dispatch(actions.apiCallBegan({ // TODO ...and here - dispatch(loadProjects());
-			// 		url: "/v1/user/hours",
-			// 		headers: {
-			// 			session: login.session
-			// 		},
-			// 		onSuccess: "timecards/timecardsReceived"
-			// 	}));
-			// }
-
 			dispatch(actions.apiCallBegan({ // TODO ...and here - dispatch(loadProjects());
 				url: "/v1/projects",
 				headers: {
@@ -105,15 +96,13 @@ function App({ dispatch, login, monthIndex, users }) {
 		<Router>
 			<GlobalFonts />
 			<Switch>
-				{/* <Route path="/login" component={Login} exact>{authenticated && isAdmin ? <Redirect to="/admin" /> : !isAdmin ? <Redirect to="/addentry" /> : null}</Route> */}
 				<Route path="/login" component={Login} exact>{!authenticated ? null : isAdmin ? <Redirect to="/admin" /> : <Redirect to="/addentry" />}</Route>
-				{/* <Route path="/" component={Login} exact>{authenticated && isAdmin ? <Redirect to="/admin" /> : !isAdmin ? <Redirect to="/addentry" /> : <Redirect to="/login" />}</Route> */}
 				<Route path="/" component={Login} exact>{!authenticated ? <Redirect to="/login" /> : !isAdmin ? <Redirect to="/addentry" /> : <Redirect to="/admin" />}</Route>
-				{/* <PrivateRoute path="/" login={login} sourceComponent={Login} exact /> */}
 				<PrivateRoute path="/admin" login={login} sourceComponent={Admin} exact />
 				<PrivateRoute path="/print" login={login} sourceComponent={PrintReportPage} exact />
 				<PrivateRoute path="/addremove" login={login} sourceComponent={AddRemove} exact />
 				<PrivateRoute path="/addentry" login={login} sourceComponent={AddEntry} isAdmin={isAdmin} exact />
+				<PrivateRoute path="/editusers" login={login} sourceComponent={EditUsers} isAdmin={isAdmin} exact />
 				<PrivateRoute path="/recordoverview" login={login} sourceComponent={recordOverview} exact />
 			</Switch>
 		</Router>
@@ -144,13 +133,13 @@ function PrivateRoute({ login, sourceComponent: Component, isAdmin, ...rest }) {
 				return login.isAuthenticated ? (
 					<Component isAdmin={isAdmin} />
 				) : (
-						<Redirect
-							to={{
-								pathname: "/login",
-								state: { from: location }
-							}}
-						/>
-					)
+					<Redirect
+						to={{
+							pathname: "/login",
+							state: { from: location }
+						}}
+					/>
+				)
 			}
 
 			}

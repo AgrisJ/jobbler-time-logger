@@ -39,7 +39,6 @@ const PrintContent = ({
 	const printPageSlicer = [];
 
 
-
 	function pagesFactory(itemsPerPage = 22) {
 
 		// producing pages based on itemsPerPage count
@@ -73,11 +72,16 @@ const PrintContent = ({
 					const lastIndexOfGroup = entries.map(item => objKey(item)).lastIndexOf(groupName);
 					const foundGroup = entries[lastIndexOfGroup];
 					const prevEntryUserId = entries[entries.length - 1] && entries[entries.length - 1].userId;
+					const prevEntryProjectId = entries[entries.length - 1] && entries[entries.length - 1].projectId;
 					const differentUser = prevEntryUserId ? prevEntryUserId !== userId : false;
+					const differentProject = prevEntryProjectId ? prevEntryProjectId !== projectId : false;
 					const entryContents = entry[groupName];
 
+					let differentItem = null;
+					if (firstMode) differentItem = differentProject;
+					if (secondMode) differentItem = differentUser;
 
-					if (groupExists && !differentUser)
+					if (groupExists && !differentItem)
 						foundGroup[groupName].push(entryContents);
 					else entries.push({ [groupName]: [entryContents], userId, projectId });
 
@@ -107,13 +111,14 @@ const PrintContent = ({
 		const renderDataItems = timecards
 			.filter(card => card.startTime.split('-')[1] - 1 === selectedMonth)
 			.reduce((items, item) => items.find(x => x[idType()] === item[idType()]) ? [...items] : [...items, item], [])
-			.map((card, index) => {
+			.map((timeCard, index) => {
 				rowCount = index + 1;
 				const projectCardHours = [];
 				const contractorCardHours = [];
 
+				const projectCards = selection => timecards
 
-				const projectCards = timecards //TODO prepare projectCards same way as contractorCards
+					// show cards from selected month
 					.filter(card => card.startTime.split('-')[1] - 1 === selectedMonth)
 
 					// show only the particular project cards
@@ -125,22 +130,36 @@ const PrintContent = ({
 					// show all projects
 					.filter(c => printAllChecked ? c : c.projectId === currentAddress.projectId)
 
+					// Show only selected cards (used by seperators)
+					.filter(c => c.userId === selection.userId)
+
+					// sort by date (descending)
+					.sort((a, b) => {
+						const entryDateA = a.startTime.split('T')[0].split('-')[2];
+						const entryDateB = b.startTime.split('T')[0].split('-')[2];
+						return entryDateB - entryDateA;
+					})
+
 					// card visuals
 					.map(card => {
-						const contractorsName = users.find(user => user.userId === card.userId).name;
+						const entryDate = card.startTime.split('T')[0];
+						const timeStarted = card.startTime.split('T')[1].slice(0, 5);
+						const timeEnded = card.endTime ? card.endTime.split('T')[1].slice(0, 5) : 'no entry';
+						const workInterval = `${timeStarted} - ${timeEnded}`;
+						const breakTime = card.breakTime;
+
 						countHoursPerCard(card, projectCardHours);
 
 						return (
-							<TableWrapper key={nanoid()} className='printSize printOuterTable'>
-								<tbody>
-									<TableRow>
-										<TableCell>{contractorsName}</TableCell>
-										<TableCell className='hourLen'>{isRounded(card.hours)}</TableCell>
-									</TableRow>
-								</tbody>
-							</TableWrapper>
+							<TableRow key={nanoid()}>
+								<TableCell className={'dateColumn'} style={{ textAlign: 'start', border: 'unset' }}>{entryDate}</TableCell>
+								<TableCell style={{ textAlign: 'end', border: 'unset' }}>{workInterval}</TableCell>
+								<TableCell style={{ textAlign: 'end', color: '#c10a0a', border: 'unset' }}>{`-${isRounded(breakTime)}`}</TableCell>
+								<TableCell style={{ textAlign: 'end', border: 'unset' }} className='hourLen'>{isRounded(card.hours)}</TableCell>
+							</TableRow>
 						)
-					});
+					}); // end of projectCards
+
 
 				const contractorCards = selection => timecards
 
@@ -154,7 +173,7 @@ const PrintContent = ({
 					})
 
 					// show all users
-					.filter(c => printAllChecked ? c : users.find(user => user.userId === card.userId).name === currentContractor.name)
+					.filter(c => printAllChecked ? c : users.find(user => user.userId === timeCard.userId).name === currentContractor.name)
 
 					// Show only selected cards (used by seperators)
 					.filter(c => c.projectId === selection.projectId)
@@ -189,7 +208,7 @@ const PrintContent = ({
 										<TableCell style={{ textAlign: 'end', border: 'unset' }} className='hourLen'>{isRounded(card.hours)}</TableCell></>}
 							</TableRow>
 						)
-					});
+					}); // end of contractorCards
 
 				const ContractorEntryHeader = () => (
 					<TableRow key={nanoid()}>
@@ -203,20 +222,25 @@ const PrintContent = ({
 					</TableRow>);
 
 				function gatherPrintContent() {
+
 					timecards
 						// show cards from selected month
 						.filter(card => card.startTime.split('-')[1] - 1 === selectedMonth)
 
-						// show only particular user cards
+						// show only particular user or project cards
 						.filter((card, index) => {
-							const cardIndexToRemove = card.userId === itemId() ? index : null;
+							let cardIndexToRemove = '';
+							if (firstMode) cardIndexToRemove = card.projectId === itemId() ? index : null;
+							if (secondMode) cardIndexToRemove = card.userId === itemId() ? index : null;
+
 							return index === cardIndexToRemove
 						})
 
-						// group cards by project name
+						// group cards by project or user name
 						.reduce((cards, card) => {
 							totalProjectHours.push(card);
-							return cards.find(x => x['projectId'] === card['projectId']) ? [...cards] : [...cards, card]
+							if (firstMode) return cards.find(x => x['userId'] === card['userId']) ? [...cards] : [...cards, card]
+							if (secondMode) return cards.find(x => x['projectId'] === card['projectId']) ? [...cards] : [...cards, card]
 						}, [])
 
 						// prepare
@@ -224,9 +248,11 @@ const PrintContent = ({
 							const userId = card.userId;
 							const projectId = card.projectId;
 							const projectName = projects.find(project => project.projectId === card.projectId).address;
+							const contractorName = users.find(user => user.userId === card.userId).name;
+							const pushCards = (source, name) => source(card).forEach(cardData => printPageSlicer.push({ [name]: cardData, userId, projectId }))
 
-							// prepare data entries for slicing
-							contractorCards(card).forEach(card => { printPageSlicer.push({ [projectName]: card, userId, projectId }) });
+							if (firstMode) pushCards(projectCards, contractorName);
+							if (secondMode) pushCards(contractorCards, projectName);
 						});
 				};
 
@@ -234,13 +260,21 @@ const PrintContent = ({
 				gatherPrintContent();
 
 				const PreparedForPrint = ({ linesPerPage, filterParam }) => {
-					const sectionUserId = users.find(user => user.name === filterParam).userId;
+					const sectionIdPerType = () => {
+						let sectionId = '';
+						if (firstMode) sectionId = projects.find(project => project.address === filterParam).projectId;
+						if (secondMode) sectionId = users.find(user => user.name === filterParam).userId;
+						return sectionId;
+					}
 
 					return pagesFactory(linesPerPage)
 
-						// show only particular user cards
+						// show only particular user or project cards
 						.filter((card, index) => {
-							const cardIndexToRemove = sectionUserId === card.userId ? index : null;
+							let cardIndexToRemove = '';
+							if (firstMode) cardIndexToRemove = sectionIdPerType() === card.projectId ? index : null;
+							if (secondMode) cardIndexToRemove = sectionIdPerType() === card.userId ? index : null;
+
 							return index === cardIndexToRemove
 						})
 
@@ -265,18 +299,17 @@ const PrintContent = ({
 
 
 							return (
-								<TableWrapper key={nanoid()} className='printSize'>
+								<TableWrapper key={nanoid()} className='secondLevelTable breakThis'>
 									<tbody>
-
-										<TableRow className={'breakBeforeThis'}>
+										<TableRow>
 											<TableCell style={{ fontWeight: 'bold' }}>{projectName}</TableCell>
 											{!notesModeOn && <TableCell style={{ textAlign: 'end', fontWeight: 'bold' }}>{isRounded(timeSumPerProject)}</TableCell>}
 										</TableRow>
 
-										<TableRow className={'breakThis'}>
+										<TableRow>
 											<TableCell colSpan="2">
 
-												<TableWrapper style={{ border: 'unset' }} className='printSize'>
+												<TableWrapper style={{ border: 'unset' }} className='secondLevelTable'>
 													<tbody>
 														<ContractorEntryHeader />
 														<DataEntries />
@@ -285,7 +318,6 @@ const PrintContent = ({
 
 											</TableCell>
 										</TableRow>
-
 									</tbody>
 								</TableWrapper>
 							)
@@ -293,19 +325,20 @@ const PrintContent = ({
 				};
 
 				function cardList(filterParam) {
-					if (firstMode) return projectCards;
-					if (secondMode) return <PreparedForPrint linesPerPage={22} filterParam={filterParam} />;
+					// if (firstMode) return projectCards;
+					if (firstMode) return <PreparedForPrint linesPerPage={27} filterParam={filterParam} />;
+					if (secondMode) return <PreparedForPrint linesPerPage={27} filterParam={filterParam} />;
 				}
 				function itemName() {
 					let itemName = null;
-					if (firstMode) itemName = projects.find(project => project.projectId === card.projectId).address;
-					if (secondMode) itemName = users.find(user => user.userId === card.userId).name;
+					if (firstMode) itemName = projects.find(project => project.projectId === timeCard.projectId).address;
+					if (secondMode) itemName = users.find(user => user.userId === timeCard.userId).name;
 					return itemName;
 				}
 				function itemId() {
 					let itemId = null;
-					if (firstMode) itemId = projects.find(project => project.projectId === card.projectId).projectId;
-					if (secondMode) itemId = users.find(user => user.userId === card.userId).userId;
+					if (firstMode) itemId = projects.find(project => project.projectId === timeCard.projectId).projectId;
+					if (secondMode) itemId = users.find(user => user.userId === timeCard.userId).userId;
 
 					return itemId;
 				}
@@ -315,14 +348,26 @@ const PrintContent = ({
 				totalCardHours = totalCardHours + cardTimeCount
 
 				function noCardData() {
-					if (firstMode) return cardList().length === 0;
-					if (secondMode) return cardTimeCount === 0;
+					return cardTimeCount === 0;
 				}
+
+				const showContractors = item => users.find(user => user.userId === timeCard.userId)[item];
 
 				if (noCardData()) return null;
 				return (
 					<TableRow key={nanoid()} className='breakThis'>
-						<TableCell className='verticalTop'>{itemName()}</TableCell>
+						<TableCell className='verticalTop profileData'>
+							<p style={{ fontSize: '1.1em' }}>{itemName()}</p>
+							{secondMode && <>
+								<p>{showContractors('email')}</p>
+								<p>{showContractors('telephone')}</p>
+								<p>&nbsp;</p>
+								<p>CPR - {showContractors('cpr')}</p>
+								<p>Contract - {showContractors('contractNumber')}</p>
+							</>}
+
+
+						</TableCell>
 						<TableCell>
 
 							{cardList(itemName())}

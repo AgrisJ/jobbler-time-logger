@@ -5,3 +5,8 @@
 	font-family: 'Encode Sans Expanded',
 	sans-serif;
 }
+
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  /* color: red; */
+  opacity: 0.3; /* Firefox */
+}

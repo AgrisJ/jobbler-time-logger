@@ -132,23 +132,34 @@ export const TableWrapper = styled.table.attrs(props => ({
 	className: props.className
 }))`
 
-
+&.secondLevelTable {
+					font-size: 0.9em!important;
+		}
  @media print {
 				&.printSize {
-					/* font-size: 1em; */
+					font-size: 1.05em;
 				}
-				&.breakThis {
+				/* &.breakThis {
 					page-break-inside: avoid;
 					page-break-after: always;
+				} */
+					&.breakThis {
+					/* page-break-inside: avoid;
+					page-break-after:always;	 */
+					break-inside: avoid;
+					break-before: auto;
 				}
-				page-break-after:auto;
+				page-break-before:auto;
 			}
+
+			
 			
 		width: 100%;
 		/* width: 40%; */
 		border: solid 1px black;
 		border-collapse: collapse;
 		/* font-size: 0.7em; */
+		font-size: 0.6em;
 	
 `
 
@@ -162,15 +173,16 @@ export const TableCell = styled.td.attrs(props => ({
 					text-align: center;
 		}
 		&.thirty { 
-					width: 20%;
+					width: 34%;
 		}
 		&.ten {
-					width: 10%; // TODO doesn't apply on printmode and looks bad with names like: Andis Zos 140788-4767
+					width: 10%;
 		}
 		&.hourLen {
 					width: 40px;
 		}
-		&.dateColumn {width: 200px;}
+		&.dateColumn {width: 100px;}
+		&.profileData {font-size: 0.9em;}
 	
 
 		 @media print {
@@ -184,21 +196,23 @@ export const TableRow = styled.tr.attrs(props => ({
 	className: props.className
 }))`
 @media print {
+
+	/* font-size: 0.8em; */
+	font-size: 0.9em;
+
 	&.breakThis { 
-		page-break-inside: avoid; 
-		page-break-after:always;	
+		/* page-break-inside: avoid; 
+		page-break-after:always;	 */
+		break-inside: avoid; 
+		break-before: page;
 	}
 	&.breakBeforeThis { 
 		page-break-inside: avoid; 
-		page-break-before:always;	
+		page-break-before: always;	
 	}
 }
 
-@media print {
-	/* font-size: 1.05em; */
-	font-size: 0.8em;
-}
-font-size: 0.8em;
+font-size: 1.0em;
 
 &.bold {
 		font-weight: bold;

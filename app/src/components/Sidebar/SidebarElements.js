@@ -34,7 +34,7 @@ export const Icon = styled.div`
 `
 export const LogoutButton = styled(LinkR)`
 	position: absolute;
-	top: 1.2rem;
+	top: 2.5rem;
 	left: 1.5rem;
 
 	border-radius: 50px;
@@ -54,6 +54,13 @@ export const LogoutButton = styled(LinkR)`
 		background: #cecece;
 		color: red;
 	}
+`
+export const LoggedInfo = styled.p`
+	color: #31a8fffc;
+	position: absolute;
+	top: 0.9rem;
+	left: 1.5rem;
+	font-size: 14px;
 `
 
 export const SidebarWrapper = styled.div`

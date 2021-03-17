@@ -14,7 +14,11 @@ const slice = createSlice({
 					id: ++lastId,
 					userId: user._id,
 					name: user.fullName,
-					role: user.role
+					email: user.email,
+					role: user.role,
+					telephone: user.telephone,
+					cpr: user.cpr,
+					contractNumber: user.contractNumber
 				}));
 			items.forEach(user => users.push(user));
 		},
@@ -23,15 +27,33 @@ const slice = createSlice({
 				id: ++lastId,
 				userId: action.payload.userId,
 				name: action.payload.name,
-				role: action.payload.role
+				email: action.payload.email,
+				role: action.payload.role,
+				telephone: action.payload.telephone,
+				cpr: action.payload.cpr,
+				contractNumber: action.payload.contractNumber
 			})
+		},
+		userUpdated: (users, action) => {
+			const newState = deepClone(users);
+			const editedUser = newState.find(user => user.userId === action.payload.userId);
+			editedUser.name = action.payload.fullName;
+			editedUser.email = action.payload.email;
+			editedUser.telephone = action.payload.telephone;
+			editedUser.cpr = action.payload.cpr;
+			editedUser.contractNumber = action.payload.contractNumber;
+			return newState;
 		},
 		userAdded: (users, action) => {
 			users.push({
+
 				id: ++lastId,
 				name: action.payload.name,
 				email: action.payload.email,
-				password: action.payload.password
+				password: action.payload.password,
+				telephone: action.payload.telephone,
+				cpr: action.payload.cpr,
+				contractNumber: action.payload.contractNumber
 			})
 		},
 		userRemoved: (users, action) => {
@@ -48,5 +70,9 @@ export const getUsersArray = createSelector(
 	users => users
 )
 
-export const { userAdded, usersReset, userRemoved, usersReceived, userReceived } = slice.actions;
+export const { userAdded, usersReset, userRemoved, usersReceived, userReceived, userUpdated } = slice.actions;
 export default slice.reducer;
+
+function deepClone(obj) {
+	return JSON.parse(JSON.stringify(obj))
+}

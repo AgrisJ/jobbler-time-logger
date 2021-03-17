@@ -9,6 +9,7 @@ const slice = createSlice({
 		ttl: null,
 		userId: null,
 		role: null,
+		name: null,
 		error: ''
 	},
 	reducers: {
@@ -22,6 +23,7 @@ const slice = createSlice({
 				ttl: action.payload.ttl,
 				userId: action.payload.userId,
 				role: action.payload.role,
+				name: action.payload.fullName,
 				error: ''
 			}
 		},
@@ -33,6 +35,7 @@ const slice = createSlice({
 				ttl: null,
 				userId: null,
 				role: null,
+				name: null,
 				error: ''
 			}
 		},
