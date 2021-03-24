@@ -24,7 +24,7 @@ router.post('/api/v1/login', authorizer, (req, res) => {
         const userRole = result.role;
 
         // Remember user's role for later
-        const userName = result.fullName;
+        const username = result.fullName;
         
         // Generate a session id and a token
         const session = api.utils.randomString(64);
@@ -41,8 +41,9 @@ router.post('/api/v1/login', authorizer, (req, res) => {
                 res.status(500).end();
                 return;
             }
+
             // Respond
-					res.status(200).send({ session: session, token: token, ttl: ttl, userId: result.userId, role: userRole, fullName: userName });
+            res.status(200).send({ session: session, token: token, ttl: ttl, userId: result.userId, role: userRole, fullName: username });
         });
     });
 });

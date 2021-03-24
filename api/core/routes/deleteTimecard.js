@@ -20,7 +20,7 @@ router.delete('/api/v1/timecard/:timecardId', authorizer, (req, res) => {
         }
         
         // Respond
-        res.status(204).send({newToken: req._newToken});
+        res.status(200).send({newToken: req._newToken, cardId: req.params.timecardId});
     });
 });
 
