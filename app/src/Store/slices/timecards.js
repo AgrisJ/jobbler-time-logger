@@ -1,6 +1,7 @@
 import { createSelector, createSlice } from '@reduxjs/toolkit';
 import { useSelector } from 'react-redux';
-import { resultDate } from '../../components/AddEntryForm';
+import { resultDate } from '../../components/services/helpfulFunctions';
+import { apiCallBegan } from './../api';
 let lastId = 0;
 
 const slice = createSlice({
@@ -21,8 +22,8 @@ const slice = createSlice({
 							cardId: timecard._id,
 							userId: timecard.userId,
 							projectId: timecard.projectId,
-							startTime: timecard.startTime/* .split("T")[0] */, //TODO perhaps need to keep the whole date fromat
-							endTime: timecard.endTime/* .split("T")[0] */,
+							startTime: timecard.startTime,
+							endTime: timecard.endTime,
 							breakTime: timecard.breakTime,
 							notes: timecard.notes,
 							hours: timecard.hours
@@ -141,6 +142,56 @@ export function TimeCards(id) {
 
 export const { timecardAdded, timecardRemoved, timecardsOfUserRemoved, timecardsOfProjectRemoved, timecardProjectChanged, timecardRenamed, timecardWorkingTimeEdited, timecardsReceived, timecardsReset, error } = slice.actions;
 export default slice.reducer;
+
+// Action Creators
+const url = "/v1/timecard";
+const url2 = "/v1/user/hours";
+
+export const loadTimecards = (session, urlExtension, data) => apiCallBegan({
+	url: `${url}s/${urlExtension}`,
+	data,
+	headers: {
+		session
+	},
+	onSuccess: timecardsReceived.type
+});
+
+export const loadUserTimecards = session => apiCallBegan({
+	url: url2,
+	headers: {
+		session
+	},
+	onSuccess: timecardsReceived.type
+});
+
+export const postUserTimecard = (session, urlExtension, data) => apiCallBegan({
+	url: `${url}/${urlExtension}`,
+	method: "post",
+	data,
+	headers: {
+		session
+	},
+	onError: error.type,
+	onSuccess: timecardsReceived.type
+});
+export const editTimecard = (session, urlExtension, data) => apiCallBegan({
+	url: `${url}/${urlExtension}`,
+	method: "PATCH",
+	data,
+	headers: {
+		session
+	},
+	onError: error.type
+});
+
+export const deleteTimecard = (session, urlExtension) => apiCallBegan({
+	url: `${url}/${urlExtension}`,
+	method: "DELETE",
+	headers: {
+		session
+	},
+	onSuccess: "timecards/timecardRemoved"
+});
 
 
 

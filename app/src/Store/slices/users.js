@@ -1,4 +1,5 @@
 import { createSlice, createSelector } from '@reduxjs/toolkit';
+import { apiCallBegan } from './../api';
 let lastId = 0;
 
 const slice = createSlice({
@@ -26,7 +27,7 @@ const slice = createSlice({
 			users.push({
 				id: ++lastId,
 				userId: action.payload.userId,
-				name: action.payload.name,
+				name: action.payload.fullName,
 				email: action.payload.email,
 				role: action.payload.role,
 				telephone: action.payload.telephone,
@@ -65,6 +66,7 @@ const slice = createSlice({
 	}
 });
 
+
 export const getUsersArray = createSelector(
 	state => state.entities.users,
 	users => users
@@ -72,6 +74,49 @@ export const getUsersArray = createSelector(
 
 export const { userAdded, usersReset, userRemoved, usersReceived, userReceived, userUpdated } = slice.actions;
 export default slice.reducer;
+
+// Action Creators
+const url = "/v1/user";
+
+export const loadUsers = session => apiCallBegan({
+	url: `${url}s`,
+	headers: {
+		session
+	},
+	onSuccess: usersReceived.type
+})
+
+export const postUser = (session, data) => apiCallBegan({
+	url,
+	method: "post",
+	data,
+	headers: {
+		session
+	},
+	onSuccess: userReceived.type
+})
+export const editUser = (session, urlExtension, data) => apiCallBegan({
+	url: `${url}/${urlExtension}`,
+	method: "PATCH",
+	data,
+	headers: {
+		session
+	},
+	onSuccess: userUpdated.type
+})
+export const deleteUser = (session, urlExtension, data) => apiCallBegan({
+	url: `${url}/${urlExtension}`,
+	method: "PATCH",
+	data,
+	headers: {
+		session
+	},
+	onSuccess: userRemoved.type
+})
+
+
+
+
 
 function deepClone(obj) {
 	return JSON.parse(JSON.stringify(obj))

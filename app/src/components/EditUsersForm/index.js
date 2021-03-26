@@ -1,20 +1,37 @@
 import React, { useState, useEffect } from 'react'
+import Joi from 'joi-browser';
+import parse from "html-react-parser";
 import { connect } from 'react-redux';
 import { getcurrentModeIndex } from '../../Store/slices/currentModeIndex';
-import { projectAdded } from '../../Store/slices/projects';
-import { userAdded } from '../../Store/slices/users';
-import Joi from 'joi-browser';
+import { editUser } from '../../Store/slices/users';
 import { FormInput, FormWrapper, FormButton, FormContent, Form, FormH1, FormLabel, ScrollAnchor, ErrorMessage, CautionContainer, CautionText } from './EditUsersFormElements';
-import { companyConfig } from '../../services/companyConfig';
-import * as actions from '../../Store/api';
 import { getLoginData } from '../../Store/slices/login';
 import { errorMessagePerType, scrollDownTo } from './../AddDataForm/index';
 import { getcurrentContractor } from './../../Store/slices/currentContractor';
 import { getUsersArray } from './../../Store/slices/users';
+import { getlanguage } from './../../Store/slices/language';
+import { languageData } from './../../languages/language_variables';
+import { Notificator } from '../../pages/addRemove';
 
 
-const EditUsersForm = ({ currentModeIndex, login, dispatch, currentContractor, users }) => {
-	const dataType = ['Project', 'Contractor'][currentModeIndex];
+const EditUsersForm = ({ login, dispatch, currentContractor, language }) => {
+
+	const {
+		_NAME,
+		_CHANGEWITHCAUTION,
+		_TYPENEWPASSWORD,
+		_EDITUSERDATA,
+		_MAKEALLCHANGES,
+		_CHANGESMESSAGE
+	} = languageData.COMPONENTS.EditUsersForm;
+
+	const {
+		_EMAIL,
+		_PASSWORD,
+		_TELEPHONE,
+		_CPRNR,
+		_CONTRACTNR
+	} = languageData.COMPONENTS.AddDataForm;
 
 	const [{ nameInput }, setnameInput] = useState({ nameInput: '' });
 	const [{ emailInput }, setemailInput] = useState({ emailInput: '' });
@@ -23,6 +40,7 @@ const EditUsersForm = ({ currentModeIndex, login, dispatch, currentContractor, u
 	const [{ cprInput }, setcprInput] = useState({ cprInput: '' });
 	const [{ contractnrInput }, setcontractnrInput] = useState({ contractnrInput: '' });
 	const [{ errors }, seterrors] = useState({ errors: {} });
+	const [{ showNotificator }, setshowNotificator] = useState({ showNotificator: false });
 
 	function handleNameChange(e) {
 		setnameInput({ nameInput: e.target.value })
@@ -52,24 +70,35 @@ const EditUsersForm = ({ currentModeIndex, login, dispatch, currentContractor, u
 		contractNumber ? setcontractnrInput({ contractnrInput: contractNumber }) : setcontractnrInput({ contractnrInput: '' });
 	}, [currentContractor])
 
+	// resetting notificator
+	useEffect(() => {
+		if (showNotificator) {
+			setTimeout(() => {
+				setshowNotificator({ showNotificator: false });
+			}, 1000);
+
+		}
+	}, [showNotificator])
+
 	function doSubmit() {
-		dispatch(actions.apiCallBegan({
-			url: `/v1/user/${currentContractor.userId}`,
-			method: "PATCH",
-			data: {
-				userId: currentContractor.userId,
-				fullName: nameInput,
-				email: emailInput,
-				password: passwordInput && passwordInput,
-				telephone: telephoneInput,
-				cpr: cprInput,
-				contractNumber: contractnrInput
-			},
-			headers: {
-				session: login.session
-			},
-			onSuccess: "users/userUpdated"
-		}));
+		dispatch(
+			editUser(
+				login.session,
+				currentContractor.userId,
+				{
+					userId: currentContractor.userId,
+					fullName: nameInput,
+					email: emailInput,
+					password: passwordInput && passwordInput,
+					telephone: telephoneInput,
+					cpr: cprInput,
+					contractNumber: contractnrInput
+				}
+			)
+		)
+
+		// setshowNotificator({ showNotificator: false });
+		setshowNotificator({ showNotificator: true });
 
 		setpasswordInput({ passwordInput: '' });
 		seterrors({ errors: {} });
@@ -124,51 +153,52 @@ const EditUsersForm = ({ currentModeIndex, login, dispatch, currentContractor, u
 		const allErrors = validate();
 		seterrors({ errors: allErrors || {} });
 		if (allErrors) return;
-
 		doSubmit();
 	}
 
 	function INPUT_FIELDS() {
 		return (
 			<>
-				<FormLabel htmlFor='for'>Name</FormLabel>
+				<FormLabel htmlFor='for'>{_NAME[language]}</FormLabel>
 				<FormInput
 					onChange={handleNameChange}
 					value={nameInput}
 					type='text'
 					hasErrors={errors['nameInput']}
+					autocomplete="off"
 					required />
 				{errors['nameInput'] && <ErrorMessage>{errors['nameInput']}</ErrorMessage>}
-				<FormLabel htmlFor='for'>Telephone</FormLabel>
+				<FormLabel htmlFor='for'>{_TELEPHONE[language]}</FormLabel>
 				<FormInput
-					onClick={() => scrollDownTo(".scrollHere")}
 					onChange={handleTelephoneChange}
 					value={telephoneInput}
 					type='tel'
+					autocomplete="off"
 					hasErrors={errors['telephoneInput']}
 				/>
 				{errors['telephoneInput'] && <ErrorMessage>{errors['telephoneInput']}</ErrorMessage>}
-				<FormLabel htmlFor='for'>CPR Nr</FormLabel>
+				<FormLabel htmlFor='for'>{_CPRNR[language]}</FormLabel>
 				<FormInput
-					onClick={() => scrollDownTo(".scrollHere")}
 					onChange={handleCPRChange}
 					value={cprInput}
 					type='number'
+					autocomplete="off"
 					hasErrors={errors['cprInput']}
 				/>
 				{errors['cprInput'] && <ErrorMessage>{errors['cprInput']}</ErrorMessage>}
-				<FormLabel htmlFor='for'>Contract Nr</FormLabel>
+				<FormLabel htmlFor='for'>{_CONTRACTNR[language]}</FormLabel>
 				<FormInput
 					onClick={() => scrollDownTo(".scrollHere")}
 					onChange={handleContractnrChange}
 					value={contractnrInput}
 					type='text'
+					autocomplete="off"
 					hasErrors={errors['contractnrInput']}
 				/>
 				{errors['contractnrInput'] && <ErrorMessage>{errors['contractnrInput']}</ErrorMessage>}
 				<CautionContainer>
-					<CautionText>*Change <em>email / password</em> with caution</CautionText>
-					<FormLabel htmlFor='for'>Email</FormLabel>
+					<CautionText>{parse(_CHANGEWITHCAUTION[language])}</CautionText>
+					<FormLabel htmlFor='for'>{_EMAIL[language]}</FormLabel>
 					<FormInput
 						// style={{ borderColor: '#d97a36' }}
 						onClick={() => scrollDownTo(".scrollHere")}
@@ -176,16 +206,18 @@ const EditUsersForm = ({ currentModeIndex, login, dispatch, currentContractor, u
 						value={emailInput}
 						type='email'
 						hasErrors={errors['emailInput']}
+						autocomplete="off"
 						required />
 					{errors['emailInput'] && <ErrorMessage>{errors['emailInput']}</ErrorMessage>}
-					<FormLabel htmlFor='for'>Password</FormLabel>
+					<FormLabel htmlFor='for'>{_PASSWORD[language]}</FormLabel>
 					<FormInput
 						// style={{ borderColor: '#d97a36' }}
 						onClick={() => scrollDownTo(".scrollHere")}
 						onChange={handlePasswordChange}
 						value={passwordInput}
 						type='password'
-						placeholder='type new pasword'
+						placeholder={_TYPENEWPASSWORD[language]}
+						autocomplete="off"
 						hasErrors={errors['passwordInput']}
 					/>
 					{errors['passwordInput'] && <ErrorMessage>{errors['passwordInput']}</ErrorMessage>}
@@ -199,23 +231,26 @@ const EditUsersForm = ({ currentModeIndex, login, dispatch, currentContractor, u
 			<FormWrapper>
 				<FormContent >
 					<Form onSubmit={handleSubmit}>
-						<FormH1>Edit User Data</FormH1>
+						<FormH1>{_EDITUSERDATA[language]}</FormH1>
 						{INPUT_FIELDS()}
-						<FormButton>MAKE ALL CHANGES</FormButton>
+						<FormButton>{_MAKEALLCHANGES[language]}</FormButton>
 					</Form>
 				</FormContent>
 			</FormWrapper>
+			{showNotificator && <Notificator message={`${_CHANGESMESSAGE[language]}`} />}
+
 			<ScrollAnchor className={'scrollHere'} />
 		</>
 	)
 }
 
-const mapStateToProps = (state) =>
+const mapStateToProps = state =>
 ({
 	currentModeIndex: getcurrentModeIndex(state),
 	login: getLoginData(state),
 	users: getUsersArray(state),
-	currentContractor: getcurrentContractor(state)
+	currentContractor: getcurrentContractor(state),
+	language: getlanguage(state)
 })
 
 

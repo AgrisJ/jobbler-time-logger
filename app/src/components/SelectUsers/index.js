@@ -67,7 +67,7 @@ function SelectUsers(
 	}
 
 	function savedChosenOption() {
-		function address() { return contentListPerMode(currentModeIndex).find(address => selectSrc(address, 'item') === currentAddress.address) }; //TODO simplify this after I put dispatch of changing currentAddress / contractor
+		function address() { return contentListPerMode(currentModeIndex).find(address => selectSrc(address, 'item') === currentAddress.address) };
 		function contractor() { return contentListPerMode(currentModeIndex).find(name => selectSrc(name, 'item') === currentContractor.name); }
 
 		if (firstMode) return selectSrc(address(), 'item').length > 0 ?

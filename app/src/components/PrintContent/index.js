@@ -14,6 +14,8 @@ import ControlPanelSection from './../ControlPanelSection/index';
 import { gettotalTime } from '../../Store/slices/totalTime';
 import { isObject, isRounded } from '../services/helpfulFunctions'
 import { nanoid } from 'nanoid'
+import { getlanguage } from './../../Store/slices/language';
+import { languageData } from './../../languages/language_variables';
 
 const PrintContent = ({
 	timecards,
@@ -22,16 +24,68 @@ const PrintContent = ({
 	monthIndex,
 	currentModeIndex,
 	currentAddress,
-	currentContractor
+	currentContractor,
+	language
 }) => {
+	const {
+		_DATE,
+		_NOTES,
+		_WORKINTERVAL,
+		_BREAKS,
+		_TOTAL,
+		_ASSIGNEDHOURS,
+		_WITHNOTES,
+		_TOTALHOURS,
+		_INTOTAL,
+		_HOURS,
+		_PRINT,
+		_PERIOD,
+		_YEAR,
+		_CONTRACTORNOTES,
+		_OVERVIEW,
+		_PROJECTHOURS,
+		_CONTRACTORHOURS,
+		_PROJECTS,
+		_CONTRACTORS,
+		_CONTRACT
+	} = languageData.COMPONENTS.PrintContent;
+
+	const {
+		_JANUARY,
+		_FEBRUARY,
+		_MARCH,
+		_APRIL,
+		_MAY,
+		_JUNE,
+		_JULY,
+		_AUGUST,
+		_SEPTEMBER,
+		_OCTOBER,
+		_NOVEMBER,
+		_DECEMBER
+	} = languageData.COMPONENTS.ControlPanelSection;
 
 	const selectedMonth = monthIndex;
 	const firstMode = currentModeIndex === 0; // Project hours
 	const secondMode = currentModeIndex === 1; // Contractor hours
-	const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-	const dataModes = ['Project Hours', 'Contractor Hours'];
-	const modeItem = dataModes[currentModeIndex].split(' ')[0];
-	const reverseModeItem = dataModes[firstMode ? currentModeIndex + 1 : currentModeIndex - 1].split(' ')[0];
+	const months = [
+		_JANUARY[language],
+		_FEBRUARY[language],
+		_MARCH[language],
+		_APRIL[language],
+		_MAY[language],
+		_JUNE[language],
+		_JULY[language],
+		_AUGUST[language],
+		_SEPTEMBER[language],
+		_OCTOBER[language],
+		_NOVEMBER[language],
+		_DECEMBER[language]
+	];
+	const dataModes = [_PROJECTHOURS[language], _CONTRACTORHOURS[language]];
+	const shortDataModes = [_PROJECTS[language], _CONTRACTORS[language]];
+	const modeItem = shortDataModes[currentModeIndex];
+	const reverseModeItem = shortDataModes[firstMode ? currentModeIndex + 1 : currentModeIndex - 1];
 	const [{ printAllChecked }, setprintAllChecked] = useState({ printAllChecked: false });
 	const [{ notesModeOn }, setnotesModeOn] = useState({ notesModeOn: false });
 
@@ -212,13 +266,13 @@ const PrintContent = ({
 
 				const ContractorEntryHeader = () => (
 					<TableRow key={nanoid()}>
-						<TableCell style={{ textAlign: 'start', border: 'unset', width: '30%' }}>{'Date'}</TableCell>
+						<TableCell style={{ textAlign: 'start', border: 'unset', width: '30%' }}>{_DATE[language]}</TableCell>
 						{notesModeOn &&
-							<TableCell style={{ textAlign: 'start', border: 'unset' }}>{'Notes'}</TableCell>}
+							<TableCell style={{ textAlign: 'start', border: 'unset' }}>{_NOTES[language]}</TableCell>}
 						{!notesModeOn &&
-							<><TableCell style={{ textAlign: 'end', border: 'unset' }}>{'Work Interval'}</TableCell>
-								<TableCell style={{ textAlign: 'end', border: 'unset' }}>{'Breaks'}</TableCell>
-								<TableCell style={{ textAlign: 'end', border: 'unset' }}>{'Total'}</TableCell></>}
+							<><TableCell style={{ textAlign: 'end', border: 'unset' }}>{_WORKINTERVAL[language]}</TableCell>
+								<TableCell style={{ textAlign: 'end', border: 'unset' }}>{_BREAKS[language]}</TableCell>
+								<TableCell style={{ textAlign: 'end', border: 'unset' }}>{_TOTAL[language]}</TableCell></>}
 					</TableRow>);
 
 				function gatherPrintContent() {
@@ -362,8 +416,8 @@ const PrintContent = ({
 								<p>{showContractors('email')}</p>
 								<p>{showContractors('telephone')}</p>
 								<p>&nbsp;</p>
-								<p>CPR - {showContractors('cpr')}</p>
-								<p>Contract - {showContractors('contractNumber')}</p>
+								<p>CPR Nr - {showContractors('cpr')}</p>
+								<p>{_CONTRACT[language]} - {showContractors('contractNumber')}</p>
 							</>}
 
 
@@ -385,19 +439,19 @@ const PrintContent = ({
 				<tbody>
 					<TableRow className='bold'>
 						<TableCell className='thirty'>{`${modeItem}:`}</TableCell>
-						<TableCell>{`${reverseModeItem}s`} {!notesModeOn ? 'assigned / hours' : 'with notes'}</TableCell>
+						<TableCell>{`${reverseModeItem}`} {!notesModeOn ? _ASSIGNEDHOURS[language] : _WITHNOTES[language]}</TableCell>
 						{!notesModeOn &&
-							<TableCell className='ten'>Total Hours</TableCell>}
+							<TableCell className='ten'>{_TOTALHOURS[language]}</TableCell>}
 					</TableRow>
 
 					{renderDataItems}
 
 					{printAllChecked &&
 						<TableRow className='bold'>
-							<TableCell className='verticalTop'>IN TOTAL:</TableCell>
-							<TableCell>{`${rowCount} ${modeItem}s`}</TableCell>
+							<TableCell className='verticalTop'>{_INTOTAL[language]}:</TableCell>
+							<TableCell>{`${rowCount} ${modeItem}`}</TableCell>
 							{!notesModeOn &&
-								<TableCell className='alignCenter'>{isRounded(totalCardHours)} hours</TableCell>}
+								<TableCell className='alignCenter'>{isRounded(totalCardHours)} {_HOURS[language]}</TableCell>}
 						</TableRow>}
 				</tbody>
 			</TableWrapper>
@@ -414,7 +468,7 @@ const PrintContent = ({
 
 	return (
 		<>
-			<PrintButton onClick={handlePrint}>Print</PrintButton>
+			<PrintButton onClick={handlePrint}>{_PRINT[language]}</PrintButton>
 			<ControlPanelSection
 				setprintAllChecked={setprintAllChecked}
 				printAllChecked={printAllChecked}
@@ -427,17 +481,17 @@ const PrintContent = ({
 					<Header>
 						<PeriodHeading>
 							<div style={{ display: 'flex', alignItems: 'flex-end' }}>
-								<Period className='printSize'>Period: {months[monthIndex]}</Period>
+								<Period className='printSize'>{_PERIOD[language]}: {months[monthIndex]}</Period>
 							</div>
 							<div style={{ textAlign: 'right' }}>
 								<PrintLogo src="/sidna_byg_logo.png" alt="logo" />
-								<Period className='printSize'>Year: 2021</Period>{/*TODO make year dynamic */}
+								<Period className='printSize'>{_YEAR[language]}: 2021</Period>{/*TODO make year dynamic */}
 							</div>
 						</PeriodHeading>
 					</Header>
 
 					<FootHeadSeperator>
-						<Heading className='printSize'>Sidna Byg {!notesModeOn ? dataModes[currentModeIndex] : 'Contractor Notes'} {!notesModeOn && 'Overview'}</Heading>
+						<Heading className='printSize'>Sidna Byg {!notesModeOn ? dataModes[currentModeIndex] : _CONTRACTORNOTES[language]} {!notesModeOn && _OVERVIEW[language]}</Heading>
 						{renderTable()}
 					</FootHeadSeperator>
 
@@ -459,7 +513,7 @@ const PrintContent = ({
 
 
 
-const mapStateToProps = (state) =>
+const mapStateToProps = state =>
 ({
 	projects: getProjectArray(state),
 	users: getUsersArray(state),
@@ -469,6 +523,7 @@ const mapStateToProps = (state) =>
 	currentContractor: getcurrentContractor(state),
 	currentModeIndex: getcurrentModeIndex(state),
 	totalTime: gettotalTime(state),
+	language: getlanguage(state)
 })
 
 

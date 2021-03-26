@@ -10,6 +10,7 @@ import totalTimeReducer from '../slices/totalTime';
 import cardCountReducer from '../slices/cardCount';
 import loginReducer from '../slices/login';
 import noteReducer from '../slices/notes';
+import languageReducer from '../slices/language';
 
 
 export default combineReducers({
@@ -23,5 +24,6 @@ export default combineReducers({
 	totalTime: totalTimeReducer,
 	cardCount: cardCountReducer,
 	login: loginReducer,
-	notes: noteReducer
+	notes: noteReducer,
+	language: languageReducer
 });

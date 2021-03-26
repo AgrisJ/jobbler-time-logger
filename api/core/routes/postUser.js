@@ -20,7 +20,7 @@ router.post('/api/v1/user', authorizer, (req, res) => {
         }
         
         // Respond
-        res.status(201).send({userId: result._id, name: result.fullName, newToken: req._newToken});
+        res.status(201).send({userId: result._id,/*  name: result.fullName, */ newToken: req._newToken});
     });
 });
 

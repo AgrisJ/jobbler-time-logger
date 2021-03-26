@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ActionButton, Container } from '../components/common/commonElements';
 import Navbar from '../components/Navbar'
 import SelectUsers from '../components/SelectUsers';
@@ -6,21 +6,39 @@ import Sidebar from '../components/Sidebar'
 import ModeSwitcher from './../components/ModeSwitcher/index';
 import { connect } from 'react-redux';
 import { getUsersArray, userRemoved } from '../Store/slices/users';
-import { getProjectArray, projectRemoved } from '../Store/slices/projects';
+import { getProjectArray, deleteProject, projectRemoved } from '../Store/slices/projects';
 import { currentAddressChanged, getcurrentAddress } from '../Store/slices/currentAddress';
 import { currentContractorChanged, getcurrentContractor } from '../Store/slices/currentContractor';
 import { getcurrentModeIndex } from '../Store/slices/currentModeIndex';
 import Modal from '../components/Modal';
-import { getTimecardArray, timecardsOfUserRemoved, timecardsOfProjectRemoved } from '../Store/slices/timecards';
+import { getTimecardArray, timecardsOfUserRemoved, timecardsOfProjectRemoved, } from '../Store/slices/timecards';
 import AddDataForm from '../components/AddDataForm';
 import * as actions from '../Store/api';
-import { companyConfig } from '../services/companyConfig';
 import { getLoginData } from '../Store/slices/login';
+import { getlanguage } from './../Store/slices/language';
+import { languageData } from './../languages/language_variables';
+import { deleteUser } from './../Store/slices/users';
+import { deleteTimecard } from './../Store/slices/timecards';
 
 
-const AddRemove = ({ dispatch, projects, users, currentAddress, currentContractor, currentModeIndex, login, timecards }) => {
+const AddRemove = ({ dispatch, projects, users, currentAddress, currentContractor, currentModeIndex, login, timecards, language }) => {
+	const {
+		_PROJECTS,
+		_CONTRACTORS,
+		_REMOVE,
+		_ALLDATAALSODELETED,
+		_PROJECT,
+		_USER,
+		_ERASED
+	} = languageData.COMPONENTS.AddRemove;
+
+	const {
+
+	} = languageData.COMPONENTS.AddDataForm;
+
 	const [{ isOpen }, setIsOpen] = useState({ isOpen: false });
 	const [{ showModal }, setshowModal] = useState({ showModal: false });
+	const [{ showNotificator }, setshowNotificator] = useState({ showNotificator: false });
 
 	const toggle = () => setIsOpen({ isOpen: !isOpen });
 
@@ -65,29 +83,25 @@ const AddRemove = ({ dispatch, projects, users, currentAddress, currentContracto
 		const handleRemoveUser = () => {
 
 			// delete user
-			dispatch(actions.apiCallBegan({
-				url: `/v1/user/${currentUserId()}`,
-				method: "PATCH",
-				data: {
-					"deleted": true
-				},
-				headers: {
-					session: login.session
-				},
-				onSuccess: "users/userRemoved"
-			}));
+			dispatch(
+				deleteUser(
+					login.session,
+					currentUserId(),
+					{
+						"deleted": true
+					}
+				)
+			)
 
 			timecards.forEach(card => {
 				// delete all user cards
 				if (card.userId === currentUserId()) {
-					dispatch(actions.apiCallBegan({
-						url: `/v1/timecard/${card.cardId}`,
-						method: "DELETE",
-						headers: {
-							session: login.session
-						},
-						onSuccess: "timecards/timecardRemoved"
-					}));
+					dispatch(
+						deleteTimecard(
+							login.session,
+							card.cardId
+						)
+					)
 				}
 			});
 
@@ -99,29 +113,22 @@ const AddRemove = ({ dispatch, projects, users, currentAddress, currentContracto
 		const handleRemoveProject = () => {
 
 			// delete project
-			dispatch(actions.apiCallBegan({
-				url: `/v1/project/${currentProjectId()}`,
-				method: "PATCH",
-				data: {
-					"active": false
-				},
-				headers: {
-					session: login.session
-				},
-				onSuccess: "projects/projectRemoved"
-			}));
+			dispatch(
+				deleteProject(
+					login.session,
+					currentProjectId()
+				)
+			)
 
 			timecards.forEach(card => {
 				// delete all project cards
 				if (card.projectId === currentProjectId()) {
-					dispatch(actions.apiCallBegan({
-						url: `/v1/timecard/${card.cardId}`,
-						method: "DELETE",
-						headers: {
-							session: login.session
-						},
-						onSuccess: "timecards/timecardRemoved"
-					}));
+					dispatch(
+						deleteTimecard(
+							login.session,
+							card.cardId
+						)
+					)
 				}
 			});
 
@@ -134,17 +141,22 @@ const AddRemove = ({ dispatch, projects, users, currentAddress, currentContracto
 
 		const firstUser = users.length > 0 ? users.find(user => user.userId === currentUserId()) : null;
 
+
+
 		if (showModal) {
 
 			setshowModal({ showModal: false });
 			if (firstMode) handleRemoveProject();
 			if (secondMode) handleRemoveUser();
+			setshowNotificator({ showNotificator: true });
 
 		} else {
 			const selectedAddress = projects.length > 0 ? projects.find(project => project.id === currentProjectId(true)).address : null;
 			if (firstMode) dispatch(currentAddressChanged({ address: selectedAddress, projectId: currentProjectId() }));
 			if (secondMode) dispatch(currentContractorChanged(firstUser));
+			setshowNotificator({ showNotificator: false });
 		}
+
 	}
 
 	const cancelModal = () => setshowModal({ showModal: false });
@@ -156,37 +168,75 @@ const AddRemove = ({ dispatch, projects, users, currentAddress, currentContracto
 		<>
 			<Sidebar isOpen={isOpen} toggle={toggle} isAdmin={true} />
 			<Navbar toggle={toggle} />
-			<ModeSwitcher titles={['Projects', 'Contractors']} />
+			<ModeSwitcher titles={[_PROJECTS[language], _CONTRACTORS[language]]} />
 			<SelectUsers />
 			<Container>
-				<ActionButton onClick={handleRemove} color={'rgb(252, 67, 100)'}>Remove</ActionButton>
+				<ActionButton onClick={handleRemove} color={'rgb(252, 67, 100)'}>{_REMOVE[language]}</ActionButton>
 			</Container>
 			<Modal
 				showModal={showModal}
 				actionActivated={() => handleRemove}
-				highlightedText={'Remove'}
+				highlightedText={_REMOVE[language]}
 				modalText={itemToRemove()}
-				modalSubText={'* All data will be also deleted'}
+				modalSubText={_ALLDATAALSODELETED[language]}
 				cancelModal={() => cancelModal()} />
 			<AddDataForm />
-			{/*TODO Add animated notification - 'name' erased  */}
+			{showNotificator && <Notificator message={`${firstMode && _PROJECT[language] || secondMode && _USER[language]} ${_ERASED[language]}`} />}
 		</>
 	)
 }
 
-const mapStateToProps = (state) =>
+const mapStateToProps = state =>
 ({
 	projects: getProjectArray(state),
 	users: getUsersArray(state),
 	timecards: getTimecardArray(state),
-	// monthIndex: getMonthIndex(state),
 	currentAddress: getcurrentAddress(state),
 	currentContractor: getcurrentContractor(state),
 	currentModeIndex: getcurrentModeIndex(state),
-	login: getLoginData(state)
+	login: getLoginData(state),
+	language: getlanguage(state)
 })
 
 
 // mapStateToProps takes state of the store and returns the part you are interested in:
 // the properties of this object will end up as props of our componennt
 export default connect(mapStateToProps)(AddRemove);
+
+
+export function Notificator({ message }) {
+	const [{ changingHeight }, setchangingHeight] = useState({ changingHeight: 55 })
+	const [{ changingOpacity }, setchangingOpacity] = useState({ changingOpacity: 1 })
+
+	const styles = {
+		container: {
+			background: 'rgb(94 150 52 / 87%)',
+			position: 'fixed',
+			transform: 'translate(calc(50vw - 50%))',
+			zIndex: '100000',
+			padding: '1em',
+			borderRadius: '12px',
+			color: 'white',
+			transition: 'all 0.5s',
+			opacity: changingOpacity,
+			top: changingHeight + 'vh'
+		}
+	}
+
+	useEffect(() => {
+		const timeout = setTimeout(() => {
+			setchangingHeight({ changingHeight: 45 });
+			setchangingOpacity({ changingOpacity: 0 });
+		}, 450);
+		return () => {
+			clearTimeout(timeout);
+		}
+	}, [])
+
+
+	return (
+		<div style={styles.container}>
+			{message}
+		</div>
+	)
+}

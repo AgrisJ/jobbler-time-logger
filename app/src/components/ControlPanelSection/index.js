@@ -20,6 +20,8 @@ import ModeSwitcher from '../ModeSwitcher';
 import { getLoginData, loggedIn } from '../../Store/slices/login';
 import { timeFormat } from '../ContentSection';
 import { useHistory } from 'react-router-dom';
+import { languageData } from './../../languages/language_variables';
+import { getlanguage } from './../../Store/slices/language';
 
 function ControlPanelSection(
 	{
@@ -38,9 +40,36 @@ function ControlPanelSection(
 		setprintAllChecked,
 		printAllChecked,
 		setnotesModeOn,
-		notesModeOn
+		notesModeOn,
+		language
 	}
 ) {
+	const {
+		_JANUARY,
+		_FEBRUARY,
+		_MARCH,
+		_APRIL,
+		_MAY,
+		_JUNE,
+		_JULY,
+		_AUGUST,
+		_SEPTEMBER,
+		_OCTOBER,
+		_NOVEMBER,
+		_DECEMBER,
+		_SELECTALL,
+		_NOTESONOFF,
+		_TOTAL,
+		_ENTRIES,
+		_PROJECTHOURS,
+		_CONTRACTORHOURS
+	} = languageData.COMPONENTS.ControlPanelSection;
+
+	const {
+		_HOURSHORT
+	} = languageData.COMPONENTS.ContentSection;
+
+
 	let history = useHistory();
 
 	const addresses = projects.map(project => {
@@ -49,7 +78,20 @@ function ControlPanelSection(
 	);
 	const loggedInUserId = login.userId;
 	const contractors = users.map(card => ({ name: card.name, userId: card.userId }));
-	const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+	const months = [
+		_JANUARY[language],
+		_FEBRUARY[language],
+		_MARCH[language],
+		_APRIL[language],
+		_MAY[language],
+		_JUNE[language],
+		_JULY[language],
+		_AUGUST[language],
+		_SEPTEMBER[language],
+		_OCTOBER[language],
+		_NOVEMBER[language],
+		_DECEMBER[language]
+	];
 	const IS_PRINT_MODE = ['print'].some(item => window.location.href.indexOf(item) !== -1) ? true : false;
 	const [{ listCardCount }, setListCardCount] = useState({ listCardCount: [] });
 	const [{ monthNow }, setmonthNow] = useState({ monthNow: new Date() });
@@ -134,13 +176,13 @@ function ControlPanelSection(
 						<Checkbox
 							checked={printAllChecked}
 							onChange={handlePrintAllCheckboxChange}
-							labelText={'Select All'}
+							labelText={_SELECTALL[language]}
 						/>
 						{isContractorMode &&
 							<Checkbox
 								checked={notesModeOn}
 								onChange={handleNotesModeCheckboxChange}
-								labelText={'Notes On/Off'}
+								labelText={_NOTESONOFF[language]}
 							/>}
 					</div>
 				</>
@@ -155,10 +197,10 @@ function ControlPanelSection(
 					<TotalDisplayWrapper>
 						<SelectUsers listCardCount={listCardCount} isAdmin={isAdmin} /* manualOverride={isAdmin ? 1 : null} */ />
 						<TotalDisplay>
-							Total: <TotalTime>{timeFormat(totalTime)}</TotalTime>
+							{_TOTAL[language]}: <TotalTime>{timeFormat(totalTime, _HOURSHORT[language])}</TotalTime>
 						</TotalDisplay>
 					</TotalDisplayWrapper>
-					<CardCounter>{`${cardCount} entries`}</CardCounter>
+					<CardCounter>{`${cardCount} ${_ENTRIES[language]}`}</CardCounter>
 					{isAdmin && isContractorMode ?
 						<AddCardButton onClick={navigateAddEntryPage} /> : null}
 				</>
@@ -171,7 +213,7 @@ function ControlPanelSection(
 		<>
 			<ControlPanelContainer>
 				<ControlPanelContent>
-					{isAdmin ? <ModeSwitcher titles={['Project hours', 'Contractor Hours']} /> : null}
+					{isAdmin ? <ModeSwitcher titles={[_PROJECTHOURS[language], _CONTRACTORHOURS[language]]} /> : null}
 					<ControlPanelMonth>
 						<BackwardCaret onClick={prevMonth} />
 						<Dropdown
@@ -206,7 +248,8 @@ const mapStateToProps = state =>
 	currentModeIndex: getcurrentModeIndex(state),
 	totalTime: gettotalTime(state),
 	cardCount: getcardCount(state),
-	login: getLoginData(state)
+	login: getLoginData(state),
+	language: getlanguage(state)
 
 })
 

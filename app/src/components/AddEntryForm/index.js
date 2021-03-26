@@ -1,26 +1,38 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { connect } from 'react-redux';
 import Joi from 'joi-browser';
-import { FormInput, FormWrapper, FormButton, FormContent, Form, FormH1, FormLabel, ScrollAnchor, ErrorMessage, TotalHoursDisplay, DisplayLabel, FormTextArea } from './AddEntryFormElements';
-import * as actions from '../../Store/api';
+import { FormInput, FormWrapper, FormButton, FormContent, Form, NoteCharCounter, FormLabel, ScrollAnchor, ErrorMessage, TotalHoursDisplay, DisplayLabel, FormTextArea, CustomDatePickerButton } from './AddEntryFormElements';
 import { getLoginData } from '../../Store/slices/login';
 import { errorMessagePerType, scrollDownTo } from '../AddDataForm';
 import { getcurrentAddress } from '../../Store/slices/currentAddress';
-import { getTimecardArray, timecardAdded } from '../../Store/slices/timecards';
+import { getTimecardArray, postUserTimecard, loadUserTimecards } from '../../Store/slices/timecards';
 import { useHistory } from 'react-router-dom';
 import MobileDatePicker from 'react-mobile-datepicker';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import "../../Styles/datePickerOverride.css"
 import { getcurrentContractor } from '../../Store/slices/currentContractor';
-import { noteAdded, getnotesArray } from '../../Store/slices/notes';
+import { getnotesArray } from '../../Store/slices/notes';
+import { getlanguage } from './../../Store/slices/language';
+import { languageData } from './../../languages/language_variables';
+import { getTimeFormat, totalTime } from '../services/helpfulFunctions';
 
 
-const AddDataForm = ({ login, currentAddress, timecards, dispatch, isAdmin, currentContractor, notes }) => {
+const AddEntryForm = ({ login, currentAddress, timecards, dispatch, isAdmin, currentContractor, notes, language }) => {
 	let history = useHistory();
 	const dateNow = new Date();
 	dateNow.setMinutes(0)
 	const dateNowZeroMins = dateNow;
+	const notesMaxLength = 500;
+
+	const {
+		_STARTTIME,
+		_ENDTIME,
+		_BREAKTIME,
+		_TOTAL,
+		_NOTE,
+		_DONE
+	} = languageData.COMPONENTS.AddEntryForm;
 
 	const [{ isLoading }, setisLoading] = useState({ isLoading: true });
 	const [{ isNoteInAction }, setisNoteInAction] = useState({ isNoteInAction: false });
@@ -39,16 +51,9 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch, isAdmin, curr
 			!currentAddress.loading && setisLoading({ isLoading: false });
 	}, [currentAddress])
 
-	// const dateChange = startTimeInput.getDate();
 	const monthChange = startTimeInput.getMonth();
 	const yearChange = startTimeInput.getFullYear();
 	const breakDateChange = breakTimeInput.getDate();
-
-	// EndTime input sets the same date as StartTime input
-	// useEffect(() => { 
-	// 	if (endTimeInput.getDate() < startTimeInput.getDate())
-	// 		setendTimeInput({ endTimeInput: new Date(endTimeInput.setDate(dateChange)) })
-	// }, [dateChange])
 
 	useEffect(() => {
 		if (endTimeInput.getFullYear() !== startTimeInput.getFullYear())
@@ -60,7 +65,7 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch, isAdmin, curr
 			setendTimeInput({ endTimeInput: new Date(endTimeInput.setMonth(monthChange)) })
 	}, [monthChange])
 
-	//BreakTime input to not allow a date change as it's meant to change only hours and minutes
+	// BreakTime input to not allow a date change as it's meant to change only hours and minutes
 	useEffect(() => {
 		if (breakTimeInput.getDate() !== startTimeInput.getDate()) {
 			breakTimeInput.setDate(1)
@@ -143,30 +148,21 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch, isAdmin, curr
 		if (timeType === 'end') setendTimePickerIsOpen({ endTimePickerIsOpen: false });
 		if (timeType === 'break') setbreakTimePickerIsOpen({ breakTimePickerIsOpen: false });
 	}
-	// function dateToday() {
-	// 	const now = new Date();
-	// 	const timezoneCorrectedNow = new Date(now - now.getTimezoneOffset() * 60000)
-	// 	const formattedDate = timezoneCorrectedNow.toJSON().split("T")[0];
-	// 	return formattedDate;
-	// }
-
-
-
 
 	function doSubmit() {
 		const hasInputValue = startTimeInput !== endTimeInput;
-		const adminEnding = isAdmin ? '/' + currentContractor.userId : '';
+		const adminEnding = isAdmin ? currentContractor.userId : '';
 		const totalBreakTime = totalTime(false, new Date('January 1, 2000'), breakTimeInput);
 
 		const changedStartTime = new Date(startTimeInput).toJSON();
 		const changedEndTime = new Date(endTimeInput).toJSON();
 
 		if (hasInputValue) {
-			dispatch(actions.apiCallBegan({// TODO ...and here - dispatch(PostUserTimecards());
 
-				url: `/v1/timecard${adminEnding}`,
-				method: "post",
-				data: {
+			dispatch(postUserTimecard(
+				login.session,
+				adminEnding,
+				{
 					userId: isAdmin ? currentContractor.userId : login.userId,
 					projectId: currentAddress.projectId,
 					startTime: changedStartTime,
@@ -174,21 +170,11 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch, isAdmin, curr
 					breakTime: totalBreakTime,
 					hours: totalTime(false, startTimeInput, endTimeInput),
 					notes: noteInput
-				},
-				headers: {
-					session: login.session
-				},
-				onError: "timecards/error",
-				onSuccess: "timecards/timecardsReceived"
-			}));
+				}
+			));
 
-			dispatch(actions.apiCallBegan({ // TODO ...and here - dispatch(loadUserTimecards());
-				url: "/v1/user/hours",
-				headers: {
-					session: login.session
-				},
-				onSuccess: "timecards/timecardsReceived"
-			}));
+			dispatch(loadUserTimecards(login.session));
+
 			isAdmin ? history.push("/") : history.push("/recordoverview");
 		};
 
@@ -196,11 +182,13 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch, isAdmin, curr
 
 	const schema = {
 		startTimeInput: Joi.date().iso().required().error(err => {
-
 			return { message: errorMessagePerType(err[0], 'Start Time') }
 		}),
 		endTimeInput: Joi.date().iso().required().error(err => {
 			return { message: errorMessagePerType(err[0], 'End Time') }
+		}),
+		noteInput: Joi.string().max(500).allow(null, '').error(err => {
+			return { message: errorMessagePerType(err[0], 'Notes Field') }
 		})
 	}
 
@@ -208,7 +196,8 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch, isAdmin, curr
 		const options = { abortEarly: false };
 		const fields = {
 			...{ startTimeInput },
-			...{ endTimeInput } //TODO validate notes input too
+			...{ endTimeInput },
+			...{ noteInput }
 		};
 
 		const { error } = Joi.validate(fields, schema, options);
@@ -276,25 +265,12 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch, isAdmin, curr
 	};
 
 	const customHeaderDatePicker = target => {
-		const styles = {
-			button: {
-				cursor: 'pointer',
-				borderRadius: '4px',
-				fontFamily: 'Expletus Sans',
-				fontSize: '18px',
-				borderStyle: 'none',
-				background: 'none',
-				zIndex: 3,
-				userSelect: 'none',
-				WebkitUserSelect: 'none', /* Safari */
-				msUserSelect: 'none' /* IE 10 and IE 11 */
-			}
-		};
+
 		const DateButton = React.forwardRef((props, ref) => {
 			const { value, onClick } = props;
-			return (<button style={styles.button} onClick={onClick} ref={ref}>
+			return (<CustomDatePickerButton onClick={onClick} ref={ref}>
 				{value}
-			</button>
+			</CustomDatePickerButton>
 			)
 		});
 
@@ -377,7 +353,7 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch, isAdmin, curr
 				<FormContent style={hideForms ? hide() : null}>
 					<Form onSubmit={handleSubmit}>
 						<>
-							<FormLabel htmlFor='for'>Start Time</FormLabel>
+							<FormLabel htmlFor='for'>{_STARTTIME[language]}</FormLabel>
 							<FormInput
 								onClick={() => { scrollDownTo(".scrollHere"); handleClick('start'); }}
 								onChange={handleStartTimeChange}
@@ -389,7 +365,7 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch, isAdmin, curr
 							{errors['startTimeInput'] && <ErrorMessage>{errors['startTimeInput']}</ErrorMessage>}
 						</>
 						<>
-							<FormLabel htmlFor='for'>End Time</FormLabel>
+							<FormLabel htmlFor='for'>{_ENDTIME[language]}</FormLabel>
 							<FormInput
 								onClick={() => { handleClick('end'); }}
 								onChange={handleEndTimeChange}
@@ -401,7 +377,7 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch, isAdmin, curr
 							{errors['endTimeInput'] && <ErrorMessage>{errors['endTimeInput']}</ErrorMessage>}
 						</>
 						<>
-							<FormLabel htmlFor='for'>Break Time</FormLabel>
+							<FormLabel htmlFor='for'>{_BREAKTIME[language]}</FormLabel>
 							<FormInput
 								onClick={() => { handleClick('break'); }}
 								onChange={handleBreakTimeChange}
@@ -412,25 +388,29 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch, isAdmin, curr
 								required />
 							{errors['breakTimeInput'] && <ErrorMessage>{errors['breakTimeInput']}</ErrorMessage>}
 						</>
-						<DisplayLabel>Total</DisplayLabel>
+						<DisplayLabel>{_TOTAL[language]}</DisplayLabel>
 						<TotalHoursDisplay>
 							{totalTime(true, startTimeInput, endTimeInput)}
 						</TotalHoursDisplay>
 						<>
-							<FormLabel htmlFor='for'>Note</FormLabel> {/*TODO add a character counter */}
+							<FormLabel htmlFor='for'>{_NOTE[language]}</FormLabel>
+							<NoteCharCounter
+								isNoteInAction={isNoteInAction}>
+								{notesMaxLength - noteInput.length}
+							</NoteCharCounter>
 							<FormTextArea
 								onClick={() => { handleClick('note'); }}
 								onChange={handleNoteChange}
 								value={noteInput}
 								ref={inputRefNote}
 								hasErrors={errors['noteInput']}
-								maxLength="500"
+								maxLength={notesMaxLength}
 								isNoteInAction={isNoteInAction}
 								rows={isNoteInAction ? '5' : '1'}
 							/>
 							{errors['noteInput'] && <ErrorMessage>{errors['noteInput']}</ErrorMessage>}
 						</>
-						<FormButton>DONE</FormButton>
+						<FormButton>{_DONE[language]}</FormButton>
 					</Form>
 				</FormContent>
 			</FormWrapper>
@@ -439,76 +419,18 @@ const AddDataForm = ({ login, currentAddress, timecards, dispatch, isAdmin, curr
 	)
 }
 
-const mapStateToProps = (state) =>
+const mapStateToProps = state =>
 ({
 	login: getLoginData(state),
 	currentAddress: getcurrentAddress(state),
 	timecards: getTimecardArray(state),
 	currentContractor: getcurrentContractor(state),
-	notes: getnotesArray(state)
+	notes: getnotesArray(state),
+	language: getlanguage(state)
 })
 
 
 // mapStateToProps takes state of the store and returns the part you are interested in:
 // the properties of this object will end up as props of our componennt
-export default connect(mapStateToProps)(AddDataForm);
+export default connect(mapStateToProps)(AddEntryForm);
 
-export function getTimeFormat(current_datetime) {
-	const minutes = (current_datetime.getMinutes() < 10 ? '0' : '') + current_datetime.getMinutes();
-	const hours = (current_datetime.getHours() < 10 ? '0' : '') + current_datetime.getHours();
-	return hours + ":" + minutes;
-}
-
-export function totalHours(startTime, endTime) {
-	let msHour = 60 * 60 * 1000,
-		msDay = 60 * 60 * 24 * 1000;
-	const start = new Date(startTime);
-	const end = new Date(endTime);
-	const hours = Math.floor(((end - start) % msDay) / msHour)
-	return hours;
-}
-
-export function totalMinutes(startTime, endTime) {
-	let msMinute = 60 * 1000,
-		msDay = 60 * 60 * 24 * 1000;
-	const start = new Date(startTime);
-	const end = new Date(endTime);
-	const minutes = Math.floor(((end - start) % msDay) / msMinute) % 60;
-
-	return minutes;
-}
-
-export function totalTime(
-	formatted = false,
-	start,
-	end
-) {
-	const hours = totalHours(start, end);
-	const minutes = totalMinutes(start, end);
-	const timeFormat = (hours, minutes) => (`${Math.floor(hours)}h ${Math.abs(minutes)}min`);
-	const readyToReturn = end !== '' && start !== '';
-
-	const decimalMin = minutes / 60;
-	const decimalTime = +(decimalMin + hours).toPrecision(3);
-
-	if (formatted) {
-		if (readyToReturn) return timeFormat(hours, minutes);
-		else return timeFormat(0, 0);
-	} else {
-		return decimalTime;
-	}
-}
-
-export function resultDate(date) {
-	const DATE = new Date(date);
-	const timezoneCorrectedNow = new Date(DATE - DATE.getTimezoneOffset() * 60000)
-	const formattedDate = timezoneCorrectedNow.toJSON()/* .split("T")[0] */;
-	return formattedDate;
-}
-
-export function decimalToTime(time) {
-	let hrs = Math.floor(time)
-	let min = Math.round(time % 1 * 60)
-	min = min < 10 ? "0" + min : min.toString();
-	return hrs + ":" + min;
-};

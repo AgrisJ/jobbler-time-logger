@@ -1,60 +1,53 @@
 import React, { useEffect } from 'react'
 import './App.css';
-import { BrowserRouter as Router, Redirect, Route, Switch, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
 import GlobalFonts from './fonts/fonts';
 import Admin from './pages/admin';
 import { connect } from 'react-redux';
-import { projectAdded, getProjectArray } from './Store/slices/projects';
-import { userAdded, getUsersArray } from './Store/slices/users';
-import { getTimecardArray, timecardAdded } from './Store/slices/timecards';
+import { getProjectArray, loadProjects } from './Store/slices/projects';
+import { getTimecardArray, timecardAdded, loadTimecards } from './Store/slices/timecards';
 import PrintReportPage from './pages/printReport';
 import Login from './pages/login';
 import AddRemove from './pages/addRemove';
-import * as actions from './Store/api';
 import { getLoginData, loggedIn } from './Store/slices/login';
-import { companyConfig } from './services/companyConfig';
 import { getMonthIndex } from './Store/slices/monthIndex';
 import recordOverview from './pages/recordOverview';
 import AddEntry from './pages/addEntry';
 import EditUsers from './pages/editUsers';
+import { getlanguage, languageChanged } from './Store/slices/language';
+import { loadUsers } from './Store/slices/users';
 
-function App({ dispatch, login, monthIndex, users }) {
+function App({ dispatch, login, monthIndex, language }) {
+
 	const storedLogin = localStorage.getItem('login');
+	const storedLanguage = localStorage.getItem('language');
 	const storedLoginEmpty = storedLogin === '{}';
 
 	const authenticated = login.isAuthenticated === true;
 	const isAdmin = login.role === 'company' ? true : false;
 
+
 	useEffect(() => {
 		const storedParsedLogin = JSON.parse(storedLogin);
 		if (storedParsedLogin && !storedLoginEmpty && storedParsedLogin.isAuthenticated)
 			dispatch(loggedIn(storedParsedLogin));
+
+		if (storedLanguage)
+			dispatch(languageChanged(storedLanguage));
 	}, [])
 
 	useEffect(() => {
-		if (storedLoginEmpty || login.isAuthenticated)
+		if (storedLoginEmpty && login.isAuthenticated)
 			localStorage.setItem('login', JSON.stringify(login));
 	}, [login])
+
+	useEffect(() => { localStorage.setItem('language', language) }, [language])
 
 	useEffect(() => {
 		if (login.isAuthenticated) {
 
-			if (isAdmin) {
-				dispatch(actions.apiCallBegan({ // TODO "Getting Data from the Server" should be as simple as dispatch(loadUsers());
-					url: "/v1/users",
-					headers: {
-						session: login.session
-					},
-					onSuccess: "users/usersReceived"
-				}));
-			}
-			dispatch(actions.apiCallBegan({ // TODO ...and here - dispatch(loadProjects());
-				url: "/v1/projects",
-				headers: {
-					session: login.session
-				},
-				onSuccess: "projects/projectsReceived"
-			}));
+			if (isAdmin) dispatch(loadUsers(login.session));
+			dispatch(loadProjects(login.session));
 		}
 	}, [login.isAuthenticated]);
 
@@ -72,21 +65,14 @@ function App({ dispatch, login, monthIndex, users }) {
 			return formattedTime(monthIndex, day, selectedYear);
 		}
 
-
-
 		if (login.isAuthenticated) {
-			if (isAdmin) {
-				monthIndex && dispatch(actions.apiCallBegan({
-					url: `/v1/timecards/${fromDate()}/${toDate()}`,
-					data: {
-						companyId: process.env.REACT_APP_COMPANY_ID
-					},
-					headers: {
-						session: login.session
-					},
-					onSuccess: "timecards/timecardsReceived"
-				}));
-			}
+
+			if (isAdmin)
+				monthIndex && dispatch(loadTimecards(
+					login.session,
+					`${fromDate()}/${toDate()}`,
+					{ companyId: process.env.REACT_APP_COMPANY_ID }
+				));
 		}
 	}, [login.isAuthenticated, monthIndex]);
 
@@ -113,10 +99,10 @@ function App({ dispatch, login, monthIndex, users }) {
 const mapStateToProps = (state) =>
 ({
 	projects: getProjectArray(state),
-	users: getUsersArray(state),
 	timecards: getTimecardArray(state),
 	login: getLoginData(state),
 	monthIndex: getMonthIndex(state),
+	language: getlanguage(state)
 })
 
 
