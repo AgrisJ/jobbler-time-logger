@@ -1,0 +1,12 @@
+.menu-flags-button {
+	  color: #ececec;
+    border: thin solid rgb(77 77 77);
+}
+
+.menu-flags {
+	  padding-top: 2em;
+}
+
+.menu-flags ul {
+	  background: unset;
+}

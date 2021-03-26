@@ -4,8 +4,15 @@ import SelectUsers from '../components/SelectUsers';
 import Sidebar from '../components/Sidebar'
 import { connect } from 'react-redux';
 import AddEntryForm from '../components/AddEntryForm';
+import { getlanguage } from './../Store/slices/language';
+import { languageData } from './../languages/language_variables';
 
-const AddEntry = ({ isAdmin }) => {
+const AddEntry = ({ isAdmin, language }) => {
+
+	const {
+		_TIMESPENTIN
+	} = languageData.COMPONENTS.AddEntry;
+
 	const [{ isOpen }, setIsOpen] = useState({ isOpen: false });
 	const toggle = () => setIsOpen({ isOpen: !isOpen });
 
@@ -13,16 +20,15 @@ const AddEntry = ({ isAdmin }) => {
 		<>
 			<Sidebar isOpen={isOpen} toggle={toggle} isAdmin={isAdmin} />
 			<Navbar toggle={toggle} />
-			<SelectUsers labelText={'Time spent in:'} manualOverride={0} />
+			<SelectUsers labelText={`${_TIMESPENTIN[language]}:`} manualOverride={0} />
 			<AddEntryForm isAdmin={isAdmin} />
-			{/*TODO Add animated notification - 'name' erased  */}
 		</>
 	)
 }
 
-const mapStateToProps = (state) =>
+const mapStateToProps = state =>
 ({
-
+	language: getlanguage(state)
 })
 
 

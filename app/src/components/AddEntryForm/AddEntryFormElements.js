@@ -21,9 +21,9 @@ width:100%;
 z-index:1;
 margin: 0 auto;
 padding: 32px 32px;
- -webkit-user-select: none; /* Safari */
-  -ms-user-select: none; /* IE 10 and IE 11 */
-  user-select: none; /* Standard syntax */
+-webkit-user-select: none; /* Safari */
+-ms-user-select: none; /* IE 10 and IE 11 */
+user-select: none; /* Standard syntax */
 `
 
 export const FormH1 = styled.h1`
@@ -80,6 +80,19 @@ box-shadow: ${({ hasErrors }) => (hasErrors ? '0 0 0 0.125em #ff386040' : '')};
 transition: all 0.5s;
 cursor: pointer;
 `
+export const NoteCharCounter = styled.p`
+width: ${({ isNoteInAction }) => (isNoteInAction ? '90%' : '60%')};
+justify-self: center;
+text-align: right;
+margin-bottom: 0.2em;
+font-size: 0.9em;
+font-family: 'Expletus Sans';
+color: #828282;
+transition: all 0.5s;
+-webkit-user-select: none; /* Safari */
+-ms-user-select: none; /* IE 10 and IE 11 */
+user-select: none; /* Standard syntax */
+`
 export const TotalHoursDisplay = styled.div`
 width: 60%;
 justify-self: center;
@@ -109,6 +122,19 @@ font-size: 25px;
 font-family: 'Roboto Light';
 margin: 4px 2px;
 cursor: pointer;
+`
+
+export const CustomDatePickerButton = styled.button`
+cursor: pointer;
+border-radius: 4px;
+font-family: Expletus Sans;
+font-size: 18px;
+border-style: none;
+background: unset;
+z-index: 3;
+user-select: none;
+-webkit-user-select: none; /* Safari */
+--m-user-select: none /* IE 10 and IE 11 */
 `
 
 export const ErrorMessage = styled.div`

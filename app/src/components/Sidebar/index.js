@@ -1,17 +1,55 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux';
 import { getLoginData, loggedOut } from '../../Store/slices/login';
 import { projectsReset } from '../../Store/slices/projects';
-import { usersReset, getUsersArray } from '../../Store/slices/users';
+import { usersReset } from '../../Store/slices/users';
 import { currentModeIndexReset } from '../../Store/slices/currentModeIndex';
 import { currentContractorReset } from '../../Store/slices/currentContractor';
 import { currentAddressReset } from '../../Store/slices/currentAddress';
 import { timecardsReset } from '../../Store/slices/timecards';
 import { SidebarContainer, Icon, CloseIcon, SidebarWrapper, SidebarMenu, SidebarLink, SideBtnWrap, SidebarRoute, LogoutButton, LoggedInfo } from './SidebarElements';
+import { languageData } from '../../languages/language_variables';
+import { getlanguage, languageChanged } from './../../Store/slices/language';
+import ReactFlagsSelect from 'react-flags-select';
+import "../../Styles/languageDropdown.css"
+function Sidebar({ isOpen, toggle, dispatch, isAdmin, login, language }) {
 
-function Sidebar({ isOpen, toggle, dispatch, isAdmin, login }) {
+	const {
+		_ADDREMOVE,
+		_EDITUSERS,
+		_SEEALLENTRIES,
+		_PRINTMODE,
+		_SEEYOURENTRIES,
+		_ADDNEWENTRY,
+		_LOGGEDAS,
+		_LOGOUT,
+		_SELECTLANGUAGE
+	} = languageData.COMPONENTS.Sidebar;
 
-	const loggedUser = login.name;
+	const storedLogin = localStorage.getItem('login');
+	const storedParsedLogin = JSON.parse(storedLogin);
+	const storedLoggedUser = storedParsedLogin.name;
+	const loggedUser = login.name || storedLoggedUser;
+
+	const [selectedFlag, setSelectedFlag] = useState('GB');
+
+	const storedLanguage = localStorage.getItem('language');
+
+	useEffect(() => {
+		const reverseCodeTranslation = {
+			"en": "GB",
+			"lv": "LV"
+		};
+		setSelectedFlag(reverseCodeTranslation[storedLanguage]);
+	}, [storedLanguage])
+
+	function handleLanguage(code) {
+		const codeTranslation = {
+			"GB": "en",
+			"LV": "lv"
+		};
+		dispatch(languageChanged(codeTranslation[code]));
+	}
 
 	function handleLogout() {
 		// TODO add a logout API route
@@ -33,12 +71,12 @@ function Sidebar({ isOpen, toggle, dispatch, isAdmin, login }) {
 			return (
 				<>
 					<SidebarMenu>
-						<SidebarLink to="/addremove" onClick={toggle}>Add/Remove</SidebarLink>
-						<SidebarLink to="/editusers" onClick={toggle}>Edit Users</SidebarLink>
-						<SidebarLink to="/admin" onClick={toggle}>See All Entries</SidebarLink>
+						<SidebarLink to="/addremove" onClick={toggle}>{_ADDREMOVE[language]}</SidebarLink>
+						<SidebarLink to="/editusers" onClick={toggle}>{_EDITUSERS[language]}</SidebarLink>
+						<SidebarLink to="/admin" onClick={toggle}>{_SEEALLENTRIES[language]}</SidebarLink>
 					</SidebarMenu>
 					<SideBtnWrap>
-						<SidebarRoute to='/print' onClick={toggle}>Print Mode</SidebarRoute>
+						<SidebarRoute to='/print' onClick={toggle}>{_PRINTMODE[language]}</SidebarRoute>
 					</SideBtnWrap>
 				</>
 			)
@@ -48,10 +86,10 @@ function Sidebar({ isOpen, toggle, dispatch, isAdmin, login }) {
 			return (
 				<>
 					<SidebarMenu>
-						<SidebarLink to="/recordoverview" onClick={toggle}>See Your Entries</SidebarLink>
+						<SidebarLink to="/recordoverview" onClick={toggle}>{_SEEYOURENTRIES[language]}</SidebarLink>
 					</SidebarMenu>
 					<SideBtnWrap>
-						<SidebarRoute to='/addentry' onClick={toggle}>Add New Entry</SidebarRoute>
+						<SidebarRoute to='/addentry' onClick={toggle}>{_ADDNEWENTRY[language]}</SidebarRoute>
 					</SideBtnWrap>
 				</>
 			)
@@ -62,13 +100,29 @@ function Sidebar({ isOpen, toggle, dispatch, isAdmin, login }) {
 			<Icon onClick={toggle}>
 				<CloseIcon />
 			</Icon>
-			<LoggedInfo>Logged in as <span style={{ color: '#ec6c22' }}>{loggedUser}</span></LoggedInfo>
+			{loggedUser && <LoggedInfo>{_LOGGEDAS[language]} <span style={{ color: '#c7ad9e', paddingTop: '4px' }}>{loggedUser}</span></LoggedInfo>}
 			<LogoutButton to="/login" onClick={handleLogout}>
-				Logout
+				{_LOGOUT[language]}
 			</LogoutButton>
 			<SidebarWrapper>
 				{ADMIN_SECTIONS()}
 				{USER_SECTIONS()}
+				<ReactFlagsSelect
+					countries={["GB", "LV"]}
+					customLabels={{ "GB": "en", "LV": "lv" }}
+					selected={selectedFlag}
+					onSelect={
+						code => {
+							setSelectedFlag(code);
+							handleLanguage(code);
+						}
+					}
+					placeholder={_SELECTLANGUAGE[language]}
+					selectedSize={20}
+					className="menu-flags"
+					selectButtonClassName="menu-flags-button"
+					fullWidth={false}
+				/>
 			</SidebarWrapper>
 		</SidebarContainer>
 	)
@@ -76,7 +130,8 @@ function Sidebar({ isOpen, toggle, dispatch, isAdmin, login }) {
 
 const mapStateToProps = (state) =>
 ({
-	login: getLoginData(state)
+	login: getLoginData(state),
+	language: getlanguage(state)
 })
 
 

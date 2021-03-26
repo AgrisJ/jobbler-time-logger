@@ -34,13 +34,13 @@ export const Icon = styled.div`
 `
 export const LogoutButton = styled(LinkR)`
 	position: absolute;
-	top: 2.5rem;
+	top: 1rem;
 	left: 1.5rem;
 
 	border-radius: 50px;
 	background: #215c87fc;
 	white-space: nowrap;
-	padding: 8px 20px;
+	padding: 8px 10px;
 	color: #fff;
 	font-size: 14px;
 	outline: none;
@@ -55,12 +55,18 @@ export const LogoutButton = styled(LinkR)`
 		color: red;
 	}
 `
-export const LoggedInfo = styled.p`
-	color: #31a8fffc;
+export const LoggedInfo = styled.p` //FIXME crowdy on smaller screens
+	color: #31a8ff9e;
 	position: absolute;
-	top: 0.9rem;
-	left: 1.5rem;
+	top: 1rem;
+	display: flex;
+  flex-direction: column;
 	font-size: 14px;
+	text-align: center;
+	transform: translate(calc(50vw - 50%));
+	-webkit-user-select: none; /* Safari */
+	-ms-user-select: none; /* IE 10 and IE 11 */
+	user-select: none; /* Standard syntax */
 `
 
 export const SidebarWrapper = styled.div`

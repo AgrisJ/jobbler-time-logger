@@ -152,14 +152,15 @@ export const TableWrapper = styled.table.attrs(props => ({
 				page-break-before:auto;
 			}
 
-			
+		
 			
 		width: 100%;
 		/* width: 40%; */
 		border: solid 1px black;
 		border-collapse: collapse;
 		/* font-size: 0.7em; */
-		font-size: 0.6em;
+		/* font-size: 0.6em; */
+		font-size: 0.51em;
 	
 `
 

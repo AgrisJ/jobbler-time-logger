@@ -5,8 +5,8 @@ import ControlPanelSection from '../components/ControlPanelSection';
 import { connect } from 'react-redux';
 import ContentSection from '../components/ContentSection/index';
 import { useHistory } from 'react-router-dom';
-import * as actions from '../Store/api';
 import { getLoginData } from '../Store/slices/login';
+import { loadUserTimecards } from '../Store/slices/timecards';
 
 function RecordOverview({ dispatch, login }) {
 	let history = useHistory();
@@ -16,13 +16,7 @@ function RecordOverview({ dispatch, login }) {
 	}
 
 	useEffect(() => {
-		dispatch(actions.apiCallBegan({ // TODO ...and here - dispatch(loadUserTimecards());
-			url: "/v1/user/hours",
-			headers: {
-				session: login.session
-			},
-			onSuccess: "timecards/timecardsReceived"
-		}));
+		dispatch(loadUserTimecards(login.session))
 	}, [history]);
 
 	return (

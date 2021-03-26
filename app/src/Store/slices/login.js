@@ -1,4 +1,5 @@
 import { createSlice, createSelector } from '@reduxjs/toolkit';
+import { apiCallBegan } from './../api';
 
 const slice = createSlice({
 	name: 'login',
@@ -52,3 +53,16 @@ export const getLoginData = createSelector(
 
 export const { loggedIn, loggedOut, errorHandled } = slice.actions;
 export default slice.reducer;
+
+
+// Action Creators
+const url = "/v1/login";
+
+
+export const postLogin = data => apiCallBegan({
+	url,
+	method: "post",
+	data,
+	onSuccess: loggedIn.type,
+	onError: errorHandled.type
+});

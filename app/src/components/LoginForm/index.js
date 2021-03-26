@@ -6,10 +6,20 @@ import Joi from 'joi-browser';
 import { errorMessagePerType } from './../AddDataForm/index';
 import { connect } from 'react-redux';
 import * as actions from '../../Store/api';
-import { getLoginData } from '../../Store/slices/login';
+import { getLoginData, postLogin } from '../../Store/slices/login';
 import { useHistory } from 'react-router-dom';
+import { getlanguage } from './../../Store/slices/language';
+import { languageData } from './../../languages/language_variables';
 
-const LoginForm = ({ dispatch, login }) => {
+const LoginForm = ({ dispatch, login, language }) => {
+
+	const {
+		_EMAILPASSWORDINCORRECT,
+		_SIGNINTOYOURACCOUNT,
+		_EMAIL,
+		_PASSWORD,
+		_LOGIN
+	} = languageData.COMPONENTS.LoginForm;
 
 	const [{ emailInput }, setemailInput] = useState({ emailInput: '' });
 	const [{ passwordInput }, setpasswordInput] = useState({ passwordInput: '' });
@@ -28,16 +38,14 @@ const LoginForm = ({ dispatch, login }) => {
 	}
 	function doSubmit() {
 
-		dispatch(actions.apiCallBegan({
-			url: "/v1/login",
-			method: "post",
-			data: {
-				email: emailInput,
-				password: passwordInput
-			},
-			onSuccess: "login/loggedIn",
-			onError: "login/errorHandled"
-		}));
+		dispatch(
+			postLogin(
+				{
+					email: emailInput,
+					password: passwordInput
+				}
+			)
+		)
 
 		// emptyInputs();
 	}
@@ -52,7 +60,7 @@ const LoginForm = ({ dispatch, login }) => {
 			let message = login.error && login.error.message
 
 			// Message type
-			if (message.includes('404')) message = "Email/Password is not correct";
+			if (message.includes('404')) message = _EMAILPASSWORDINCORRECT[language];
 
 			savedErrors['emailInput'] = message;
 			savedErrors['passwordInput'] = message;
@@ -105,8 +113,8 @@ const LoginForm = ({ dispatch, login }) => {
 				<LoginLogo src="/sidna_byg_logo.png" alt="logo" />
 				<FormContent>
 					<Form onSubmit={handleSubmit}>
-						<FormH1>Sign in to your account</FormH1>
-						<FormLabel htmlFor='for'>Email</FormLabel>
+						<FormH1>{_SIGNINTOYOURACCOUNT[language]}</FormH1>
+						<FormLabel htmlFor='for'>{_EMAIL[language]}</FormLabel>
 						<FormInput
 							onClick={() => scrollDownTo(".scrollHere")}
 							onChange={handleEmailChange}
@@ -115,7 +123,7 @@ const LoginForm = ({ dispatch, login }) => {
 							hasErrors={errors['emailInput']}
 							required />
 						{errors['emailInput'] && <ErrorMessage>{errors['emailInput']}</ErrorMessage>}
-						<FormLabel htmlFor='for'>Password</FormLabel>
+						<FormLabel htmlFor='for'>{_PASSWORD[language]}</FormLabel>
 						<FormInput
 							onClick={() => scrollDownTo(".scrollHere")}
 							onChange={handlePasswordChange}
@@ -124,8 +132,7 @@ const LoginForm = ({ dispatch, login }) => {
 							hasErrors={errors['passwordInput']}
 							required />
 						{errors['passwordInput'] && <ErrorMessage>{errors['passwordInput']}</ErrorMessage>}
-						<FormButton>Login</FormButton>
-						{/* <Text>Enjoy!</Text> */}
+						<FormButton>{_LOGIN[language]}</FormButton>
 					</Form>
 				</FormContent>
 			</LoginFormWrapper>
@@ -136,7 +143,8 @@ const LoginForm = ({ dispatch, login }) => {
 
 const mapStateToProps = (state) =>
 ({
-	login: getLoginData(state)
+	login: getLoginData(state),
+	language: getlanguage(state)
 })
 
 

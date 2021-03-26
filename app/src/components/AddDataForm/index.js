@@ -1,17 +1,40 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux';
 import { getcurrentModeIndex } from '../../Store/slices/currentModeIndex';
-import { projectAdded } from '../../Store/slices/projects';
-import { userAdded } from '../../Store/slices/users';
 import Joi from 'joi-browser';
 import { FormInput, FormWrapper, FormButton, FormContent, Form, FormH1, FormLabel, ScrollAnchor, ErrorMessage } from './AddDataFormElements';
-import { companyConfig } from '../../services/companyConfig';
-import * as actions from '../../Store/api';
 import { getLoginData } from '../../Store/slices/login';
+import { getlanguage } from './../../Store/slices/language';
+import { languageData } from './../../languages/language_variables';
+import { postProject } from './../../Store/slices/projects';
+import { postUser } from './../../Store/slices/users';
+import { Notificator } from '../../pages/addRemove';
 
 
-const AddDataForm = ({ currentModeIndex, login, dispatch }) => {
-	const dataType = ['Project', 'Contractor'][currentModeIndex];
+const AddDataForm = ({ currentModeIndex, login, dispatch, language }) => {
+
+	const {
+		_ADDRESS,
+		_EMAIL,
+		_PASSWORD,
+		_TELEPHONE,
+		_CPRNR,
+		_CONTRACTNR,
+		_PROJECT,
+		_CONTRACTOR,
+		_ADDNEW,
+		_ADD,
+		_BUILDING,
+		_NAME,
+		_ADDED
+	} = languageData.COMPONENTS.AddDataForm;
+
+	const {
+		_PROJECT: _PROJECT_,
+		_USER
+	} = languageData.COMPONENTS.AddRemove;
+
+	const dataType = [_PROJECT[language], _CONTRACTOR[language]][currentModeIndex];
 	const FIRST_MODE = currentModeIndex === 0;
 	const SECOND_MODE = currentModeIndex === 1;
 
@@ -23,6 +46,17 @@ const AddDataForm = ({ currentModeIndex, login, dispatch }) => {
 	const [{ cprInput }, setcprInput] = useState({ cprInput: '' });
 	const [{ contractnrInput }, setcontractnrInput] = useState({ contractnrInput: '' });
 	const [{ errors }, seterrors] = useState({ errors: {} });
+	const [{ showNotificator }, setshowNotificator] = useState({ showNotificator: false });
+
+	// resetting notificator
+	useEffect(() => {
+		if (showNotificator) {
+			setTimeout(() => {
+				setshowNotificator({ showNotificator: false });
+			}, 1000);
+
+		}
+	}, [showNotificator])
 
 	function handleNameChange(e) {
 		setnameInput({ nameInput: e.target.value })
@@ -56,41 +90,34 @@ const AddDataForm = ({ currentModeIndex, login, dispatch }) => {
 		setcontractnrInput({ contractnrInput: '' })
 	}
 	function doSubmit() {
-		if (FIRST_MODE) dispatch(actions.apiCallBegan({
-			url: "/v1/project",
-			method: "post",
-			data: {
-				companyId: process.env.REACT_APP_COMPANY_ID,
-				name: nameInput,
-				address: addressInput,
-				active: true
-			},
-			headers: {
-				session: login.session
-			},
-			onSuccess: "projects/projectReceived" //TODO adjust app to get rid of "name" and "address" fields in the API response
-		}));
-		if (SECOND_MODE) dispatch(actions.apiCallBegan({
-			url: "/v1/user",
-			method: "post",
-			data: {
-				companyId: process.env.REACT_APP_COMPANY_ID,
-				fullName: nameInput,
-				email: emailInput,
-				password: passwordInput,
-				telephone: telephoneInput,
-				cpr: cprInput,
-				contractNumber: contractnrInput,
-				role: "employee"
-			},
-			headers: {
-				session: login.session
-			},
-			onSuccess: "users/userReceived" //TODO adjust app to get rid of "name" field in the API response
-		}));
+		if (FIRST_MODE) dispatch(
+			postProject(
+				login.session,
+				{
+					companyId: process.env.REACT_APP_COMPANY_ID,
+					name: nameInput,
+					address: addressInput,
+					active: true
+				}
+			)
+		);
+		if (SECOND_MODE) dispatch(
+			postUser(
+				login.session,
+				{
+					companyId: process.env.REACT_APP_COMPANY_ID,
+					fullName: nameInput,
+					email: emailInput,
+					password: passwordInput,
+					telephone: telephoneInput,
+					cpr: cprInput,
+					contractNumber: contractnrInput,
+					role: "employee"
+				}
+			)
+		);
 
-		// dispatch(actions.apiCallBegan);
-
+		setshowNotificator({ showNotificator: true });
 		emptyInputs();
 	}
 
@@ -173,7 +200,7 @@ const AddDataForm = ({ currentModeIndex, login, dispatch }) => {
 		if (FIRST_MODE)
 			return (
 				<>
-					<FormLabel htmlFor='for'>Address</FormLabel>
+					<FormLabel htmlFor='for'>{_ADDRESS[language]}</FormLabel>
 					<FormInput
 						onClick={() => scrollDownTo(".scrollHere")}
 						onChange={handleAddressChange}
@@ -189,63 +216,70 @@ const AddDataForm = ({ currentModeIndex, login, dispatch }) => {
 		if (SECOND_MODE)
 			return (
 				<>
-					<FormLabel htmlFor='for'>Email</FormLabel>
+					<FormLabel htmlFor='for'>{_EMAIL[language]}</FormLabel>
 					<FormInput
-						onClick={() => scrollDownTo(".scrollHere")}
+						// onClick={() => scrollDownTo(".scrollHere")}
 						onChange={handleEmailChange}
 						value={emailInput}
 						type='email'
 						hasErrors={errors['emailInput']}
+						autocomplete="off"
 						required />
 					{errors['emailInput'] && <ErrorMessage>{errors['emailInput']}</ErrorMessage>}
-					<FormLabel htmlFor='for'>Password</FormLabel>
+					<FormLabel htmlFor='for'>{_PASSWORD[language]}</FormLabel>
 					<FormInput
-						onClick={() => scrollDownTo(".scrollHere")}
+						// onClick={() => scrollDownTo(".scrollHere")}
 						onChange={handlePasswordChange}
 						value={passwordInput}
 						type='password'
 						hasErrors={errors['passwordInput']}
+						autocomplete="off"
 						required />
 					{errors['passwordInput'] && <ErrorMessage>{errors['passwordInput']}</ErrorMessage>}
-					<FormLabel htmlFor='for'>Telephone</FormLabel>
+					<FormLabel htmlFor='for'>{_TELEPHONE[language]}</FormLabel>
 					<FormInput
 						onClick={() => scrollDownTo(".scrollHere")}
 						onChange={handleTelephoneChange}
 						value={telephoneInput}
 						type='tel'
 						hasErrors={errors['telephoneInput']}
+						autocomplete="off"
 						required />
 					{errors['telephoneInput'] && <ErrorMessage>{errors['telephoneInput']}</ErrorMessage>}
-					<FormLabel htmlFor='for'>CPR Nr</FormLabel>
+					<FormLabel htmlFor='for'>{_CPRNR[language]}</FormLabel>
 					<FormInput
 						onClick={() => scrollDownTo(".scrollHere")}
 						onChange={handleCPRChange}
 						value={cprInput}
 						type='number'
 						hasErrors={errors['cprInput']}
+						autocomplete="off"
 						required />
 					{errors['cprInput'] && <ErrorMessage>{errors['cprInput']}</ErrorMessage>}
-					<FormLabel htmlFor='for'>Contract Nr</FormLabel>
+					<FormLabel htmlFor='for'>{_CONTRACTNR[language]}</FormLabel>
 					<FormInput
 						onClick={() => scrollDownTo(".scrollHere")}
 						onChange={handleContractnrChange}
 						value={contractnrInput}
 						type='text'
 						hasErrors={errors['contractnrInput']}
+						autocomplete="off"
 						required />
 					{errors['contractnrInput'] && <ErrorMessage>{errors['contractnrInput']}</ErrorMessage>}
 				</>
 			)
 	}
 
+
+
 	return (
 		<>
 			<FormWrapper>
 				<FormContent >
 					<Form onSubmit={handleSubmit}>
-						<FormH1>Add New {dataType}</FormH1>
+						<FormH1>{_ADDNEW[language]} {dataType}</FormH1>
 						{ONLY_FIRSTMODE_MODULES()}
-						<FormLabel htmlFor='for'>{FIRST_MODE && 'Building'} Name</FormLabel>
+						<FormLabel htmlFor='for'>{FIRST_MODE && _BUILDING[language]} {_NAME[language]}</FormLabel>
 						<FormInput
 							onChange={handleNameChange}
 							value={nameInput}
@@ -254,11 +288,12 @@ const AddDataForm = ({ currentModeIndex, login, dispatch }) => {
 							required />
 						{errors['nameInput'] && <ErrorMessage>{errors['nameInput']}</ErrorMessage>}
 						{ONLY_SECONDMODE_MODULES()}
-						<FormButton>Add</FormButton>
+						<FormButton>{_ADD[language]}</FormButton>
 					</Form>
 				</FormContent>
 			</FormWrapper>
-			<ScrollAnchor className={'scrollHere'} />
+			{showNotificator && <Notificator message={`${FIRST_MODE && _PROJECT_[language] || SECOND_MODE && _USER[language]} ${_ADDED[language]}`} />} {/*TODO email already exists message needs to add. eriks@gmail.com*/}
+			<ScrollAnchor className={'scrollHere'} />{/*TODO Also if error, have to catch it and keep data in form */}
 		</>
 	)
 }
@@ -266,7 +301,8 @@ const AddDataForm = ({ currentModeIndex, login, dispatch }) => {
 const mapStateToProps = (state) =>
 ({
 	currentModeIndex: getcurrentModeIndex(state),
-	login: getLoginData(state)
+	login: getLoginData(state),
+	language: getlanguage(state)
 })
 
 
@@ -283,7 +319,6 @@ export function scrollDownTo(cssQuerry) {
 export function errorMessagePerType(error, fieldName) {
 	let result = '';
 
-	console.log("🚀 ~ file: index.js ~ line 287 ~ errorMessagePerType ~ error.type", error)
 	switch (error.type) {
 		case "any.empty":
 			result = `${fieldName} should not be empty!`;

@@ -3,7 +3,7 @@ import { ContentListItem, ListDate, ListPersonName, ListTime, ItemDeleteIcon, No
 import { connect } from 'react-redux';
 import { getProjectArray } from '../../Store/slices/projects';
 import { getUsersArray } from '../../Store/slices/users';
-import { getTimecardArray, timecardRemoved, timecardRenamed, timecardWorkingTimeEdited } from '../../Store/slices/timecards';
+import { editTimecard, getTimecardArray, timecardRemoved, timecardRenamed, timecardWorkingTimeEdited } from '../../Store/slices/timecards';
 import { getMonthIndex } from '../../Store/slices/monthIndex';
 import { getcurrentAddress } from '../../Store/slices/currentAddress';
 import { getcurrentContractor } from '../../Store/slices/currentContractor';
@@ -18,9 +18,13 @@ import "react-datepicker/dist/react-datepicker.css";
 import "../../Styles/datePickerOverride.css"
 import { ErrorMessage } from '../AddEntryForm/AddEntryFormElements';
 import AddressPicker from './../AddressPicker/index';
-import { totalTime, decimalToTime } from './../AddEntryForm/index';
 import { getnotesArray } from '../../Store/slices/notes';
 import MobileDatePicker from 'react-mobile-datepicker';
+import { languageData } from './../../languages/language_variables';
+import { getlanguage } from './../../Store/slices/language';
+import { Notificator } from '../../pages/addRemove';
+import { decimalToTime, totalTime } from './../services/helpfulFunctions';
+import { deleteTimecard } from './../../Store/slices/timecards';
 
 const ContentSection = (
 	{
@@ -34,9 +38,29 @@ const ContentSection = (
 		users,
 		isAdmin,
 		login,
-		notes
+		language
 	}
 ) => {
+
+	const {
+		_CONTRACTORNOEXIST,
+		_PROJECTNOEXIST,
+		_HOUR,
+		_MIN,
+		_HOURS,
+		_MINUTES,
+		_REMOVE,
+		_THISTIMECARD,
+		_HOURSHORT,
+		_CARDERASED
+	} = languageData.COMPONENTS.ContentSection;
+
+	const {
+		_STARTTIME,
+		_ENDTIME,
+		_BREAKTIME
+	} = languageData.COMPONENTS.AddEntryForm;
+
 	const [{ savedTime }, setSavedTime] = useState({ savedTime: 0 })
 
 	const projectId = currentAddress.projectId;
@@ -56,6 +80,7 @@ const ContentSection = (
 	const [{ endTimePickerIsOpen }, setendTimePickerIsOpen] = useState({ endTimePickerIsOpen: false });
 	const [{ breakTimePickerIsOpen }, setbreakTimePickerIsOpen] = useState({ breakTimePickerIsOpen: false });
 	const [{ errors }, seterrors] = useState({ errors: {} });
+	const [{ showNotificator }, setshowNotificator] = useState({ showNotificator: false });
 
 	const inputRefStart = useRef(null);
 	const inputRefEnd = useRef(null);
@@ -99,18 +124,17 @@ const ContentSection = (
 	useEffect(() => {
 		const expandedCardId = expandedTimeChangeCards[0];
 		const expandedCardData = timecards.find(card => card.cardId === expandedCardId);
-
-		if (
-			typeof expandedCardData !== 'undefined' &&
+		const dataExists = typeof expandedCardData !== 'undefined' &&
 			typeof expandedCardData.startTime !== 'undefined' &&
 			typeof expandedCardData.endTime !== 'undefined' &&
 			typeof expandedCardData.breakTime !== 'undefined'
-		) {
+
+		if (dataExists) {
 			const localStartTime = expandedCardData.startTime.slice(-expandedCardData.startTime.length, -5);
 			const localEndTime = expandedCardData.endTime.slice(-expandedCardData.endTime.length, -5);
 			const startTimeDB = Date.parse(localStartTime);
 			const endTimeDB = Date.parse(localEndTime);
-			const breakTimeDB = /* Date.parse( */expandedCardData.breakTime/* ) */;
+			const breakTimeDB = expandedCardData.breakTime;
 			const formattedBreakTimeDB = new Date(`January 1, 2000 ${decimalToTime(breakTimeDB)}`);
 
 			setstartTimeInput({ startTimeInput: startTimeDB });
@@ -160,16 +184,13 @@ const ContentSection = (
 		if (breakTimeInput) dataObj['breakTime'] = totalBreakTime;
 
 		// Dispatch the changed date to database
-		dispatch(actions.apiCallBegan({
-			url: `/v1/timecard/${cardId}`,
-			method: "PATCH",
-			data: dataObj,
-			headers: {
-
-				session: login.session
-			},
-			onError: "timecards/error"
-		}));
+		dispatch(
+			editTimecard(
+				login.session,
+				`${cardId}`,
+				dataObj
+			)
+		)
 
 		// change card in Store
 		dispatch(timecardWorkingTimeEdited(
@@ -214,7 +235,7 @@ const ContentSection = (
 			.filter(card => card.startTime.split("T")[0].split("-")[1] - 1 === selectedMonth)
 			.filter(card => {
 				const _selectedContractor = users.find(user => user.userId === card.userId);
-				const contractorName = _selectedContractor ? _selectedContractor.name : "--contractor doesn't exist--";
+				const contractorName = _selectedContractor ? _selectedContractor.name : _CONTRACTORNOEXIST[language];
 				if (isAdmin)
 					return contractorName === selectedContractor.name;
 				else
@@ -246,13 +267,12 @@ const ContentSection = (
 		function executeRemoveTimecard() {
 
 			// delete timecard
-			dispatch(actions.apiCallBegan({
-				url: `/v1/timecard/${savedCardId}`,
-				method: "DELETE",
-				headers: {
-					session: login.session
-				}
-			}));
+			dispatch(
+				deleteTimecard(
+					login.session,
+					savedCardId
+				)
+			)
 
 			// remove timecard from Store
 			dispatch(timecardRemoved({ cardId: savedCardId }))
@@ -264,6 +284,9 @@ const ContentSection = (
 		if (showModal) {
 			setshowModal({ showModal: false });
 			executeRemoveTimecard();
+			setshowNotificator({ showNotificator: true });
+		} else {
+			setshowNotificator({ showNotificator: false });
 		}
 
 	};
@@ -330,18 +353,16 @@ const ContentSection = (
 			const constructedEndTime = `${renamedDate}T${savedEndTimeData}`;
 
 			// change date in database
-			dispatch(actions.apiCallBegan({
-				url: `/v1/timecard/${cardId}`,
-				method: "PATCH",
-				data: {
-					"startTime": constructedStartTime,
-					"endTime": constructedEndTime
-				},
-				headers: {
-					session: login.session
-				},
-				onError: 'timecards/error'
-			}));
+			dispatch(
+				editTimecard(
+					login.session,
+					`${cardId}`,
+					{
+						"startTime": constructedStartTime,
+						"endTime": constructedEndTime
+					}
+				)
+			)
 
 			// change card on Store
 			dispatch(timecardRenamed({ cardId: cardId, startTime: constructedStartTime, endTime: constructedEndTime }));
@@ -385,8 +406,8 @@ const ContentSection = (
 				const _selectedContractor = users.find(user => {
 					return user.userId === card.userId
 				});
-				const projectName = _selectedProject ? _selectedProject.name : "--project doesn't exist--";
-				const contractorName = _selectedContractor ? _selectedContractor.name : "--contractor doesn't exist--";
+				const projectName = _selectedProject ? _selectedProject.name : _PROJECTNOEXIST[language];
+				const contractorName = _selectedContractor ? _selectedContractor.name : _CONTRACTORNOEXIST[language];
 				const contractorsName = isAdmin ? contractorName : projectName;
 				const hasNotes = card.notes !== '' && typeof card.notes !== 'undefined';
 				const noteExpandTrigger = id => expandedNotesCards.includes(id);
@@ -422,8 +443,8 @@ const ContentSection = (
 							<ListTime
 								onClick={() => expandTimeChange(card.cardId)}
 								style={{ cursor: 'pointer' }}
-							>{timeFormat(card.hours)}</ListTime>
-							: <ListTime>{timeFormat(card.hours)}</ListTime>}
+							>{timeFormat(card.hours, _HOURSHORT[language])}</ListTime>
+							: <ListTime>{timeFormat(card.hours, _HOURSHORT[language])}</ListTime>}
 
 						{timeChangeExpandTrigger(card.cardId) && <TimeEditPane />}
 
@@ -439,7 +460,7 @@ const ContentSection = (
 			// view cards by selected contractor
 			.filter(card => {
 				const _selectedContractor = users.find(user => user.userId === card.userId);
-				const contractorName = _selectedContractor ? _selectedContractor.name : "--contractor doesn't exist--";
+				const contractorName = _selectedContractor ? _selectedContractor.name : _CONTRACTORNOEXIST[language];
 				if (isAdmin)
 					return contractorName === selectedContractor.name;
 				else
@@ -462,7 +483,7 @@ const ContentSection = (
 			// card visuals
 			.map((card, index) => {
 				const selectedProject = projects.find(project => project.projectId === card.projectId);
-				const projectName = selectedProject ? selectedProject.address : "--project doesn't exist--";
+				const projectName = selectedProject ? selectedProject.address : _PROJECTNOEXIST[language];
 				const hasNotes = card.notes !== '' && typeof card.notes !== 'undefined';
 				const noteExpandTrigger = id => expandedNotesCards.includes(id);
 				const timeChangeExpandTrigger = id => expandedTimeChangeCards.includes(id);
@@ -502,8 +523,8 @@ const ContentSection = (
 							<ListTime
 								onClick={() => expandTimeChange(card.cardId)}
 								style={{ cursor: 'pointer' }}
-							>{timeFormat(card.hours)}</ListTime>
-							: <ListTime>{timeFormat(card.hours)}</ListTime>}
+							>{timeFormat(card.hours, _HOURSHORT[language])}</ListTime>
+							: <ListTime>{timeFormat(card.hours, _HOURSHORT[language])}</ListTime>}
 
 						{timeChangeExpandTrigger(card.cardId) && <TimeEditPane />}
 
@@ -548,21 +569,21 @@ const ContentSection = (
 
 		return (
 			<TimeEditContainer>
-				<PickerLabel>Start Time</PickerLabel>
+				<PickerLabel>{_STARTTIME[language]}</PickerLabel>
 				<DatePicker
 					selected={startTimeInput}
 					onChange={date => handleSelectStartTime(date)}
 					dateFormat="HH:mm"
 					customInput={<CustomStartTimeInput />}
 				/>
-				<PickerLabel>End Time</PickerLabel>
+				<PickerLabel>{_ENDTIME[language]}</PickerLabel>
 				<DatePicker
 					selected={endTimeInput}
 					onChange={date => handleSelectEndTime(date)}
 					dateFormat="HH:mm"
 					customInput={<CustomEndTimeInput />}
 				/>
-				<PickerLabel>Break Time</PickerLabel>
+				<PickerLabel>{_BREAKTIME[language]}</PickerLabel>
 				<DatePicker
 					selected={breakTimeInput}
 					onChange={date => handleSelectBreakTime(date)}
@@ -627,12 +648,12 @@ const ContentSection = (
 			dateConfig: {
 				'hour': {
 					format: 'hh',
-					caption: 'Hour',
+					caption: _HOUR[language],
 					step: 1,
 				},
 				'minute': {
 					format: 'mm',
-					caption: 'Min',
+					caption: _MIN[language],
 					step: 5,
 				}
 			}
@@ -646,12 +667,12 @@ const ContentSection = (
 			dateConfig: {
 				'hour': {
 					format: 'hh',
-					caption: 'Hours',
+					caption: _HOURS[language],
 					step: 1,
 				},
 				'minute': {
 					format: 'mm',
-					caption: 'Minutes',
+					caption: _MINUTES[language],
 					step: 5,
 				}
 			}
@@ -688,11 +709,12 @@ const ContentSection = (
 			{errors['global'] && <ErrorMessage style={{ marginTop: 'unset' }}>{errors['global']}</ErrorMessage>}
 			{renderMobileDataPicker()}
 			{renderList()}
+			{showNotificator && <Notificator message={`${_CARDERASED[language]}`} />}
 			<Modal
 				showModal={showModal}
 				actionActivated={() => handleRemoveTimecard}
-				highlightedText={'Remove'}
-				modalText={'this timecard'}
+				highlightedText={_REMOVE[language]}
+				modalText={_THISTIMECARD[language]}
 				modalSubText={''}
 				cancelModal={() => cancelModal()} />
 		</>
@@ -710,7 +732,8 @@ const mapStateToProps = (state) =>
 	currentContractor: getcurrentContractor(state),
 	currentModeIndex: getcurrentModeIndex(state),
 	login: getLoginData(state),
-	notes: getnotesArray(state)
+	notes: getnotesArray(state),
+	language: getlanguage(state)
 })
 
 
@@ -722,11 +745,9 @@ export default connect(mapStateToProps)(ContentSection);
 
 function hours(time) { return Math.floor(time) };
 function minutes(time) { return Math.ceil(((time - hours(time)) * 60).toPrecision(2) / 1) };
-// function colorAlternator(id) { return id % 2 == (0) ? '0.1' : '0.2' };
 function colorAlternator(id) { return id % 2 == (0) ? '22%' : '52%' };
-// export function listColor(id) { return (`rgb(0 0 0 / ${colorAlternator(id)})`) };
 export function listColor(id) { return (`linear-gradient(to right, rgb(7 60 91 / ${colorAlternator(id)}), rgb(255 255 255 / 0%));`) };
-export function timeFormat(time) { return (`${hours(time)}h ${minutes(time)}min`) };
+export function timeFormat(time, hourLanguageUnit) { return (`${hours(time)}${hourLanguageUnit} ${minutes(time)}min`) };
 export function timezoneCorrect(date) {
 	const convert = new Date(date);
 	const selectedTime = convert.getTime();

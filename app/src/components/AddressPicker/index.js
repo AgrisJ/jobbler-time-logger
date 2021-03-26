@@ -4,8 +4,7 @@ import { getLoginData } from '../../Store/slices/login';
 import { getProjectArray } from '../../Store/slices/projects';
 import { selectSrc } from './../SelectUsers/index';
 import Dropdown from 'react-dropdown';
-import * as actions from '../../Store/api';
-import { timecardProjectChanged } from '../../Store/slices/timecards';
+import { editTimecard, timecardProjectChanged } from '../../Store/slices/timecards';
 
 function AddressPicker({ cardId, projects, dispatch, projectName, login }) {
 	const addresses = projects.map(project => {
@@ -29,17 +28,15 @@ function AddressPicker({ cardId, projects, dispatch, projectName, login }) {
 		const newProjectId = addresses.find(a => a.address === selectSrc(event.value, 'item')).projectId;
 
 		// change address in database
-		dispatch(actions.apiCallBegan({
-			url: `/v1/timecard/${cardId}`,
-			method: "PATCH",
-			data: {
-				"projectId": newProjectId
-			},
-			headers: {
-				session: login.session
-			},
-			onError: 'timecards/error'
-		}));
+		dispatch(
+			editTimecard(
+				login.session,
+				`${cardId}`,
+				{
+					"projectId": newProjectId
+				}
+			)
+		)
 
 		// change card on Store
 		dispatch(timecardProjectChanged({ cardId, newProjectId }));
