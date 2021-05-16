@@ -76,6 +76,7 @@ module.exports = ((req, res, next) => {
     // Get user data
     Session.findOne({session: session/*, token: token*/}, (error, result) => {        
         // Check for errors & if a result was returned
+			// if (!result) window.reload();
         if (error) {res.status(404).end(); return;}
         if (!result) {res.status(401).end(); return;}
         

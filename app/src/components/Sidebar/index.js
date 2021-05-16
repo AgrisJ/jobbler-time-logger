@@ -12,11 +12,13 @@ import { languageData } from '../../languages/language_variables';
 import { getlanguage, languageChanged } from './../../Store/slices/language';
 import ReactFlagsSelect from 'react-flags-select';
 import "../../Styles/languageDropdown.css"
+import { postLogout } from './../../Store/slices/login';
 function Sidebar({ isOpen, toggle, dispatch, isAdmin, login, language }) {
 
 	const {
 		_ADDREMOVE,
 		_EDITUSERS,
+		_EDITPROJECTS,
 		_SEEALLENTRIES,
 		_PRINTMODE,
 		_SEEYOURENTRIES,
@@ -28,7 +30,7 @@ function Sidebar({ isOpen, toggle, dispatch, isAdmin, login, language }) {
 
 	const storedLogin = localStorage.getItem('login');
 	const storedParsedLogin = JSON.parse(storedLogin);
-	const storedLoggedUser = storedParsedLogin.name;
+	const storedLoggedUser = storedLogin && storedParsedLogin.name;
 	const loggedUser = login.name || storedLoggedUser;
 
 	const [selectedFlag, setSelectedFlag] = useState('GB');
@@ -52,7 +54,6 @@ function Sidebar({ isOpen, toggle, dispatch, isAdmin, login, language }) {
 	}
 
 	function handleLogout() {
-		// TODO add a logout API route
 
 		dispatch(currentAddressReset());
 		dispatch(currentModeIndexReset());
@@ -63,6 +64,7 @@ function Sidebar({ isOpen, toggle, dispatch, isAdmin, login, language }) {
 		dispatch(projectsReset());
 
 		dispatch(loggedOut());
+		dispatch(postLogout(login.session));
 		localStorage.setItem('login', "{}");
 	}
 
@@ -73,6 +75,7 @@ function Sidebar({ isOpen, toggle, dispatch, isAdmin, login, language }) {
 					<SidebarMenu>
 						<SidebarLink to="/addremove" onClick={toggle}>{_ADDREMOVE[language]}</SidebarLink>
 						<SidebarLink to="/editusers" onClick={toggle}>{_EDITUSERS[language]}</SidebarLink>
+						<SidebarLink to="/editprojects" onClick={toggle}>{_EDITPROJECTS[language]}</SidebarLink>
 						<SidebarLink to="/admin" onClick={toggle}>{_SEEALLENTRIES[language]}</SidebarLink>
 					</SidebarMenu>
 					<SideBtnWrap>

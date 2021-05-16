@@ -6,7 +6,7 @@ const config = {
     API_DEBUG_MESSAGES: true, // If enabled will display debug messages in the comman-line interface
     API_SECURITY_MESSAGES: true, // If enabled will display security messages in the command-line interface
     API_PORT: 8080,
-    API_ADMIN_KEY: 'ierthgerwr8350hdadjfskrj219ogdf239ahr26394rauyrqwhr254djhy46324iajkoqw0bg',
+    // API_ADMIN_KEY: 'ierthgerwr8350hdadjfskrj219ogdf239ahr26394rauyrqwhr254djhy46324iajkoqw0bg',
     DB_ADDRESS_DEV: 'mongodb://127.0.0.1:27017/jobbler-dev',
     DB_ADDRESS_PROD: 'mongodb://127.0.0.1:27017/jobbler-prod',
     DB_ADDRESS_TESTS: 'mongodb://127.0.0.1:27017/jobbler-tests',

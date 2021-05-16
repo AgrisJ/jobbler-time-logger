@@ -142,6 +142,7 @@ export const ListPersonName = styled.div`
 	font-weight: normal;
 	font-size: 22px;
 	/* color: #828282; */
+	cursor: pointer;
 	color: rgb(31 90 152 / 68%);
 	 -webkit-user-select: none; /* Safari */
   -ms-user-select: none; /* IE 10 and IE 11 */

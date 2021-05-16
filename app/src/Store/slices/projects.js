@@ -1,5 +1,6 @@
 import { createSelector, createSlice } from '@reduxjs/toolkit';
 import { apiCallBegan } from './../api';
+import { deepClone } from '../../components/services/helpfulFunctions';
 let lastId = 0;
 
 const slice = createSlice({
@@ -26,6 +27,14 @@ const slice = createSlice({
 				address: action.payload.address
 			})
 		},
+		projectUpdated: (projects, action) => {
+			const newState = deepClone(projects);
+			const editedProject = newState.find(project => project.projectId === action.payload.projectId);
+
+			editedProject.name = action.payload.name;
+			editedProject.address = action.payload.address;
+			return newState;
+		},
 		projectAdded: (projects, action) => {
 			projects.push({
 				id: ++lastId,
@@ -48,7 +57,7 @@ export const getProjectArray = createSelector(
 	projects => projects/* .reduce((acc, cur) => { acc.push(cur.project); return acc }, []) || null */
 )
 
-export const { projectAdded, projectRemoved, projectsReset, projectReceived, projectsReceived } = slice.actions;
+export const { projectAdded, projectUpdated, projectRemoved, projectsReset, projectReceived, projectsReceived } = slice.actions;
 export default slice.reducer;
 
 
@@ -72,6 +81,15 @@ export const postProject = (session, data) => apiCallBegan({
 		session
 	},
 	onSuccess: projectReceived.type
+});
+export const editProject = (session, urlExtension, data) => apiCallBegan({
+	url: `${url}/${urlExtension}`,
+	method: "PATCH",
+	data,
+	headers: {
+		session
+	},
+	onSuccess: projectUpdated.type
 });
 
 export const deleteProject = (session, urlExtension) => apiCallBegan({

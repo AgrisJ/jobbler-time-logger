@@ -94,7 +94,7 @@ const AddDataForm = ({ currentModeIndex, login, dispatch, language }) => {
 			postProject(
 				login.session,
 				{
-					companyId: process.env.REACT_APP_COMPANY_ID,
+					companyId: login.companyId || process.env.REACT_APP_COMPANY_ID,
 					name: nameInput,
 					address: addressInput,
 					active: true
@@ -105,7 +105,7 @@ const AddDataForm = ({ currentModeIndex, login, dispatch, language }) => {
 			postUser(
 				login.session,
 				{
-					companyId: process.env.REACT_APP_COMPANY_ID,
+					companyId: login.companyId || process.env.REACT_APP_COMPANY_ID,
 					fullName: nameInput,
 					email: emailInput,
 					password: passwordInput,

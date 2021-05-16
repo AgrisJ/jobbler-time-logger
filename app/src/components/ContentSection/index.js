@@ -6,8 +6,8 @@ import { getUsersArray } from '../../Store/slices/users';
 import { editTimecard, getTimecardArray, timecardRemoved, timecardRenamed, timecardWorkingTimeEdited } from '../../Store/slices/timecards';
 import { getMonthIndex } from '../../Store/slices/monthIndex';
 import { getcurrentAddress } from '../../Store/slices/currentAddress';
-import { getcurrentContractor } from '../../Store/slices/currentContractor';
-import { getcurrentModeIndex } from '../../Store/slices/currentModeIndex';
+import { currentContractorChanged, getcurrentContractor } from '../../Store/slices/currentContractor';
+import { getcurrentModeIndex, currentModeIndexChanged } from '../../Store/slices/currentModeIndex';
 import { totalTimeChanged } from '../../Store/slices/totalTime';
 import { cardCountChanged } from '../../Store/slices/cardCount';
 import { getLoginData } from '../../Store/slices/login';
@@ -25,6 +25,7 @@ import { getlanguage } from './../../Store/slices/language';
 import { Notificator } from '../../pages/addRemove';
 import { decimalToTime, totalTime } from './../services/helpfulFunctions';
 import { deleteTimecard } from './../../Store/slices/timecards';
+import { getSelectedYear, getYearNum } from './../../Store/slices/selectedYear';
 
 const ContentSection = (
 	{
@@ -38,7 +39,8 @@ const ContentSection = (
 		users,
 		isAdmin,
 		login,
-		language
+		language,
+		selectedYear
 	}
 ) => {
 
@@ -108,7 +110,7 @@ const ContentSection = (
 	useEffect(() => {
 		setSavedTime({ savedTime: calcTime() });
 		timeWorked();
-	}, [projectId, currentModeIndex, selectedContractor, selectedMonth, timecards])
+	}, [projectId, currentModeIndex, selectedContractor, selectedMonth, timecards, selectedYear])
 
 	// BreakTime input to not allow a date change as it's meant to change only hours and minutes
 	useEffect(() => {
@@ -217,6 +219,7 @@ const ContentSection = (
 		let cardsCounted = 0;
 
 		const projectTime = timecards
+			.filter(card => +card.startTime.split("T")[0].split("-")[0] === getYearNum(selectedYear))
 			.filter(card => card.startTime.split("T")[0].split("-")[1] - 1 === selectedMonth)
 			.filter(c => c.projectId === projectId)
 			.filter(c => isAdmin ? c : c.userId === loggedInUserId)
@@ -232,6 +235,7 @@ const ContentSection = (
 			})[0] || [0]
 
 		const contractorTime = timecards
+			.filter(card => +card.startTime.split("T")[0].split("-")[0] === getYearNum(selectedYear))
 			.filter(card => card.startTime.split("T")[0].split("-")[1] - 1 === selectedMonth)
 			.filter(card => {
 				const _selectedContractor = users.find(user => user.userId === card.userId);
@@ -320,6 +324,12 @@ const ContentSection = (
 		return formattedDate;
 	}
 
+	function handleSelectContractor(contractor) {
+		const selectedContractor = users.find(user => user.name === contractor);
+		dispatch(currentModeIndexChanged(1));
+		dispatch(currentContractorChanged(selectedContractor));
+	}
+
 	function renderList() {
 		const styles = {
 
@@ -368,14 +378,17 @@ const ContentSection = (
 			dispatch(timecardRenamed({ cardId: cardId, startTime: constructedStartTime, endTime: constructedEndTime }));
 		};
 
-		function handleSelectStartTime(time) {
-			setstartTimeInput({ startTimeInput: time })
-		}
-		function handleSelectEndTime(time) {
-			setendTimeInput({ endTimeInput: time })
-		}
+		// function handleSelectStartTime(time) {
+		// 	setstartTimeInput({ startTimeInput: time })
+		// }
+		// function handleSelectEndTime(time) {
+		// 	setendTimeInput({ endTimeInput: time })
+		// }
 
 		const projectCards = timecards
+
+			// view cards by selected year
+			.filter(card => +card.startTime.split("T")[0].split("-")[0] === getYearNum(selectedYear))
 
 			// view cards by selected month
 			.filter(card => card.startTime.split("T")[0].split("-")[1] - 1 === selectedMonth)
@@ -427,7 +440,9 @@ const ContentSection = (
 								dateFormat="yyyy-MM-dd"
 							/> : <ListDate>{card.startTime.split("T")[0]}</ListDate>}
 
-						<ListPersonName>{contractorsName}</ListPersonName>
+						<ListPersonName
+							onClick={() => handleSelectContractor(contractorsName)}
+						>{contractorsName}</ListPersonName>
 
 						{hasNotes &&
 							<NotesIcon onClick={() => expandNote(card.cardId)} />}
@@ -453,6 +468,9 @@ const ContentSection = (
 			});
 
 		const contractorCards = timecards
+
+			// view cards by selected year
+			.filter(card => +card.startTime.split("T")[0].split("-")[0] === getYearNum(selectedYear))
 
 			// view cards by selected month
 			.filter(card => card.startTime.split("T")[0].split("-")[1] - 1 === selectedMonth)
@@ -723,7 +741,6 @@ const ContentSection = (
 
 const mapStateToProps = (state) =>
 ({
-
 	projects: getProjectArray(state),
 	users: getUsersArray(state),
 	timecards: getTimecardArray(state),
@@ -733,7 +750,8 @@ const mapStateToProps = (state) =>
 	currentModeIndex: getcurrentModeIndex(state),
 	login: getLoginData(state),
 	notes: getnotesArray(state),
-	language: getlanguage(state)
+	language: getlanguage(state),
+	selectedYear: getSelectedYear(state)
 })
 
 

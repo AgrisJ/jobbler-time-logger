@@ -1,4 +1,5 @@
 import { createSlice, createSelector } from '@reduxjs/toolkit';
+import { deepClone } from '../../components/services/helpfulFunctions';
 import { apiCallBegan } from './../api';
 let lastId = 0;
 
@@ -113,11 +114,3 @@ export const deleteUser = (session, urlExtension, data) => apiCallBegan({
 	},
 	onSuccess: userRemoved.type
 })
-
-
-
-
-
-function deepClone(obj) {
-	return JSON.parse(JSON.stringify(obj))
-}

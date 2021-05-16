@@ -9,3 +9,11 @@ justify-content: center;
 position: fixed!important;
 background-color: rgba(0, 0, 0, 0.4)!important;
 }
+
+.react-datepicker__year-wrapper {
+	max-width: 205px;
+}
+
+.react-datepicker__year-text { 
+	padding: 6px 0px;
+}

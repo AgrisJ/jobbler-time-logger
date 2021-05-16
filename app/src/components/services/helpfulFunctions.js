@@ -70,3 +70,7 @@ export function decimalToTime(time) {
 	min = min < 10 ? "0" + min : min.toString();
 	return hrs + ":" + min;
 };
+
+export function deepClone(obj) {
+	return JSON.parse(JSON.stringify(obj))
+}

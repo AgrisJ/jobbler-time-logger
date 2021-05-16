@@ -1,25 +1,19 @@
 import React, { useState, useEffect } from 'react'
-import { ActionButton, Container } from '../components/common/commonElements';
 import Navbar from '../components/Navbar'
 import SelectUsers from '../components/SelectUsers';
 import Sidebar from '../components/Sidebar'
-import ModeSwitcher from './../components/ModeSwitcher/index';
 import { connect } from 'react-redux';
-import { getUsersArray, userRemoved } from '../Store/slices/users';
-import { getProjectArray, projectRemoved } from '../Store/slices/projects';
-import { currentAddressChanged, getcurrentAddress } from '../Store/slices/currentAddress';
-import { currentContractorChanged, getcurrentContractor } from '../Store/slices/currentContractor';
+import { getUsersArray } from '../Store/slices/users';
+import { getProjectArray } from '../Store/slices/projects';
+import { getcurrentAddress } from '../Store/slices/currentAddress';
+import { getcurrentContractor } from '../Store/slices/currentContractor';
 import { getcurrentModeIndex } from '../Store/slices/currentModeIndex';
-import Modal from '../components/Modal';
-import { getTimecardArray, timecardsOfUserRemoved, timecardsOfProjectRemoved } from '../Store/slices/timecards';
-import AddDataForm from '../components/AddDataForm';
-import * as actions from '../Store/api';
-import { companyConfig } from '../services/companyConfig';
+import { getTimecardArray } from '../Store/slices/timecards';
 import { getLoginData } from '../Store/slices/login';
 import EditUsersForm from './../components/EditUsersForm/index';
 
 
-const EditUsers = ({ dispatch, users, currentContractor, currentModeIndex, login }) => {
+const EditUsers = ({ currentContractor }) => {
 	const [{ isOpen }, setIsOpen] = useState({ isOpen: false });
 
 	const toggle = () => setIsOpen({ isOpen: !isOpen });

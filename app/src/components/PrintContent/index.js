@@ -16,6 +16,7 @@ import { isObject, isRounded } from '../services/helpfulFunctions'
 import { nanoid } from 'nanoid'
 import { getlanguage } from './../../Store/slices/language';
 import { languageData } from './../../languages/language_variables';
+import { getSelectedYear, getYearNum } from './../../Store/slices/selectedYear';
 
 const PrintContent = ({
 	timecards,
@@ -25,7 +26,8 @@ const PrintContent = ({
 	currentModeIndex,
 	currentAddress,
 	currentContractor,
-	language
+	language,
+	selectedYear
 }) => {
 	const {
 		_DATE,
@@ -172,6 +174,9 @@ const PrintContent = ({
 
 				const projectCards = selection => timecards
 
+					// view cards by selected year
+					.filter(card => +card.startTime.split("T")[0].split("-")[0] === getYearNum(selectedYear))
+
 					// show cards from selected month
 					.filter(card => card.startTime.split('-')[1] - 1 === selectedMonth)
 
@@ -216,6 +221,9 @@ const PrintContent = ({
 
 
 				const contractorCards = selection => timecards
+
+					// view cards by selected year
+					.filter(card => +card.startTime.split("T")[0].split("-")[0] === getYearNum(selectedYear))
 
 					// show cards from selected month
 					.filter(card => card.startTime.split('-')[1] - 1 === selectedMonth)
@@ -278,6 +286,9 @@ const PrintContent = ({
 				function gatherPrintContent() {
 
 					timecards
+						// view cards by selected year
+						.filter(card => +card.startTime.split("T")[0].split("-")[0] === getYearNum(selectedYear))
+
 						// show cards from selected month
 						.filter(card => card.startTime.split('-')[1] - 1 === selectedMonth)
 
@@ -485,7 +496,7 @@ const PrintContent = ({
 							</div>
 							<div style={{ textAlign: 'right' }}>
 								<PrintLogo src="/sidna_byg_logo.png" alt="logo" />
-								<Period className='printSize'>{_YEAR[language]}: 2021</Period>{/*TODO make year dynamic */}
+								<Period className='printSize'>{_YEAR[language]}: {selectedYear.getFullYear()}</Period>
 							</div>
 						</PeriodHeading>
 					</Header>
@@ -523,7 +534,8 @@ const mapStateToProps = state =>
 	currentContractor: getcurrentContractor(state),
 	currentModeIndex: getcurrentModeIndex(state),
 	totalTime: gettotalTime(state),
-	language: getlanguage(state)
+	language: getlanguage(state),
+	selectedYear: getSelectedYear(state)
 })
 
 

@@ -9,6 +9,10 @@ export const languageData = {
 				"en": "Edit Users",
 				"lv": "Labot Lietotājus"
 			},
+			_EDITPROJECTS: {
+				"en": "Edit Projects",
+				"lv": "Labot Projektus"
+			},
 			_SEEALLENTRIES: {
 				"en": "See All Entries",
 				"lv": "Skatīt visus ierakstus"
@@ -272,6 +276,32 @@ export const languageData = {
 				"lv": "Izmaiņas ir veiktas!"
 			}
 		},
+		EditProjectsForm: {
+			_NAME: {
+				"en": "Name",
+				"lv": "Vārds"
+			},
+			_CHANGEWITHCAUTION: {
+				"en": "*Change <em>email / password</em> with caution",
+				"lv": "*Uzmanīgi ar <em>epasta / paroles</em> mainīšanu"
+			},
+			_TYPENEWPASSWORD: {
+				"en": "type new pasword",
+				"lv": "ievadīt jaunu paroli"
+			},
+			_EDITPROJECTDATA: {
+				"en": "Edit Project Data",
+				"lv": "Rediģēt Projekta Datus"
+			},
+			_MAKEALLCHANGES: {
+				"en": "MAKE ALL CHANGES",
+				"lv": "APSTIPRINĀT IZMAIŅAS"
+			},
+			_CHANGESMESSAGE: {
+				"en": "Changes has been made!",
+				"lv": "Izmaiņas ir veiktas!"
+			}
+		},
 		LoginForm: {
 			_EMAILPASSWORDINCORRECT: {
 				"en": "Email/Password is incorrect",
@@ -414,6 +444,16 @@ export const languageData = {
 			_NO: {
 				"en": "No",
 				"lv": "Nē"
+			}
+		},
+		AppLocker: {
+			_ACCESSDENIED: {
+				"en": "Access denied",
+				"lv": "Pieeja liegta"
+			},
+			_REMOVEDIF: {
+				"en": "This notice will be removed once <span style='color:white'>payment + 2000dkk compensation</span> is received",
+				"lv": "Paziņojums tiks noņemts tiklīdz <span style='color:white'>samaksa + 2000dkk kompensācija</span> tiks saņemta"
 			}
 		}
 	}

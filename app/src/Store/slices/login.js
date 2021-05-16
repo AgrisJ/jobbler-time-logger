@@ -6,6 +6,7 @@ const slice = createSlice({
 	initialState: {
 		isAuthenticated: false,
 		session: null,
+		companyId: null,
 		token: null,
 		ttl: null,
 		userId: null,
@@ -20,6 +21,7 @@ const slice = createSlice({
 			return {
 				isAuthenticated: true,
 				session: action.payload.session,
+				companyId: action.payload.companyId,
 				token: action.payload.token,
 				ttl: action.payload.ttl,
 				userId: action.payload.userId,
@@ -32,6 +34,7 @@ const slice = createSlice({
 			return {
 				isAuthenticated: false,
 				session: null,
+				companyId: null,
 				token: null,
 				ttl: null,
 				userId: null,
@@ -57,6 +60,7 @@ export default slice.reducer;
 
 // Action Creators
 const url = "/v1/login";
+const url2 = "/v1/logout";
 
 
 export const postLogin = data => apiCallBegan({
@@ -65,4 +69,12 @@ export const postLogin = data => apiCallBegan({
 	data,
 	onSuccess: loggedIn.type,
 	onError: errorHandled.type
+});
+
+export const postLogout = session => apiCallBegan({
+	url: url2,
+	method: "post",
+	headers: {
+		session
+	}
 });

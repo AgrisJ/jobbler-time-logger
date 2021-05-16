@@ -55,7 +55,7 @@ export const LogoutButton = styled(LinkR)`
 		color: red;
 	}
 `
-export const LoggedInfo = styled.p` //FIXME crowdy on smaller screens
+export const LoggedInfo = styled.p`
 	color: #31a8ff9e;
 	position: absolute;
 	top: 1rem;

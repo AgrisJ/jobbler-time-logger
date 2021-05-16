@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import './App.css';
 import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
 import GlobalFonts from './fonts/fonts';
@@ -10,34 +10,50 @@ import PrintReportPage from './pages/printReport';
 import Login from './pages/login';
 import AddRemove from './pages/addRemove';
 import { getLoginData, loggedIn } from './Store/slices/login';
-import { getMonthIndex } from './Store/slices/monthIndex';
+import { getMonthIndex, monthIndexChanged } from './Store/slices/monthIndex';
 import recordOverview from './pages/recordOverview';
 import AddEntry from './pages/addEntry';
 import EditUsers from './pages/editUsers';
 import { getlanguage, languageChanged } from './Store/slices/language';
 import { loadUsers } from './Store/slices/users';
+import AppLocker from './components/common/appLocker';
+import EditProjects from './pages/editProjects';
 
 function App({ dispatch, login, monthIndex, language }) {
 
+	const [{ monthNow }, setmonthNow] = useState({ monthNow: new Date() });
+	const [{ lock }, setlock] = useState({ lock: false });
+
 	const storedLogin = localStorage.getItem('login');
+	const storedParsedLogin = JSON.parse(storedLogin);
+	const storedLoggedUser = storedLogin && storedParsedLogin.name;
+	const loggedUser = login.name || storedLoggedUser;
+
 	const storedLanguage = localStorage.getItem('language');
 	const storedLoginEmpty = storedLogin === '{}';
 
 	const authenticated = login.isAuthenticated === true;
 	const isAdmin = login.role === 'company' ? true : false;
+	const areIncluded = args => loggedUser && args.some(item => loggedUser.indexOf(item) !== -1) ? true : false;
+	const lockConditions = /* false */ !areIncluded(["Agris"]) /* && isAdmin */; // add "!" in front to activate it // Remove "&& isAdmin" to activate Stage2
+
 
 
 	useEffect(() => {
-		const storedParsedLogin = JSON.parse(storedLogin);
+
+		const getMonth = monthNow !== null ? monthNow.getMonth() : null;
+
 		if (storedParsedLogin && !storedLoginEmpty && storedParsedLogin.isAuthenticated)
 			dispatch(loggedIn(storedParsedLogin));
 
 		if (storedLanguage)
 			dispatch(languageChanged(storedLanguage));
+
+		dispatch(monthIndexChanged({ monthIndex: getMonth || 0 }));
 	}, [])
 
 	useEffect(() => {
-		if (storedLoginEmpty && login.isAuthenticated)
+		if ((storedLoginEmpty || !storedLogin) && login.isAuthenticated)
 			localStorage.setItem('login', JSON.stringify(login));
 	}, [login])
 
@@ -45,6 +61,7 @@ function App({ dispatch, login, monthIndex, language }) {
 
 	useEffect(() => {
 		if (login.isAuthenticated) {
+			if (lockConditions) setlock({ lock: true });
 
 			if (isAdmin) dispatch(loadUsers(login.session));
 			dispatch(loadProjects(login.session));
@@ -68,11 +85,11 @@ function App({ dispatch, login, monthIndex, language }) {
 		if (login.isAuthenticated) {
 
 			if (isAdmin)
-				monthIndex && dispatch(loadTimecards(
-					login.session,
-					`${fromDate()}/${toDate()}`,
-					{ companyId: process.env.REACT_APP_COMPANY_ID }
-				));
+				monthIndex && dispatch(
+					loadTimecards(
+						login.session,
+						`${fromDate()}/${toDate()}`
+					));
 		}
 	}, [login.isAuthenticated, monthIndex]);
 
@@ -81,6 +98,7 @@ function App({ dispatch, login, monthIndex, language }) {
 	return (
 		<Router>
 			<GlobalFonts />
+			{lock && <AppLocker />}
 			<Switch>
 				<Route path="/login" component={Login} exact>{!authenticated ? null : isAdmin ? <Redirect to="/admin" /> : <Redirect to="/addentry" />}</Route>
 				<Route path="/" component={Login} exact>{!authenticated ? <Redirect to="/login" /> : !isAdmin ? <Redirect to="/addentry" /> : <Redirect to="/admin" />}</Route>
@@ -89,6 +107,7 @@ function App({ dispatch, login, monthIndex, language }) {
 				<PrivateRoute path="/addremove" login={login} sourceComponent={AddRemove} exact />
 				<PrivateRoute path="/addentry" login={login} sourceComponent={AddEntry} isAdmin={isAdmin} exact />
 				<PrivateRoute path="/editusers" login={login} sourceComponent={EditUsers} isAdmin={isAdmin} exact />
+				<PrivateRoute path="/editprojects" login={login} sourceComponent={EditProjects} isAdmin={isAdmin} exact />
 				<PrivateRoute path="/recordoverview" login={login} sourceComponent={recordOverview} exact />
 			</Switch>
 		</Router>

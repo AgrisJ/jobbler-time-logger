@@ -22,6 +22,8 @@ import { timeFormat } from '../ContentSection';
 import { useHistory } from 'react-router-dom';
 import { languageData } from './../../languages/language_variables';
 import { getlanguage } from './../../Store/slices/language';
+import DatePicker from 'react-datepicker';
+import { getSelectedYear, getYearNum, selectedYearChanged } from './../../Store/slices/selectedYear';
 
 function ControlPanelSection(
 	{
@@ -41,7 +43,8 @@ function ControlPanelSection(
 		printAllChecked,
 		setnotesModeOn,
 		notesModeOn,
-		language
+		language,
+		selectedYear
 	}
 ) {
 	const {
@@ -94,7 +97,7 @@ function ControlPanelSection(
 	];
 	const IS_PRINT_MODE = ['print'].some(item => window.location.href.indexOf(item) !== -1) ? true : false;
 	const [{ listCardCount }, setListCardCount] = useState({ listCardCount: [] });
-	const [{ monthNow }, setmonthNow] = useState({ monthNow: new Date() });
+	// const [{ monthNow }, setmonthNow] = useState({ monthNow: new Date() });
 
 	const listIds =
 		useCallback(() => idListPerMode(currentModeIndex)
@@ -115,20 +118,20 @@ function ControlPanelSection(
 	const firstTimeLoadedAddress = firstAddress() && currentAddress.address === null;
 	const firstTimeLoadedContractor = firstContractor && !currentContractor;
 
-	useEffect(() => {
-		const getMonth = monthNow !== null ? monthNow.getMonth() : null;
-		dispatch(monthIndexChanged({ monthIndex: getMonth || 0 }));
-		isLocalStored('monthIndex') && dispatch(monthIndexChanged({ monthIndex: +isLocalStored('monthIndex') }));
+	// useEffect(() => {
+	// 	const getMonth = monthNow !== null ? monthNow.getMonth() : null;
+	// 	dispatch(monthIndexChanged({ monthIndex: getMonth || 0 }));
+	// 	// isLocalStored('monthIndex') && dispatch(monthIndexChanged({ monthIndex: +isLocalStored('monthIndex') })); // read saved selected month
 
-	}, []);
+	// }, []);
 
-	useEffect(() => { localStorage.setItem('monthIndex', monthIndex) }, [monthIndex]);
+	// useEffect(() => { localStorage.setItem('monthIndex', monthIndex) }, [monthIndex]); //save selected month
 	useEffect(() => { localStorage.setItem('currentModeIndex', currentModeIndex) }, [currentModeIndex]);
 	useEffect(() => { firstTimeLoadedAddress && dispatch(currentAddressChanged(firstAddress())) }, [firstAddress, firstTimeLoadedAddress]);
 	useEffect(() => { firstTimeLoadedContractor && dispatch(currentContractorChanged(firstContractor)) }, [firstContractor, firstTimeLoadedContractor]);
 	useEffect(() => { currentAddress && localStorage.setItem('currentAddress', JSON.stringify(currentAddress)) }, [currentAddress]);
 	useEffect(() => { currentContractor && localStorage.setItem('currentContractor', JSON.stringify(currentContractor)) }, [currentContractor]);
-	useEffect(() => { setListCardCount({ listCardCount: listIds() }); }, [monthIndex, currentAddress, currentContractor, listIds]);
+	useEffect(() => { setListCardCount({ listCardCount: listIds() }); }, [monthIndex, currentAddress, currentContractor, listIds, selectedYear]);
 
 	const defaultMonth = months[monthIndex];
 	const _onSelectMonth = event => {
@@ -163,6 +166,9 @@ function ControlPanelSection(
 	}
 	const handleNotesModeCheckboxChange = event => {
 		setnotesModeOn({ notesModeOn: event.target.checked });
+	}
+	const handleYearChange = date => {
+		dispatch(selectedYearChanged(date.toString()));
 	}
 
 	const navigateAddEntryPage = () => history.push("/addentry");
@@ -208,6 +214,31 @@ function ControlPanelSection(
 		else return null;
 	}
 
+	const styles = {
+
+		button: {
+			cursor: 'pointer',
+			borderRadius: '4px',
+			fontFamily: 'Expletus Sans',
+			fontSize: '18px',
+			borderStyle: 'none',
+			background: 'none',
+			color: 'rgb(31 90 152)',
+			zIndex: 0,
+			userSelect: 'none',
+			paddingRight: '0.8em',
+			WebkitUserSelect: 'none', /* Safari */
+			msUserSelect: 'none' /* IE 10 and IE 11 */
+		}
+	};
+	const YearButton = React.forwardRef((props, ref) => {
+		const { value, onClick } = props;
+		return (<button style={styles.button} onClick={onClick} ref={ref}>
+			{value}
+		</button>
+		)
+	});
+
 
 	return (
 		<>
@@ -216,6 +247,14 @@ function ControlPanelSection(
 					{isAdmin ? <ModeSwitcher titles={[_PROJECTHOURS[language], _CONTRACTORHOURS[language]]} /> : null}
 					<ControlPanelMonth>
 						<BackwardCaret onClick={prevMonth} />
+						<DatePicker
+							selected={selectedYear}
+							onChange={date => handleYearChange(date)}
+							customInput={<YearButton />}
+							showYearPicker
+							yearItemNumber={3}
+							dateFormat="yyyy"
+						/>
 						<Dropdown
 							options={months}
 							onChange={_onSelectMonth}
@@ -249,8 +288,8 @@ const mapStateToProps = state =>
 	totalTime: gettotalTime(state),
 	cardCount: getcardCount(state),
 	login: getLoginData(state),
-	language: getlanguage(state)
-
+	language: getlanguage(state),
+	selectedYear: getSelectedYear(state)
 })
 
 

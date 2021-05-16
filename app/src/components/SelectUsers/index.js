@@ -4,7 +4,7 @@ import Dropdown from 'react-dropdown';
 import '../../Styles/dropdown.css'
 import { connect } from 'react-redux';
 import { getcurrentModeIndex, currentModeIndexChanged } from '../../Store/slices/currentModeIndex';
-import { currentAddressChanged, getcurrentAddress } from '../../Store/slices/currentAddress';
+import { currentAddressChanged, currentAddressRequested, getcurrentAddress } from '../../Store/slices/currentAddress';
 import { currentContractorChanged, getcurrentContractor } from '../../Store/slices/currentContractor';
 import { getProjectArray } from '../../Store/slices/projects';
 import { getUsersArray } from '../../Store/slices/users';
@@ -23,7 +23,7 @@ function SelectUsers(
 		labelText
 	}) {
 	const addresses = projects.map(project => {
-		return { id: project.id, address: project.address, projectId: project.projectId }
+		return { id: project.id, name: project.name, address: project.address, projectId: project.projectId }
 	});
 	const firstMode = currentModeIndex === 0; // Project hours
 	const secondMode = currentModeIndex === 1; // Contractor hours
@@ -35,10 +35,11 @@ function SelectUsers(
 	};
 
 	useEffect(() => {
+		const name = typeof addresses[0] !== 'undefined' ? addresses[0].name : null;
 		const firstAddress = typeof addresses[0] !== 'undefined' ? addresses[0].address : null;
 		const firstAddressId = typeof addresses[0] !== 'undefined' ? addresses[0].id : null;
 		const firstProjectId = typeof addresses[0] !== 'undefined' ? addresses[0].projectId : null;
-		dispatch(currentAddressChanged({ id: firstAddressId, address: firstAddress, projectId: firstProjectId }));
+		dispatch(currentAddressChanged({ id: firstAddressId, name, address: firstAddress, projectId: firstProjectId }));
 		isLocalStored('currentAddress') && dispatch(currentAddressChanged(JSON.parse(isLocalStored('currentAddress'))));
 		isLocalStored('currentContractor') && dispatch(currentContractorChanged(JSON.parse(isLocalStored('currentContractor'))));
 	}, []);
@@ -50,12 +51,14 @@ function SelectUsers(
 
 	}, [currentModeIndex, manualOverride]);
 
-	const _onSelectAddress = event => dispatch(currentAddressChanged(
-		{
-			id: addresses.find(a => a.address === selectSrc(event.value, 'item')).id,
-			address: selectSrc(event.value, 'item'),
-			projectId: addresses.find(a => a.address === selectSrc(event.value, 'item')).projectId
-		}));
+	const _onSelectAddress = event => dispatch(
+		currentAddressChanged(
+			{
+				id: addresses.find(a => a.address === selectSrc(event.value, 'item')).id,
+				name: addresses.find(a => a.address === selectSrc(event.value, 'item')).name,
+				address: selectSrc(event.value, 'item'),
+				projectId: addresses.find(a => a.address === selectSrc(event.value, 'item')).projectId
+			}));
 	const _onSelectContractor = event => {
 		const selectedContractor = users.find(user => user.name === selectSrc(event.value, 'item'));
 		dispatch(currentContractorChanged(selectedContractor))
@@ -112,10 +115,7 @@ function SelectUsers(
 					const address = a.address;
 					const count = listCardCount[index];
 
-					// if (index > 0)
 					return <ListItem key={`${address}-${a.projectId}`} item={address} count={count} />;
-					// else
-					// 	return <></>;
 				}
 				).filter(a => a.props.hasOwnProperty('item'));
 				break;

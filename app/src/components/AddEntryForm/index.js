@@ -395,7 +395,8 @@ const AddEntryForm = ({ login, currentAddress, timecards, dispatch, isAdmin, cur
 						<>
 							<FormLabel htmlFor='for'>{_NOTE[language]}</FormLabel>
 							<NoteCharCounter
-								isNoteInAction={isNoteInAction}>
+								isNoteInAction={isNoteInAction}
+							>
 								{notesMaxLength - noteInput.length}
 							</NoteCharCounter>
 							<FormTextArea

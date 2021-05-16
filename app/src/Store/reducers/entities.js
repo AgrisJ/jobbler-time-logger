@@ -11,6 +11,7 @@ import cardCountReducer from '../slices/cardCount';
 import loginReducer from '../slices/login';
 import noteReducer from '../slices/notes';
 import languageReducer from '../slices/language';
+import selectedYearReducer from '../slices/selectedYear';
 
 
 export default combineReducers({
@@ -25,5 +26,6 @@ export default combineReducers({
 	cardCount: cardCountReducer,
 	login: loginReducer,
 	notes: noteReducer,
-	language: languageReducer
+	language: languageReducer,
+	selectedYear: selectedYearReducer
 });
