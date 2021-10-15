@@ -17,6 +17,11 @@
 /landing/build
 /build
 
+# backend
+/api
+/landing
+/docs
+
 # testing
 /api/coverage
 /app/coverage
