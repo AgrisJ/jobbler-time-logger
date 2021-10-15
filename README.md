@@ -1,4 +1,6 @@
-> ![](https://www.agrisj.com/wp-content/uploads/2021/05/jobbler_mode-selection.gif)Designed and front-end developed by me. My own project together with a back-end partner.
+> ![](https://www.agrisj.com/wp-content/uploads/2021/05/jobbler_mode-selection.gif)
+> 
+> Designed and front-end developed by me. My own project together with a back-end partner.
 > 
 > Made as a first piece of a larger SaaS platform which is going to provide small to medium companies with different tools to ease their working lives.
 
