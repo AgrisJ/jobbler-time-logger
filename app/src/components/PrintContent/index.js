@@ -17,6 +17,11 @@ import { nanoid } from 'nanoid'
 import { getlanguage } from './../../Store/slices/language';
 import { languageData } from './../../languages/language_variables';
 import { getSelectedYear, getYearNum } from './../../Store/slices/selectedYear';
+import { globalConfig } from '../../config/global_config';
+const themeVariables = globalConfig.CONFIG_themeVariables;
+const companyDataVariables = globalConfig.CONFIG_companyDataVariables;
+const { THEME_loginLogo_logoPath } = themeVariables;
+const { COMPANY_DATA_address, COMPANY_DATA_cvr, COMPANY_DATA_email, COMPANY_DATA_telephone } = companyDataVariables;
 
 const PrintContent = ({
 	timecards,
@@ -495,7 +500,7 @@ const PrintContent = ({
 								<Period className='printSize'>{_PERIOD[language]}: {months[monthIndex]}</Period>
 							</div>
 							<div style={{ textAlign: 'right' }}>
-								<PrintLogo src="/sidna_byg_logo.png" alt="logo" />
+								<PrintLogo src={THEME_loginLogo_logoPath} alt="logo" />
 								<Period className='printSize'>{_YEAR[language]}: {selectedYear.getFullYear()}</Period>
 							</div>
 						</PeriodHeading>
@@ -508,12 +513,12 @@ const PrintContent = ({
 
 					<Footer>
 						<div style={{ display: 'flex', justifyContent: 'space-between' }}>
-							<Period className='printSize'>Industrivej 27, 4652 Hårlev, Denmark</Period>
-							<Period className='printSize'>CVR-Nr.: 40447571</Period>
+							<Period className='printSize'>{COMPANY_DATA_address}</Period>
+							<Period className='printSize'>{COMPANY_DATA_cvr}</Period>
 						</div>
 						<div style={{ display: 'flex', justifyContent: 'space-between' }}>
-							<Period className='printSize'>info@sidnabyg.dk</Period>
-							<Period className='printSize'>Tlf.: +45 71335109</Period>
+							<Period className='printSize'>{COMPANY_DATA_email}</Period>
+							<Period className='printSize'>{COMPANY_DATA_telephone}</Period>
 						</div>
 					</Footer>
 				</A4ratio>

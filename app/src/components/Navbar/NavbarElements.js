@@ -1,6 +1,9 @@
 import styled from 'styled-components/macro';
 import { Link as LinkR } from 'react-router-dom';
 import { Link as LinkS } from 'react-scroll';
+import { globalConfig } from '../../config/global_config';
+const themeVariables = globalConfig.CONFIG_themeVariables;
+const { THEME_navLogo_width, THEME_navLogo_margin, THEME_navSubLogo } = themeVariables;
 
 export const Nav = styled.nav`
 	background:white;
@@ -49,12 +52,12 @@ export const NavLogoLink = styled(LinkR)`
 	`
 
 export const NavLogo = styled.img`
-	width: 145px;
-	margin: 0.8em 0;
+	width: ${THEME_navLogo_width};
+  margin: ${THEME_navLogo_margin};
 `
 export const NavSubLogo = styled(LinkR)`
 	font-family: 'Expletus Sans';
-	color: black;
+	color: ${THEME_navSubLogo};
 	justify-self: center;
 	cursor: pointer;
 	font-size: 1.1rem;

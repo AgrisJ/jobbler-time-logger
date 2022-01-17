@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { connect } from 'react-redux';
 import { getcurrentModeIndex, currentModeIndexChanged } from '../../Store/slices/currentModeIndex';
-import { ControlPanelH1 } from './ModeSwitcherElements';
+import { ModeSwitcherH1, ModeSwitcher_BackwardCaret, ModeSwitcher_ForwardCaret, ModeSwitcher_Container } from './ModeSwitcherElements';
 import { isLocalStored } from './../services/helpfulFunctions';
 
 
@@ -19,9 +19,13 @@ function ModeSwitcher({ currentModeIndex, titles, dispatch }) {
 
 
 	return (
-		<>
-			<ControlPanelH1 onClick={_onClickDataMode}>{titles[currentModeIndex]}</ControlPanelH1>
-		</>
+
+		<ModeSwitcher_Container>
+			<ModeSwitcher_BackwardCaret onClick={_onClickDataMode} />
+			<ModeSwitcherH1 onClick={_onClickDataMode}>{titles[currentModeIndex]}</ModeSwitcherH1>
+			<ModeSwitcher_ForwardCaret onClick={_onClickDataMode} />
+		</ModeSwitcher_Container>
+
 	)
 }
 

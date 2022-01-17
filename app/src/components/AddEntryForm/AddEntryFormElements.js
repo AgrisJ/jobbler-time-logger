@@ -1,4 +1,7 @@
 import styled from 'styled-components/macro';
+import { globalConfig } from '../../config/global_config';
+const themeVariables = globalConfig.CONFIG_themeVariables;
+const { THEME_mainButton } = themeVariables;
 
 export const FormWrapper = styled.div`
 display: grid;
@@ -109,7 +112,8 @@ font-family: 'Expletus Sans';
   user-select: none; /* Standard syntax */
 `
 export const FormButton = styled.button`
-background-color: #4c8faf;
+/* background-color: #4c8faf; */
+background-color: ${THEME_mainButton};
 width: 76%;
 justify-self: center;
 border: none;

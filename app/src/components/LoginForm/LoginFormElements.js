@@ -1,4 +1,7 @@
 import styled from 'styled-components/macro';
+import { globalConfig } from '../../config/global_config';
+const themeVariables = globalConfig.CONFIG_themeVariables;
+const { THEME_mainButton, THEME_loginLogo_margin, THEME_loginLogo_width } = themeVariables;
 
 export const LoginFormWrapper = styled.div`
 display: grid;
@@ -65,7 +68,7 @@ display: inline-block;
 box-sizing: border-box; */
 `
 export const FormButton = styled.button`
- background-color: #4c8faf; 
+background-color: ${THEME_mainButton};
 border: none;
 color: white;
 padding: 16px 0;
@@ -94,6 +97,6 @@ text-align: center;
 `
 
 export const LoginLogo = styled.img`
-	width: 225px;
-	margin-top: 2.8em;
+	width: ${THEME_loginLogo_width};
+  margin: ${THEME_loginLogo_margin}; 
 `

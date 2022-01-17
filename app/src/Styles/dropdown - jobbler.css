@@ -1,7 +1,8 @@
 .menuClass {
 	font-family: 'Roboto Light';
 	font-weight: normal;
-	color: #5A5A5A;
+	/* color: #5A5A5A; */
+	color: #6c8636; /*rgb(31 90 152);*/ 
 	font-size: 23px;
 	margin: 0.3em 0;
 	cursor: pointer;
@@ -11,7 +12,7 @@
 }
 .menuTimecardClass {
 	font-weight: normal;
-	color: #5A5A5A;
+	color: #6c8636; /*#5A5A5A;*/
 	cursor: pointer;
   max-height: 50vh;
 	width: max-content;
@@ -19,7 +20,7 @@
   font-size: 20px;
   /* color: rgb(130, 130, 130); */
   /* color: rgb(31 90 152 / 68%); */
-  color: #5A5A5A;
+  color: #6c8636; 
 	 -webkit-user-select: none; /* Safari */
   -ms-user-select: none; /* IE 10 and IE 11 */
   user-select: none; /* Standard syntax */
@@ -28,7 +29,7 @@
 	font-family: 'Expletus Sans';
 	font-weight: normal;
 	/* color: #4F4F4F; */
-	color: rgb(31 90 152);
+	color: rgba(6, 98, 12, 0.86); /*rgb(31 90 152);*/ 
 	font-size: 20px;
 	margin: 0.3em 0;
 
@@ -55,7 +56,7 @@
 	transition: all 0.3s ease-in-out;
 }
 .arrow-closed {
-	  border-color: rgb(31 90 152 / 60%) transparent transparent;
+	  border-color:  rgb(84 152 31 / 60%) transparent transparent; /* rgb(31 90 152 / 60%)*/
 		border-width: 6px 6px 0;
     border-style: solid;
     content: ' ';
@@ -68,7 +69,7 @@
     width: 0;
 }
 .arrow-open {
-	  border-color: transparent transparent rgb(31 90 152 / 60%);
+	  border-color:  transparent transparent rgb(84 152 31 / 60%); /*rgb(31 90 152 / 60%)*/
 		border-width: 0 6px 6px; 
     border-style: solid;
     content: ' ';
@@ -97,7 +98,7 @@
 }
 
 .Dropdown-option:hover {
-    background-color: #d9f2fc;
+    background-color: #eafcd9;/* #d9f2fc;*/ 
 }
 .Dropdown-root { 
 	display: flex;

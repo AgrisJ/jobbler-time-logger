@@ -1,4 +1,7 @@
 import styled from 'styled-components/macro';
+import { globalConfig } from '../../config/global_config';
+const themeVariables = globalConfig.CONFIG_themeVariables;
+const { THEME_mainButton } = themeVariables;
 
 export const FormWrapper = styled.div`
 display: grid;
@@ -73,7 +76,8 @@ border-color: ${({ hasErrors }) => (hasErrors ? '#ff3860' : '#ccc')};
 box-shadow: ${({ hasErrors }) => (hasErrors ? '0 0 0 0.125em #ff386040' : '')};
 `
 export const FormButton = styled.button`
- background-color: #4c8faf; 
+ /* background-color: #4c8faf;  */
+ background-color:${THEME_mainButton}; 
 border: none;
 color: white;
 padding: 16px 0;

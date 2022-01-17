@@ -1,6 +1,6 @@
 {
-  "short_name": "Time logger",
-  "name": "Sidna Byg Time Logger",
+  "short_name": "Jobbler",
+  "name": "Jobbler - Time log & reporting",
   "icons": [
     {
       "src": "icons/favicon.ico",
