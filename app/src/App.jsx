@@ -102,13 +102,13 @@ function App({ dispatch, login, monthIndex, language, selectedYear }) {
 
     if (login.isAuthenticated && isAdmin) {
       const currentYear = selectedYear.getFullYear();
-      monthIndex &&
-        dispatch(
-          loadTimecards(
-            login.session,
-            `${fromDate(currentYear)}/${toDate(currentYear)}`
-          )
-        );
+      dispatch(
+        loadTimecards(
+          login.session,
+          `${fromDate(currentYear)}/${toDate(currentYear)}`
+        )
+      );
+      console.log("monthIndex", monthIndex);
     }
   }, [login.isAuthenticated, monthIndex, selectedYear]);
 
