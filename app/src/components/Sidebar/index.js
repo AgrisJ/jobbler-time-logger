@@ -58,6 +58,10 @@ function Sidebar({ isOpen, toggle, dispatch, isAdmin, login, language }) {
 		dispatch(currentAddressReset());
 		dispatch(currentModeIndexReset());
 		dispatch(currentContractorReset());
+    localStorage.removeItem("currentContractor");
+    localStorage.removeItem("currentAddress");
+    localStorage.removeItem("currentModeIndex");
+    localStorage.removeItem("login");
 
 		dispatch(timecardsReset());
 		dispatch(usersReset());
