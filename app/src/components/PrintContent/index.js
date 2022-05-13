@@ -317,7 +317,8 @@ const PrintContent = ({
 						.forEach(card => {
 							const userId = card.userId;
 							const projectId = card.projectId;
-							const projectName = projects.find(project => project.projectId === card.projectId).address;
+              const projectFound = projects.find(project => project.projectId === card.projectId);
+							const projectName = projectFound ? projectFound.address : "no project address found";
 							const contractorName = users.find(user => user.userId === card.userId).name;
 							const pushCards = (source, name) => source(card).forEach(cardData => printPageSlicer.push({ [name]: cardData, userId, projectId }))
 
@@ -400,15 +401,19 @@ const PrintContent = ({
 					if (secondMode) return <PreparedForPrint linesPerPage={27} filterParam={filterParam} />;
 				}
 				function itemName() {
+          const projectFound = projects.find(project => project.projectId === timeCard.projectId);
+          const userFound = users.find(user => user.userId === timeCard.userId);
 					let itemName = null;
-					if (firstMode) itemName = projects.find(project => project.projectId === timeCard.projectId).address;
-					if (secondMode) itemName = users.find(user => user.userId === timeCard.userId).name;
+					if (firstMode) itemName = projectFound ? projectFound.address : "no project address found";
+					if (secondMode) itemName = userFound ? userFound.name : "no user name found";
 					return itemName;
 				}
 				function itemId() {
+          const projectFound = projects.find(project => project.projectId === timeCard.projectId);
+          const userFound = users.find(user => user.userId === timeCard.userId);
 					let itemId = null;
-					if (firstMode) itemId = projects.find(project => project.projectId === timeCard.projectId).projectId;
-					if (secondMode) itemId = users.find(user => user.userId === timeCard.userId).userId;
+					if (firstMode) itemId = projectFound ? projectFound.projectId : "no project id found";
+					if (secondMode) itemId = userFound ? userFound.userId : "no user id found";
 
 					return itemId;
 				}
