@@ -2,10 +2,23 @@ global.config = require('./config');
 global.api = require('./core/api');
 const mongoose = require('mongoose');
 const express = require('express');
+const cors = require('cors');
 const fork = require('child_process').fork;
 
 // Inform about starting server
 console.log('\x1b[33mStarting server\x1b[0m');
+
+const whitelist = ["https://localhost:3000"]
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || whitelist.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error("Not allowed by CORS"))
+    }
+  },
+  credentials: true,
+}
 
 // Establish a database connection
 process.stdout.write('Establishing database connection...');
@@ -75,6 +88,7 @@ db.once('open', () => {
     const server = express();
     server.use(express.json());
     server.use(express.urlencoded({extended: true}));
+    server.use(cors(corsOptions))
     
     // Internal server error handling
     /*server.use((err, req, res, next) => {
