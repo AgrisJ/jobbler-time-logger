@@ -1,6 +1,6 @@
 {
-  "name": "jobbler",
-  "version": "0.1.15",
+  "name": "sidnabyg",
+  "version": "0.1.16",
   "private": true,
   "dependencies": {
     "@reduxjs/toolkit": "^1.5.0",
@@ -8,12 +8,12 @@
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
     "axios": "^0.21.1",
-    "html-react-parser": "^1.2.4",
+    "html-react-parser": "^1.4.12",
     "joi-browser": "^13.4.0",
     "lodash": "^4.17.20",
     "nanoid": "^3.1.20",
     "react": "^17.0.1",
-    "react-datepicker": "^3.5.0",
+    "react-datepicker": "^4.7.0",
     "react-dom": "^17.0.1",
     "react-dropdown": "github:AgrisJ/react-dropdown",
     "react-flags-select": "^2.1.2",
@@ -30,7 +30,8 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "set GENERATE_SOURCEMAP=true && react-scripts build",
+    "themecopy": "cpx ./src/config/themes/%npm_package_name%/icons/* ./public/icons && cpx ./src/config/themes/%npm_package_name%/tocopy/logo.png ./public && cpx ./src/config/themes/%npm_package_name%/tocopy/manifest.json ./public && cpx ./src/config/themes/%npm_package_name%/tocopy/index.html ./public",
+    "build": "set GENERATE_SOURCEMAP=true && npm run themecopy && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -54,6 +55,7 @@
   },
   "devDependencies": {
     "babel-plugin-macros": "^3.0.0",
+    "cpx": "^1.5.0",
     "eslint-plugin-react-hooks": "^4.2.0"
   }
 }
