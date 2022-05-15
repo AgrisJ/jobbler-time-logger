@@ -4,6 +4,9 @@ import { MobileIcon, Nav, NavbarContainer, NavItem, NavLogo, NavMenu, NavLinks, 
 import { languageData } from './../../languages/language_variables';
 import { getlanguage } from './../../Store/slices/language';
 import { connect } from 'react-redux';
+import { globalConfig } from '../../config/global_config';
+const themeVariables = globalConfig.CONFIG_themeVariables;
+const { THEME_loginLogo_logoPath } = themeVariables;
 
 const Navbar = ({ toggle, language }) => {
 	const [{ scrollNav }, setScrollNav] = useState({ scrollNav: false });
@@ -33,7 +36,7 @@ const Navbar = ({ toggle, language }) => {
 				<NavbarContainer>
 					<MobileIcon onClick={toggle}><FaBars /></MobileIcon>
 					<NavLogoLink to="/">
-						<NavLogo src="/sidna_byg_logo.png" alt="logo" />
+						<NavLogo src={THEME_loginLogo_logoPath} alt="logo" />
 					</NavLogoLink>
 					<NavSubLogo to="/">{_TIMELOGGER[language]}</NavSubLogo>
 				</NavbarContainer>

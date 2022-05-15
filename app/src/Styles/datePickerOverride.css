@@ -1,4 +1,5 @@
 .react-datepicker-popper {
+transform: translate3d(77px, -287px, 0px);
 z-index: 10000000!important;
 }
 .react-datepicker__input-container {

@@ -1,6 +1,10 @@
 import styled from 'styled-components/macro';
 import { AiFillCaretRight, AiFillCaretLeft } from 'react-icons/ai';
 import { AiOutlineFileAdd } from 'react-icons/ai';
+import { globalConfig } from '../../config/global_config';
+const themeVariables = globalConfig.CONFIG_themeVariables;
+const { THEME_controlPanelH1, THEME_totalDisplay, THEME_totalTime, 
+			THEME_caret, THEME_cardCounter, THEME_addCardButton } = themeVariables;
 
 export const ControlPanelContainer = styled.div`
 	  background: #fff;
@@ -60,7 +64,7 @@ export const ControlPanelH1 = styled.h1`
 	z-index: 15;
 	padding-top: 0.4em;
   padding-bottom: 0.4em;
-	color: rgb(10 119 197);
+	color:  ${THEME_controlPanelH1};
 	text-shadow: 3px 2px 3px #0000000d;
 	text-transform: uppercase;
 	font-size: 1.5em;
@@ -105,27 +109,27 @@ export const TotalDisplay = styled.div`
 	font-family: 'Expletus Sans';
 	/* background: #F2F2F2;
 	padding: 0.2em 0.5em; */
-	background: rgb(7 60 91 / 5%);
+	background: ${THEME_totalDisplay};
   padding: 0.4em 0.7em;
   border-radius: 40px;
 `
 export const TotalTime = styled.span`
 	font-family: 'Expletus Sans';
 	/* color: #828282; */
-	color: rgb(31 90 152);
+	color:${THEME_totalTime};
 	font-size: 1.2em;
 	font-weight: normal;
 `
 
 export const ForwardCaret = styled(AiFillCaretRight)`
 	/* color: #828282; */
-	color: rgb(31 90 152 / 60%);
+	color: ${THEME_caret};
 	margin-left: 0.5em;
 `
 
 export const BackwardCaret = styled(AiFillCaretLeft)`
 	/* color: #828282; */
-	color: rgb(31 90 152 / 60%);
+	color: ${THEME_caret};
 	margin-right: 0.5em;
 `
 
@@ -137,12 +141,12 @@ export const CardCounter = styled.div`
   bottom: 0.5em;
 	font-family: 'Expletus Sans';
   /* color: #4F4F4F; */
-  color: rgb(37 95 157);
+  color: ${THEME_cardCounter};
   font-size: 14px;
 `
 export const AddCardButton = styled(AiOutlineFileAdd)`
 	/* color: rgba(0,0,0,0.6); */
-	color: rgb(41 70 90);
+	color: ${THEME_addCardButton};
 	position: absolute;
 	bottom: 25px;
 	left: 0;

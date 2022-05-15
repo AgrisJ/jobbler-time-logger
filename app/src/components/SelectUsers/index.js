@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react'
 import { SelecUsersContainer, DropdownLabel } from './SelectUsersElements';
 import Dropdown from 'react-dropdown';
-import '../../Styles/dropdown.css'
 import { connect } from 'react-redux';
 import { getcurrentModeIndex, currentModeIndexChanged } from '../../Store/slices/currentModeIndex';
 import { currentAddressChanged, currentAddressRequested, getcurrentAddress } from '../../Store/slices/currentAddress';
@@ -9,6 +8,7 @@ import { currentContractorChanged, getcurrentContractor } from '../../Store/slic
 import { getProjectArray } from '../../Store/slices/projects';
 import { getUsersArray } from '../../Store/slices/users';
 import { gettotalTime } from '../../Store/slices/totalTime';
+import { globalConfig } from '../../config/global_config';
 
 function SelectUsers(
 	{
@@ -27,6 +27,8 @@ function SelectUsers(
 	});
 	const firstMode = currentModeIndex === 0; // Project hours
 	const secondMode = currentModeIndex === 1; // Contractor hours
+
+  globalConfig.CONFIG_USE_DROPDOWN_CSS();
 
 	function isLocalStored(name) {
 		if (localStorage.getItem(name) === 'undefined') return false;

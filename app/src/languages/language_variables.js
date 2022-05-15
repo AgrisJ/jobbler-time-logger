@@ -44,8 +44,8 @@ export const languageData = {
 		},
 		Navbar: {
 			_TIMELOGGER: {
-				"en": "time logger",
-				"lv": "laika pierakstītājs",
+				"en": "time log & reporting",
+				"lv": "laika žurnāls & atskaites",
 			}
 		},
 		AddDataForm: {
@@ -54,7 +54,7 @@ export const languageData = {
 				"lv": "Projektu",
 			},
 			_CONTRACTOR: {
-				"en": "Contractor",
+				"en": "Worker",
 				"lv": "Darbinieku"
 			},
 			_ADDRESS: {
@@ -89,9 +89,9 @@ export const languageData = {
 				"en": "Add",
 				"lv": "Pievienot"
 			},
-			_BUILDING: {
-				"en": "Building",
-				"lv": "Ēkas"
+			_BUILDINGNAME: {
+				"en": "Building name",
+				"lv": "Objekta nosaukums"
 			},
 			_NAME: {
 				"en": "Name",
@@ -136,7 +136,7 @@ export const languageData = {
 		},
 		ContentSection: {
 			_CONTRACTORNOEXIST: {
-				"en": "--contractor doesn't exist--",
+				"en": "--worker doesn't exist--",
 				"lv": "--darbinieks neeksistē--"
 			},
 			_PROJECTNOEXIST: {
@@ -246,7 +246,7 @@ export const languageData = {
 				"lv": "Projektu stundas"
 			},
 			_CONTRACTORHOURS: {
-				"en": "Contractor hours",
+				"en": "Worker hours",
 				"lv": "Darbinieku stundas"
 			},
 		},
@@ -330,7 +330,7 @@ export const languageData = {
 				"lv": "Projektu stundu"
 			},
 			_CONTRACTORHOURS: {
-				"en": "Contractor hours",
+				"en": "Worker hours",
 				"lv": "Darbinieku stundu"
 			},
 			_PROJECTS: {
@@ -338,7 +338,7 @@ export const languageData = {
 				"lv": "Projekti"
 			},
 			_CONTRACTORS: {
-				"en": "Contractors",
+				"en": "Workers",
 				"lv": "Darbinieki"
 			},
 			_DATE: {
@@ -394,7 +394,7 @@ export const languageData = {
 				"lv": "Gads"
 			},
 			_CONTRACTORNOTES: {
-				"en": "Contractor Notes",
+				"en": "Worker Notes",
 				"en": "Darbinieku piezīmes"
 			},
 			_OVERVIEW: {
@@ -412,7 +412,7 @@ export const languageData = {
 				"lv": "Projekti"
 			},
 			_CONTRACTORS: {
-				"en": "Contractors",
+				"en": "Workers",
 				"lv": "Darbinieki"
 			},
 			_REMOVE: {

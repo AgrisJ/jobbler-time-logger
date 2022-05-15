@@ -26,6 +26,9 @@ import { Notificator } from '../../pages/addRemove';
 import { decimalToTime, totalTime } from './../services/helpfulFunctions';
 import { deleteTimecard } from './../../Store/slices/timecards';
 import { getSelectedYear, getYearNum } from './../../Store/slices/selectedYear';
+import { globalConfig } from '../../config/global_config';
+const themeVariables = globalConfig.CONFIG_themeVariables;
+const { THEME_listDate, THEME_listColorBg } = themeVariables;
 
 const ContentSection = (
 	{
@@ -114,7 +117,7 @@ const ContentSection = (
 
 	// BreakTime input to not allow a date change as it's meant to change only hours and minutes
 	useEffect(() => {
-		if (breakTimeInput.getDate() !== startTimeInput.getDate()) {
+		if (breakTimeInput.getDate() !== breakTimeInput.getDate()) {
 			breakTimeInput.setDate(1)
 			breakTimeInput.setMonth(0)
 			breakTimeInput.setFullYear(2000)
@@ -340,7 +343,7 @@ const ContentSection = (
 				fontSize: '18px',
 				borderStyle: 'none',
 				background: 'none',
-				color: 'rgb(31 90 152)',
+				color: THEME_listDate,
 				zIndex: 0,
 				userSelect: 'none',
 				WebkitUserSelect: 'none', /* Safari */
@@ -764,7 +767,7 @@ export default connect(mapStateToProps)(ContentSection);
 function hours(time) { return Math.floor(time) };
 function minutes(time) { return Math.ceil(((time - hours(time)) * 60).toPrecision(2) / 1) };
 function colorAlternator(id) { return id % 2 == (0) ? '22%' : '52%' };
-export function listColor(id) { return (`linear-gradient(to right, rgb(7 60 91 / ${colorAlternator(id)}), rgb(255 255 255 / 0%));`) };
+export function listColor(id) { return (`linear-gradient(to right, rgb(${THEME_listColorBg} / ${colorAlternator(id)}), rgb(255 255 255 / 0%));`) }; 
 export function timeFormat(time, hourLanguageUnit) { return (`${hours(time)}${hourLanguageUnit} ${minutes(time)}min`) };
 export function timezoneCorrect(date) {
 	const convert = new Date(date);

@@ -10,6 +10,7 @@
   "author": "Andris Greidans",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "crypto-random-string": "^3.3.0",
     "express": "^4.17.1",

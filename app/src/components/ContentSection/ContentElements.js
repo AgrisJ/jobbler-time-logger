@@ -1,6 +1,9 @@
 import styled from 'styled-components/macro';
 import { FaPen, FaRegCommentDots } from 'react-icons/fa';
 import { TiDelete } from 'react-icons/ti';
+import { globalConfig } from '../../config/global_config';
+const themeVariables = globalConfig.CONFIG_themeVariables;
+const { THEME_inputBg, THEME_deleteIconBg, THEME_listUserName, THEME_listTime, THEME_pickerLabel, THEME_timeInput } = themeVariables;
 
 export const ContentListItem = styled.div`
   position: relative;
@@ -42,7 +45,7 @@ export const PickerLabel = styled.p`
 	margin-bottom: 0px;
 	font-size: 18px;
 	/* color: #000; */
-	color: rgb(31, 90, 152);
+	color: ${THEME_pickerLabel};
 	text-align: center;
 	font-family: 'Expletus Sans';
 	-webkit-user-select: none; /* Safari */
@@ -55,10 +58,8 @@ export const TimeInput = styled.input`
 	justify-self: center;
 	padding: 8px 8px;
 	margin-bottom: 14px;
-	background: rgb(77 119 164 / 55%);
-	color: rgb(255 255 255);
-	/* background: #e8e8e8;
-	color: #828282; */
+	background: ${THEME_inputBg}; 
+	color: ${THEME_timeInput};
 	text-align: center;
 	font-size: 26px;
 	font-family: 'Expletus Sans';
@@ -88,7 +89,7 @@ export const ListEditIcon = styled(FaPen)`
 
 export const ItemDeleteIcon = styled(TiDelete)`
 	/* color: rgba(0, 0, 0, 0.34); */
-	color: rgb(102 126 142 / 73%);
+	color: ${THEME_deleteIconBg}; //rgb(102 126 142 / 73%); 
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -143,7 +144,7 @@ export const ListPersonName = styled.div`
 	font-size: 22px;
 	/* color: #828282; */
 	cursor: pointer;
-	color: rgb(31 90 152 / 68%);
+	color: ${THEME_listUserName}; /*rgb(31 90 152 / 68%); */
 	 -webkit-user-select: none; /* Safari */
   -ms-user-select: none; /* IE 10 and IE 11 */
   user-select: none; /* Standard syntax */
@@ -153,7 +154,7 @@ export const ListTime = styled.div`
 	font-weight: normal;
 	font-size: 15px;
 	/* color: #828282; */
-	color: rgb(31 90 152);
+	color: ${THEME_listTime}; //rgb(31 90 152); 
 	position: absolute;
 	top: 0;
 	right: 0;

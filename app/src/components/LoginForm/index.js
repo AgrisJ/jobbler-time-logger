@@ -10,6 +10,9 @@ import { getLoginData, postLogin } from '../../Store/slices/login';
 import { useHistory } from 'react-router-dom';
 import { getlanguage } from './../../Store/slices/language';
 import { languageData } from './../../languages/language_variables';
+import { globalConfig } from '../../config/global_config';
+const themeVariables = globalConfig.CONFIG_themeVariables;
+const { THEME_loginLogo_logoPath } = themeVariables;
 
 const LoginForm = ({ dispatch, login, language }) => {
 
@@ -110,7 +113,7 @@ const LoginForm = ({ dispatch, login, language }) => {
 	return (
 		<>
 			<LoginFormWrapper>
-				<LoginLogo src="/sidna_byg_logo.png" alt="logo" />
+				<LoginLogo src={THEME_loginLogo_logoPath} alt="logo" />
 				<FormContent>
 					<Form onSubmit={handleSubmit}>
 						<FormH1>{_SIGNINTOYOURACCOUNT[language]}</FormH1>

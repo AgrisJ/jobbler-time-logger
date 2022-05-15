@@ -2,6 +2,9 @@ import styled from 'styled-components/macro';
 import { FaTimes } from 'react-icons/fa';
 // import { Link as LinkS } from 'react-scroll';
 import { Link as LinkR } from 'react-router-dom';
+import { globalConfig } from '../../config/global_config';
+const themeVariables = globalConfig.CONFIG_themeVariables;
+const { THEME_logoutButton, THEME_loggedInfo} = themeVariables;
 
 export const SidebarContainer = styled.aside`
 	position: fixed;
@@ -38,7 +41,7 @@ export const LogoutButton = styled(LinkR)`
 	left: 1.5rem;
 
 	border-radius: 50px;
-	background: #215c87fc;
+	background: ${THEME_logoutButton};
 	white-space: nowrap;
 	padding: 8px 10px;
 	color: #fff;
@@ -56,7 +59,7 @@ export const LogoutButton = styled(LinkR)`
 	}
 `
 export const LoggedInfo = styled.p`
-	color: #31a8ff9e;
+	color: ${THEME_loggedInfo};
 	position: absolute;
 	top: 1rem;
 	display: flex;

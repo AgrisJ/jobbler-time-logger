@@ -17,6 +17,11 @@ import { nanoid } from 'nanoid'
 import { getlanguage } from './../../Store/slices/language';
 import { languageData } from './../../languages/language_variables';
 import { getSelectedYear, getYearNum } from './../../Store/slices/selectedYear';
+import { globalConfig } from '../../config/global_config';
+const themeVariables = globalConfig.CONFIG_themeVariables;
+const companyDataVariables = globalConfig.CONFIG_companyDataVariables;
+const { THEME_loginLogo_logoPath } = themeVariables;
+const { COMPANY_DATA_address, COMPANY_DATA_cvr, COMPANY_DATA_email, COMPANY_DATA_telephone } = companyDataVariables;
 
 const PrintContent = ({
 	timecards,
@@ -312,7 +317,8 @@ const PrintContent = ({
 						.forEach(card => {
 							const userId = card.userId;
 							const projectId = card.projectId;
-							const projectName = projects.find(project => project.projectId === card.projectId).address;
+              const projectFound = projects.find(project => project.projectId === card.projectId);
+							const projectName = projectFound ? projectFound.address : "no project address found";
 							const contractorName = users.find(user => user.userId === card.userId).name;
 							const pushCards = (source, name) => source(card).forEach(cardData => printPageSlicer.push({ [name]: cardData, userId, projectId }))
 
@@ -395,15 +401,19 @@ const PrintContent = ({
 					if (secondMode) return <PreparedForPrint linesPerPage={27} filterParam={filterParam} />;
 				}
 				function itemName() {
+          const projectFound = projects.find(project => project.projectId === timeCard.projectId);
+          const userFound = users.find(user => user.userId === timeCard.userId);
 					let itemName = null;
-					if (firstMode) itemName = projects.find(project => project.projectId === timeCard.projectId).address;
-					if (secondMode) itemName = users.find(user => user.userId === timeCard.userId).name;
+					if (firstMode) itemName = projectFound ? projectFound.address : "no project address found";
+					if (secondMode) itemName = userFound ? userFound.name : "no user name found";
 					return itemName;
 				}
 				function itemId() {
+          const projectFound = projects.find(project => project.projectId === timeCard.projectId);
+          const userFound = users.find(user => user.userId === timeCard.userId);
 					let itemId = null;
-					if (firstMode) itemId = projects.find(project => project.projectId === timeCard.projectId).projectId;
-					if (secondMode) itemId = users.find(user => user.userId === timeCard.userId).userId;
+					if (firstMode) itemId = projectFound ? projectFound.projectId : "no project id found";
+					if (secondMode) itemId = userFound ? userFound.userId : "no user id found";
 
 					return itemId;
 				}
@@ -495,7 +505,7 @@ const PrintContent = ({
 								<Period className='printSize'>{_PERIOD[language]}: {months[monthIndex]}</Period>
 							</div>
 							<div style={{ textAlign: 'right' }}>
-								<PrintLogo src="/sidna_byg_logo.png" alt="logo" />
+								<PrintLogo src={THEME_loginLogo_logoPath} alt="logo" />
 								<Period className='printSize'>{_YEAR[language]}: {selectedYear.getFullYear()}</Period>
 							</div>
 						</PeriodHeading>
@@ -508,12 +518,12 @@ const PrintContent = ({
 
 					<Footer>
 						<div style={{ display: 'flex', justifyContent: 'space-between' }}>
-							<Period className='printSize'>Industrivej 27, 4652 Hårlev, Denmark</Period>
-							<Period className='printSize'>CVR-Nr.: 40447571</Period>
+							<Period className='printSize'>{COMPANY_DATA_address}</Period>
+							<Period className='printSize'>{COMPANY_DATA_cvr}</Period>
 						</div>
 						<div style={{ display: 'flex', justifyContent: 'space-between' }}>
-							<Period className='printSize'>info@sidnabyg.dk</Period>
-							<Period className='printSize'>Tlf.: +45 71335109</Period>
+							<Period className='printSize'>{COMPANY_DATA_email}</Period>
+							<Period className='printSize'>{COMPANY_DATA_telephone}</Period>
 						</div>
 					</Footer>
 				</A4ratio>

@@ -24,7 +24,7 @@ const AddDataForm = ({ currentModeIndex, login, dispatch, language }) => {
 		_CONTRACTOR,
 		_ADDNEW,
 		_ADD,
-		_BUILDING,
+		_BUILDINGNAME,
 		_NAME,
 		_ADDED
 	} = languageData.COMPONENTS.AddDataForm;
@@ -94,7 +94,7 @@ const AddDataForm = ({ currentModeIndex, login, dispatch, language }) => {
 			postProject(
 				login.session,
 				{
-					companyId: login.companyId || process.env.REACT_APP_COMPANY_ID,
+					companyId: login.companyId /* || process.env.REACT_APP_COMPANY_ID */,
 					name: nameInput,
 					address: addressInput,
 					active: true
@@ -105,7 +105,7 @@ const AddDataForm = ({ currentModeIndex, login, dispatch, language }) => {
 			postUser(
 				login.session,
 				{
-					companyId: login.companyId || process.env.REACT_APP_COMPANY_ID,
+					companyId: login.companyId /* || process.env.REACT_APP_COMPANY_ID */,
 					fullName: nameInput,
 					email: emailInput,
 					password: passwordInput,
@@ -279,7 +279,7 @@ const AddDataForm = ({ currentModeIndex, login, dispatch, language }) => {
 					<Form onSubmit={handleSubmit}>
 						<FormH1>{_ADDNEW[language]} {dataType}</FormH1>
 						{ONLY_FIRSTMODE_MODULES()}
-						<FormLabel htmlFor='for'>{FIRST_MODE && _BUILDING[language]} {_NAME[language]}</FormLabel>
+						<FormLabel htmlFor='for'>{FIRST_MODE && _BUILDINGNAME[language] || SECOND_MODE && _NAME[language]}</FormLabel>
 						<FormInput
 							onChange={handleNameChange}
 							value={nameInput}
