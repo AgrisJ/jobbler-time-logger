@@ -1,16 +1,19 @@
-import { themeVariables } from "./theme_variables_sidnabyg";
-import { companyDataVariables } from "./companyDataVariables_sidnabyg";
-// import { themeVariables } from './theme_variables_jobbler';
-// import { companyDataVariables } from './companyDataVariables_jobbler';
+// AVAILABLE THEMES:
+// 'sidnabyg','jobbler'
+export const CURRENT_THEME = "sidnabyg"; // change also in package.json "name" // for "themecopy" command
 
-/*
-	INFO: To change DROPDOWN styles the whole ./Styles/dropdown.css file should be switched
-*/
+const themeVariables = require(`./themes/${CURRENT_THEME}/theme_variables`);
+const companyDataVariables = require(`./themes/${CURRENT_THEME}/companyDataVariables`);
+const api_url = require(`./themes/${CURRENT_THEME}/api_url`);
+
+const importDropdownCSS = () => {
+  /* eslint-disable no-unused-expressions */
+  import(`../config/themes/${CURRENT_THEME}/dropdown.css`);
+};
+
 export const globalConfig = {
-  CONFIG_themeVariables: themeVariables,
-  CONFIG_companyDataVariables: companyDataVariables,
-  // TODO CONFIG variables: add icon paths as well
-  // TODO CONFIG variables: think of env.production variable solution here too
-  // REACT_APP_API_URL="https://demo.jobbler.dk"
-  // REACT_APP_COMPANY_ID="602a645b88f8d210d6c34ca9"
+  CONFIG_themeVariables: themeVariables.themeVariables,
+  CONFIG_companyDataVariables: companyDataVariables.companyDataVariables,
+  CONFIG_API_URL: api_url.API_URL,
+  CONFIG_USE_DROPDOWN_CSS: importDropdownCSS,
 };

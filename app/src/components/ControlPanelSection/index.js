@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import Dropdown from "react-dropdown";
 import "react-dropdown/style.css";
-import "../../Styles/dropdown.css";
 import {
   ControlPanelContainer,
   ControlPanelContent,
@@ -48,6 +47,7 @@ import {
   getYearNum,
   selectedYearChanged,
 } from "./../../Store/slices/selectedYear";
+import { globalConfig } from "../../config/global_config";
 
 function ControlPanelSection({
   isAdmin,
@@ -93,6 +93,7 @@ function ControlPanelSection({
   const { _HOURSHORT } = languageData.COMPONENTS.ContentSection;
 
   let history = useHistory();
+  globalConfig.CONFIG_USE_DROPDOWN_CSS();
 
   const addresses = projects.map((project) => {
     return {
