@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/jobbler-time-logger/app/precache-manifest.df2d4024372aed19e1f64cae00ab2b2c.js"
+  "/jobbler-time-logger/precache-manifest.0c8d8d39628a7a350c743096c040aa01.js"
 );
 
 workbox.clientsClaim();
@@ -28,7 +28,7 @@ self.__precacheManifest = [].concat(self.__precacheManifest || []);
 workbox.precaching.suppressWarnings();
 workbox.precaching.precacheAndRoute(self.__precacheManifest, {});
 
-workbox.routing.registerNavigationRoute("/jobbler-time-logger/app/index.html", {
+workbox.routing.registerNavigationRoute("/jobbler-time-logger/index.html", {
   
   blacklist: [/^\/_/,/\/[^/]+\.[^/]+$/],
 });
