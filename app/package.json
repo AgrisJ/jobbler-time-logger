@@ -1,5 +1,6 @@
 {
-  "name": "sidnabyg",
+  "homepage": "https://agrisj.github.io/jobbler-time-logger/app",
+  "name": "jobbler",
   "version": "0.1.16",
   "private": true,
   "dependencies": {
@@ -29,6 +30,8 @@
     "web-vitals": "^0.2.4"
   },
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "themecopy": "cpx ./src/config/themes/%npm_package_name%/icons/* ./public/icons && cpx ./src/config/themes/%npm_package_name%/tocopy/logo.png ./public && cpx ./src/config/themes/%npm_package_name%/tocopy/manifest.json ./public && cpx ./src/config/themes/%npm_package_name%/tocopy/index.html ./public",
     "build": "set GENERATE_SOURCEMAP=true && npm run themecopy && react-scripts build",
@@ -56,6 +59,7 @@
   "devDependencies": {
     "babel-plugin-macros": "^3.0.0",
     "cpx": "^1.5.0",
-    "eslint-plugin-react-hooks": "^4.2.0"
+    "eslint-plugin-react-hooks": "^4.2.0",
+    "gh-pages": "^5.0.0"
   }
 }
