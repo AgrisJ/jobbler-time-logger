@@ -60,7 +60,7 @@ self.__precacheManifest = [
     "url": "/jobbler-time-logger/static/media/robotoLightV2.49bfad0c.woff2"
   },
   {
-    "revision": "dbb5ec8e990f2d02c48cf1f55dbdcf6a",
+    "revision": "aff97474dd25913766ad5980a26edac7",
     "url": "/jobbler-time-logger/index.html"
   }
 ];
