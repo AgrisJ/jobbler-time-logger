@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/jobbler-time-logger/precache-manifest.0c8d8d39628a7a350c743096c040aa01.js"
+  "/jobbler-time-logger/precache-manifest.18f099066e4d2fe613196d9613ab2e4d.js"
 );
 
 workbox.clientsClaim();

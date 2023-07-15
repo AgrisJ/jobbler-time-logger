@@ -1,11 +1,11 @@
 self.__precacheManifest = [
   {
-    "revision": "91098de28bf2a1b00040",
+    "revision": "b1ce919cf11817c21df0",
     "url": "/jobbler-time-logger/static/css/main.7ad5f5bb.chunk.css"
   },
   {
-    "revision": "91098de28bf2a1b00040",
-    "url": "/jobbler-time-logger/static/js/main.a691cee6.chunk.js"
+    "revision": "b1ce919cf11817c21df0",
+    "url": "/jobbler-time-logger/static/js/main.f6f294ed.chunk.js"
   },
   {
     "revision": "500e8db90582f8bc7d2a",
@@ -60,7 +60,7 @@ self.__precacheManifest = [
     "url": "/jobbler-time-logger/static/media/robotoLightV2.49bfad0c.woff2"
   },
   {
-    "revision": "c933a6003232ff45d67516658f4d874d",
+    "revision": "dbb5ec8e990f2d02c48cf1f55dbdcf6a",
     "url": "/jobbler-time-logger/index.html"
   }
 ];
